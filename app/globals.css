@@ -1,26 +1,394 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================
+   BHARATI — Premium Design System
+   ============================================ */
+
+@theme {
+  /* Brand Colors */
+  --color-bharati-black: #0a0a0a;
+  --color-bharati-charcoal: #1a1a1a;
+  --color-bharati-dark: #141414;
+  --color-bharati-graphite: #2a2a2a;
+  --color-bharati-steel: #3a3a3a;
+  --color-bharati-ash: #666666;
+  --color-bharati-silver: #999999;
+  --color-bharati-aluminium: #c8c8c8;
+  --color-bharati-mist: #e8e8e8;
+  --color-bharati-ivory: #f5f3f0;
+  --color-bharati-cream: #faf8f5;
+  --color-bharati-white: #ffffff;
+
+  /* Mint/Teal Accent — from the BHARATI logo */
+  --color-bharati-mint: #6fa89b;
+  --color-bharati-mint-light: #8fbdb2;
+  --color-bharati-mint-dark: #5a8f83;
+  --color-bharati-mint-muted: #6fa89b18;
+
+  /* Typography Scale */
+  --font-size-display: clamp(3.5rem, 8vw, 8rem);
+  --font-size-h1: clamp(2.5rem, 5vw, 5rem);
+  --font-size-h2: clamp(2rem, 4vw, 3.5rem);
+  --font-size-h3: clamp(1.5rem, 3vw, 2.25rem);
+  --font-size-h4: clamp(1.25rem, 2vw, 1.75rem);
+  --font-size-body: clamp(0.95rem, 1.2vw, 1.125rem);
+  --font-size-small: clamp(0.8rem, 1vw, 0.875rem);
+  --font-size-caption: clamp(0.7rem, 0.8vw, 0.75rem);
+
+  /* Spacing */
+  --spacing-section: clamp(5rem, 12vh, 10rem);
+  --spacing-container: clamp(1.5rem, 5vw, 6rem);
+
+  /* Transitions */
+  --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  --duration-fast: 200ms;
+  --duration-normal: 400ms;
+  --duration-slow: 700ms;
+  --duration-slower: 1000ms;
+
+  /* Layout */
+  --header-height: 72px;
+  --container-max: 1440px;
+
+  /* Fonts */
+  --font-sans: "Inter", "Geist", system-ui, -apple-system, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ============================================
+   Base Styles
+   ============================================ */
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  background-color: var(--color-bharati-cream);
+  color: var(--color-bharati-charcoal);
+  overflow-x: hidden;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background-color: var(--color-bharati-mint);
+  color: var(--color-bharati-black);
+}
+
+/* ============================================
+   Typography Utilities
+   ============================================ */
+
+.text-display {
+  font-size: var(--font-size-display);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  font-weight: 300;
+}
+
+.text-headline {
+  font-size: var(--font-size-h1);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  font-weight: 300;
+}
+
+.text-section-title {
+  font-size: var(--font-size-h2);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-weight: 400;
+}
+
+.text-subtitle {
+  font-size: var(--font-size-h3);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  font-weight: 400;
+}
+
+.text-label {
+  font-size: var(--font-size-caption);
+  line-height: 1;
+  letter-spacing: 0.15em;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.text-body-large {
+  font-size: var(--font-size-body);
+  line-height: 1.7;
+  letter-spacing: -0.005em;
+  font-weight: 400;
+}
+
+/* ============================================
+   Premium Button System
+   ============================================ */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 2.5rem;
+  font-size: var(--font-size-caption);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+  background-color: var(--color-bharati-mint-dark);
+  color: var(--color-bharati-white);
+  border: 1px solid var(--color-bharati-mint-dark);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-smooth);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px -2px rgba(90, 143, 131, 0.25);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-bharati-mint);
+  border-color: var(--color-bharati-mint);
+  color: var(--color-bharati-white);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -2px rgba(90, 143, 131, 0.35);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 2.5rem;
+  font-size: var(--font-size-caption);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 500;
+  background-color: transparent;
+  color: var(--color-bharati-mint-dark);
+  border: 1px solid var(--color-bharati-mint);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-smooth);
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-bharati-mint-dark);
+  background-color: var(--color-bharati-mint-dark);
+  color: var(--color-bharati-white);
+  box-shadow: 0 4px 16px -2px rgba(90, 143, 131, 0.25);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  font-size: var(--font-size-caption);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-bharati-mint-dark);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-smooth);
+  position: relative;
+}
+
+.btn-ghost::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1.5px;
+  background-color: var(--color-bharati-mint);
+  transition: width var(--duration-normal) var(--ease-out-expo);
+}
+
+.btn-ghost:hover {
+  color: var(--color-bharati-mint);
+}
+
+.btn-ghost:hover::after {
+  width: 100%;
+}
+
+/* ============================================
+   Glass Effects
+   ============================================ */
+
+.glass-surface {
+  background: rgba(250, 248, 245, 0.75);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.glass-surface-dark {
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* ============================================
+   Cinematic Effects
+   ============================================ */
+
+.vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 40%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
+  pointer-events: none;
+}
+
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  animation: grain-shift 8s steps(10) infinite;
+}
+
+@keyframes grain-shift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(-5%, -10%);
+  }
+  20% {
+    transform: translate(-15%, 5%);
+  }
+  30% {
+    transform: translate(7%, -25%);
+  }
+  40% {
+    transform: translate(-5%, 25%);
+  }
+  50% {
+    transform: translate(-15%, 10%);
+  }
+  60% {
+    transform: translate(15%, 0%);
+  }
+  70% {
+    transform: translate(0%, 15%);
+  }
+  80% {
+    transform: translate(3%, 35%);
+  }
+  90% {
+    transform: translate(-10%, 10%);
+  }
+}
+
+/* ============================================
+   Scrollbar
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-bharati-aluminium);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-bharati-silver);
+}
+
+/* ============================================
+   Carousel Hide Scrollbar
+   ============================================ */
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================
+   Section Container
+   ============================================ */
+
+.section-container {
+  padding-left: var(--spacing-container);
+  padding-right: var(--spacing-container);
+  max-width: var(--container-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-spacing {
+  padding-top: var(--spacing-section);
+  padding-bottom: var(--spacing-section);
+}
+
+/* ============================================
+   Animated underline for links
+   ============================================ */
+
+.link-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.link-underline::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: currentColor;
+  transition: width var(--duration-normal) var(--ease-out-expo);
+}
+
+.link-underline:hover::after {
+  width: 100%;
 }
