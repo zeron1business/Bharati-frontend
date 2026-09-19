@@ -6,11 +6,18 @@ import AutoScroll from "embla-carousel-auto-scroll";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { categories } from "@/app/data/products";
+import { fetchCategories } from "@/app/lib/api";
+import { Category } from "@/app/lib/types";
 import { AnimatedSection } from "@/app/components/ui/AnimatedSection";
 import { SectionLabel } from "@/app/components/ui/SectionLabel";
 
 export function ShopCategory() {
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    fetchCategories().then(setCategories);
+  }, []);
+
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       loop: false,
@@ -92,7 +99,7 @@ export function ShopCategory() {
                 <Link href={`/products?category=${cat.slug}`} className="group block">
                   <div className="relative aspect-[3/4] bg-bharati-ivory overflow-hidden mb-4 border border-transparent group-hover:border-bharati-mint/30 transition-all duration-500">
                     <Image
-                      src={cat.image}
+                      src={cat.imageUrl || "/products/Cooker-front.jpg"}
                       alt={cat.name}
                       fill
                       className="object-contain p-8 transition-transform duration-700 ease-out group-hover:scale-105"

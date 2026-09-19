@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { categories, navLinks } from "@/app/data/products";
+import { navLinks } from "@/app/data/products";
+import { fetchCategories } from "@/app/lib/api";
+import { Category } from "@/app/lib/types";
 
 const ease = [0.25, 0.1, 0.25, 1] as [number, number, number, number];
 const easeOutExpo = [0.16, 1, 0.3, 1] as [number, number, number, number];
@@ -51,6 +53,11 @@ const itemVariants = {
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
   const [productsExpanded, setProductsExpanded] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    fetchCategories().then(setCategories);
+  }, []);
 
   useEffect(() => {
     const handleToggle = (e: Event) => {
@@ -155,7 +162,7 @@ export function MobileNav() {
                       >
                         <div className="relative w-[120px] h-[140px] md:w-[130px] md:h-[150px] bg-bharati-ivory overflow-hidden rounded-sm">
                           <Image
-                            src={cat.image}
+                            src={cat.imageUrl || "/products/Cooker-front.jpg"}
                             alt={cat.name}
                             fill
                             className="object-contain p-3 transition-transform duration-500 group-hover:scale-105"

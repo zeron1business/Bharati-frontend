@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { products, cookerFeatures } from "@/app/data/products";
+import { cookerFeatures } from "@/app/data/products";
+import { fetchProductBySlug } from "@/app/lib/api";
 import { ArrowLeft } from "lucide-react";
 
 interface ProductPageProps {
@@ -13,21 +14,17 @@ export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = products.find((p) => p.slug === slug);
+  const product = await fetchProductBySlug(slug);
   if (!product) return { title: "Product Not Found — BHARATI" };
   return {
-    title: `${product.name} — BHARATI`,
+    title: `${product.title} — BHARATI`,
     description: product.description,
   };
 }
 
-export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
-}
-
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = products.find((p) => p.slug === slug);
+  const product = await fetchProductBySlug(slug);
 
   if (!product) {
     notFound();
@@ -49,8 +46,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
           {/* Product Image */}
           <div className="relative aspect-square bg-bharati-ivory">
             <Image
-              src={product.image}
-              alt={product.name}
+              src={product.media && product.media.length > 0 ? product.media[0].url : "/products/Cooker-front.jpg"}
+              alt={product.title}
               fill
               className="object-contain p-12"
               sizes="(max-width: 1024px) 100vw, 50vw"
@@ -61,10 +58,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
           {/* Product Info */}
           <div className="flex flex-col justify-center">
             <span className="text-label text-bharati-mint-dark mb-4 block font-medium">
-              {product.category.replace("-", " ")}
+              {product.category.name}
             </span>
             <h1 className="text-headline text-bharati-black mb-4">
-              {product.name}
+              {product.title}
             </h1>
             <p className="text-body-large text-bharati-ash mb-3">
               {product.tagline}
@@ -73,7 +70,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               {product.description}
             </p>
             <p className="text-[1.75rem] font-medium text-bharati-mint-dark mb-8">
-              {product.price}
+              ₹ {product.discountedPrice}
             </p>
 
             {/* CTA */}
