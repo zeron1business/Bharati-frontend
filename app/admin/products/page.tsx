@@ -5,9 +5,7 @@ import { adminFetchProducts } from "@/app/lib/admin-api";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, Plus, Edit2 } from "lucide-react";
-import { AdminProduct } from "@/app/lib/types";
 
-// Define AdminProduct type temporarily here if it doesn't exist in types.ts
 // We'll map it out from the API response
 
 export default function AdminProducts() {
