@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { products } from "@/app/data/products";
+import { products as fallbackProducts } from "@/app/data/products";
+import { getProducts } from "@/lib/api";
 import { ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -10,7 +11,56 @@ export const metadata: Metadata = {
     "Explore the complete BHARATI collection. Premium cookware and kitchen essentials designed around the way India cooks.",
 };
 
-export default function ProductsPage() {
+// Revalidate every 60 seconds
+export const revalidate = 60;
+
+export default async function ProductsPage() {
+  let displayProducts: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    tagline: string;
+    price: string;
+    image: string;
+    category: string;
+  }> = [];
+
+  try {
+    const res = await getProducts({ size: 50 });
+    if (res && res.content && res.content.length > 0) {
+      displayProducts = res.content.map((p) => {
+        const rawPrice = p.discountedPrice || p.basePrice;
+        const formattedPrice = rawPrice
+          ? `₹ ${Number(rawPrice).toLocaleString("en-IN")}`
+          : "₹ 3,499";
+        return {
+          id: p.id,
+          slug: p.slug,
+          name: p.title,
+          tagline: p.tagline || "Engineered for everyday Indian cooking",
+          price: formattedPrice,
+          image: p.primaryImageUrl || "/products/cooker_cutout.png",
+          category: p.categoryName || "Cookware",
+        };
+      });
+    }
+  } catch (error) {
+    console.warn("Could not fetch live products from API, falling back to local catalog:", error);
+  }
+
+  // Fallback to static catalog if API returned no items
+  if (displayProducts.length === 0) {
+    displayProducts = fallbackProducts.map((p) => ({
+      id: p.id,
+      slug: p.slug,
+      name: p.name,
+      tagline: p.tagline,
+      price: p.price.startsWith("₹") && !p.price.includes("XXXX") ? p.price : "₹ 3,499",
+      image: p.image,
+      category: p.category,
+    }));
+  }
+
   return (
     <div className="min-h-screen pt-[var(--header-height)]">
       <div className="section-container section-spacing">
@@ -24,7 +74,7 @@ export default function ProductsPage() {
 
         {/* Product Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map((product) => (
+          {displayProducts.map((product) => (
             <Link
               key={product.id}
               href={`/products/${product.slug}`}
