@@ -6,11 +6,18 @@ import AutoScroll from "embla-carousel-auto-scroll";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
-import { products } from "@/app/data/products";
+import { fetchProducts } from "@/app/lib/api";
+import { ProductCard } from "@/app/lib/types";
 import { AnimatedSection } from "@/app/components/ui/AnimatedSection";
 import { SectionLabel } from "@/app/components/ui/SectionLabel";
 
 export function ShopProducts() {
+  const [products, setProducts] = useState<ProductCard[]>([]);
+
+  useEffect(() => {
+    fetchProducts().then(setProducts);
+  }, []);
+
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       loop: false,
@@ -102,8 +109,8 @@ export function ShopProducts() {
                   {/* Product Image */}
                   <div className="relative aspect-square bg-bharati-ivory overflow-hidden mb-5 border border-transparent group-hover:border-bharati-mint/30 transition-all duration-500">
                     <Image
-                      src={product.image}
-                      alt={product.name}
+                      src={product.primaryImageUrl || "/products/Cooker-front.jpg"}
+                      alt={product.title}
                       fill
                       className="object-contain p-10 transition-transform duration-700 ease-out group-hover:scale-105"
                       sizes="(max-width: 768px) 300px, (max-width: 1024px) 360px, 400px"
@@ -113,7 +120,7 @@ export function ShopProducts() {
                   {/* Product Info */}
                   <div className="space-y-2">
                     <h3 className="text-[1.1rem] font-medium tracking-[-0.01em] text-bharati-charcoal group-hover:text-bharati-mint-dark transition-colors duration-300">
-                      {product.name}
+                      {product.title}
                     </h3>
                     <p className="text-[0.85rem] text-bharati-silver font-light leading-relaxed">
                       {product.tagline}

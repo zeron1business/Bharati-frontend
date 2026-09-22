@@ -10,65 +10,6 @@ export interface Product {
   featured?: boolean;
 }
 
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  image: string;
-  description: string;
-}
-
-export interface ProductFeature {
-  number: string;
-  title: string;
-  description: string;
-}
-
-export const categories: Category[] = [
-  {
-    id: "cat-1",
-    name: "Pressure Cookers",
-    slug: "pressure-cookers",
-    image: "/products/Cooker-front.jpg",
-    description: "Engineered for everyday Indian cooking",
-  },
-  {
-    id: "cat-2",
-    name: "Steel Utensils",
-    slug: "steel-utensils",
-    image: "/products/Cooker-slight-left.jpg",
-    description: "Crafted for a lifetime",
-  },
-  {
-    id: "cat-3",
-    name: "Kitchen Racks",
-    slug: "kitchen-racks",
-    image: "/products/Cooker-top.jpg",
-    description: "Organised. Elevated.",
-  },
-  {
-    id: "cat-4",
-    name: "Kitchen Essentials",
-    slug: "kitchen-essentials",
-    image: "/products/Cooker-right.jpg",
-    description: "The foundation of great cooking",
-  },
-  {
-    id: "cat-5",
-    name: "Cookware",
-    slug: "cookware",
-    image: "/products/cooker-left.jpg",
-    description: "Performance meets design",
-  },
-  {
-    id: "cat-6",
-    name: "Storage",
-    slug: "storage",
-    image: "/products/Cooker-slightRight.jpg",
-    description: "Everything in its place",
-  },
-];
-
 export const products: Product[] = [
   {
     id: "prod-1",
@@ -77,7 +18,7 @@ export const products: Product[] = [
     tagline: "Everyday pressure. Reimagined.",
     description:
       "Built for the way India cooks. Premium aluminium construction with precision pressure control.",
-    price: "₹ XXXX",
+    price: "₹ 3,499",
     image: "/products/Cooker-front.jpg",
     category: "pressure-cookers",
     featured: true,
@@ -89,7 +30,7 @@ export const products: Product[] = [
     tagline: "Deep flavours. Perfect form.",
     description:
       "The essential vessel for every Indian kitchen. Designed for high-heat cooking.",
-    price: "₹ XXXX",
+    price: "₹ 2,199",
     image: "/products/Cooker-slight-left.jpg",
     category: "cookware",
   },
@@ -100,7 +41,7 @@ export const products: Product[] = [
     tagline: "Precision in every pour.",
     description:
       "From tempering spices to simmering sauces. Engineered for control.",
-    price: "₹ XXXX",
+    price: "₹ 1,799",
     image: "/products/Cooker-right.jpg",
     category: "cookware",
   },
@@ -111,7 +52,7 @@ export const products: Product[] = [
     tagline: "Sear. Sizzle. Serve.",
     description:
       "Even heat distribution for the perfect sear. Every single time.",
-    price: "₹ XXXX",
+    price: "₹ 1,899",
     image: "/products/cooker-left.jpg",
     category: "cookware",
   },
@@ -122,7 +63,7 @@ export const products: Product[] = [
     tagline: "Layer by layer. Perfection.",
     description:
       "Designed for slow-cooking and dum. The perfect vessel for every celebration.",
-    price: "₹ XXXX",
+    price: "₹ 3,999",
     image: "/products/Cooker-slightRight.jpg",
     category: "cookware",
   },
@@ -133,7 +74,7 @@ export const products: Product[] = [
     tagline: "The complete experience.",
     description:
       "Mirror-finished stainless steel. Designed to elevate your everyday meal.",
-    price: "₹ XXXX",
+    price: "₹ 899",
     image: "/products/Cooker-top.jpg",
     category: "steel-utensils",
   },
@@ -144,7 +85,7 @@ export const products: Product[] = [
     tagline: "Small vessel. Big character.",
     description:
       "Perfectly proportioned for sides, dips, and accompaniments.",
-    price: "₹ XXXX",
+    price: "₹ 349",
     image: "/products/Cooker-front.jpg",
     category: "steel-utensils",
   },
@@ -155,7 +96,7 @@ export const products: Product[] = [
     tagline: "Clarity in every sip.",
     description:
       "Stainless steel glasses built to last generations. Timeless design.",
-    price: "₹ XXXX",
+    price: "₹ 499",
     image: "/products/Cooker-right.jpg",
     category: "steel-utensils",
   },
@@ -166,11 +107,17 @@ export const products: Product[] = [
     tagline: "Order. Beautifully.",
     description:
       "Kitchen organisation that looks as good as it works.",
-    price: "₹ XXXX",
+    price: "₹ 2,499",
     image: "/products/Cooker-slight-left.jpg",
     category: "kitchen-racks",
   },
 ];
+
+export interface ProductFeature {
+  number: string;
+  title: string;
+  description: string;
+}
 
 export const cookerFeatures: ProductFeature[] = [
   {
