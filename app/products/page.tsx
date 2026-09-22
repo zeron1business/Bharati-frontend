@@ -48,7 +48,7 @@ export default async function ProductsPage() {
     console.warn("Could not fetch live products from API, falling back to local catalog:", error);
   }
 
-  // Fallback to static catalog if API returned no items
+  // Fallback to static catalog if API returned no items or backend is offline
   if (displayProducts.length === 0) {
     displayProducts = fallbackProducts.map((p) => ({
       id: p.id,
