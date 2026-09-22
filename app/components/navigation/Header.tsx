@@ -6,6 +6,8 @@ import { Search, User, ShoppingBag, Menu } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -13,6 +15,8 @@ export function Header() {
   const pathname = usePathname();
   const isHomePage = pathname === "/";
   const { scrollY } = useScroll();
+  const { itemCount, isHydrated } = useCart();
+  const { isLoggedIn } = useAuth();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     if (latest > 50) {
@@ -69,47 +73,55 @@ export function Header() {
 
         {/* Right Actions */}
         <div className="flex items-center gap-1 md:gap-2">
-          <button
+          <Link
+            href="/products"
             className={`p-2.5 rounded-full transition-colors duration-300 ${
               isHeroMode
                 ? "hover:bg-white/15 text-white"
                 : "hover:bg-bharati-black/5 text-bharati-charcoal"
             }`}
-            aria-label="Search"
+            aria-label="Search Products"
           >
             <Search
               size={19}
               strokeWidth={1.5}
             />
-          </button>
+          </Link>
 
-          <button
+          <Link
+            href={isLoggedIn ? "/account" : "/checkout"}
             className={`p-2.5 rounded-full transition-colors duration-300 hidden md:flex ${
               isHeroMode
                 ? "hover:bg-white/15 text-white"
                 : "hover:bg-bharati-black/5 text-bharati-charcoal"
             }`}
-            aria-label="Account"
+            aria-label={isLoggedIn ? "Account" : "Sign In"}
           >
             <User
               size={19}
               strokeWidth={1.5}
             />
-          </button>
+          </Link>
 
-          <button
-            className={`p-2.5 rounded-full transition-colors duration-300 ${
+          <Link
+            href="/cart"
+            className={`relative p-2.5 rounded-full transition-colors duration-300 ${
               isHeroMode
                 ? "hover:bg-white/15 text-white"
                 : "hover:bg-bharati-black/5 text-bharati-charcoal"
             }`}
-            aria-label="Cart"
+            aria-label={`Cart (${isHydrated ? itemCount : 0} items)`}
           >
             <ShoppingBag
               size={19}
               strokeWidth={1.5}
             />
-          </button>
+            {isHydrated && itemCount > 0 && (
+              <span className="absolute top-1 right-1 min-w-[17px] h-[17px] rounded-full bg-bharati-mint text-white text-[10px] font-bold flex items-center justify-center px-1 shadow-sm">
+                {itemCount > 99 ? "99+" : itemCount}
+              </span>
+            )}
+          </Link>
 
           <button
             onClick={toggleMenu}

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "./components/navigation/Header";
 import { MobileNav } from "./components/navigation/MobileNav";
 import { Footer } from "./components/footer/Footer";
+import { Providers } from "./providers";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -40,10 +41,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className={inter.className}>
-        <Header />
-        <MobileNav />
-        <main>{children}</main>
-        <Footer />
+        <Providers>
+          <Header />
+          <MobileNav />
+          <main>{children}</main>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

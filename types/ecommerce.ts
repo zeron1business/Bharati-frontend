@@ -1,0 +1,179 @@
+export interface ProductCard {
+  id: string;
+  title: string;
+  slug: string;
+  tagline?: string;
+  basePrice: number;
+  discountedPrice?: number | null;
+  primaryImageUrl?: string | null;
+  categoryName?: string | null;
+  categorySlug?: string | null;
+  stockQuantity?: number;
+  inStock: boolean;
+  badges?: string[];
+}
+
+export interface ProductMedia {
+  id: string;
+  type: string;
+  url: string;
+  isPrimary: boolean;
+}
+
+export interface ProductVariant {
+  id: string;
+  name: string;
+  priceDelta: number;
+  stockQuantity: number;
+  skuSuffix: string;
+}
+
+export interface ProductCategory {
+  id: string;
+  name: string;
+  slug: string;
+  productCount?: number;
+}
+
+export interface ProductDetail {
+  id: string;
+  title: string;
+  slug: string;
+  tagline?: string;
+  description: string;
+  basePrice: number;
+  discountedPrice?: number | null;
+  sku: string;
+  stockQuantity?: number;
+  inStock: boolean;
+  badges: string[];
+  category?: ProductCategory | null;
+  media: ProductMedia[];
+  variants: ProductVariant[];
+}
+
+export interface CartItem {
+  productId: string;
+  variantId?: string;
+  title: string;
+  slug: string;
+  price: number;
+  imageUrl: string;
+  quantity: number;
+  maxStock?: number;
+}
+
+export interface Address {
+  id: string;
+  label?: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  country?: string;
+  isDefault?: boolean;
+}
+
+export interface AddressInput {
+  label?: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  country?: string;
+  isDefault?: boolean;
+}
+
+export interface CustomerProfile {
+  id: string;
+  name: string;
+  email?: string | null;
+  phone: string;
+  phoneVerified: boolean;
+  type: string;
+  addresses: Address[];
+}
+
+export interface AuthResponse {
+  token: string;
+  customerId: string;
+  name: string;
+  phone: string;
+  isNewCustomer: boolean;
+}
+
+export interface OrderItemCreatePayload {
+  productId: string;
+  variantId?: string;
+  quantity: number;
+}
+
+export interface OrderCreatePayload {
+  items: OrderItemCreatePayload[];
+  addressId?: string;
+  newAddress?: AddressInput;
+}
+
+export interface OrderResponse {
+  orderId: string;
+  orderNumber: string;
+  razorpayOrderId: string;
+  amount: string;
+  currency: string;
+  keyId?: string;
+}
+
+export interface PaymentVerificationPayload {
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
+}
+
+export interface OrderItemDetail {
+  id: string;
+  productId: string;
+  titleSnapshot: string;
+  priceSnapshot: number;
+  quantity: number;
+  productSlug?: string;
+  productImageUrl?: string;
+}
+
+export interface OrderDetail {
+  id: string;
+  orderNumber: string;
+  status: string;
+  subtotal: number;
+  discount: number;
+  shippingFee: number;
+  tax: number;
+  total: number;
+  createdAt: string;
+  shippingName?: string;
+  shippingPhone?: string;
+  shippingLine1?: string;
+  shippingLine2?: string;
+  shippingCity?: string;
+  shippingState?: string;
+  shippingPincode?: string;
+  shippingCountry?: string;
+  items: OrderItemDetail[];
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  timestamp?: string;
+}
+
+export interface PagedResponse<T> {
+  content: T[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+}

@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { cookerFeatures } from "@/app/data/products";
-import { fetchProductBySlug } from "@/app/lib/api";
-import { ArrowLeft } from "lucide-react";
+import { products, cookerFeatures } from "@/app/data/products";
+import { getProductBySlug } from "@/lib/api";
+import { ArrowLeft, CheckCircle2, ShieldCheck, Truck } from "lucide-react";
+import { AddToCartSection } from "../components/AddToCartSection";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -14,20 +15,93 @@ export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = await fetchProductBySlug(slug);
+  try {
+    const live = await getProductBySlug(slug);
+    if (live) {
+      return {
+        title: `${live.title} — BHARATI`,
+        description: live.description || live.tagline,
+      };
+    }
+  } catch {
+    // fallback
+  }
+
+  const product = products.find((p) => p.slug === slug);
   if (!product) return { title: "Product Not Found — BHARATI" };
   return {
-    title: `${product.title} — BHARATI`,
+    title: `${product.name} — BHARATI`,
     description: product.description,
   };
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = await fetchProductBySlug(slug);
 
-  if (!product) {
-    notFound();
+  let productData: {
+    id: string;
+    title: string;
+    slug: string;
+    tagline: string;
+    description: string;
+    numericPrice: number;
+    formattedPrice: string;
+    image: string;
+    category: string;
+    inStock: boolean;
+    stockQuantity: number;
+  } | null = null;
+
+  try {
+    const live = await getProductBySlug(slug);
+    if (live) {
+      const price = Number(live.discountedPrice || live.basePrice || 3499);
+      const primaryImg =
+        live.media && live.media.length > 0
+          ? live.media.find((m) => m.isPrimary)?.url || live.media[0].url
+          : "/products/cooker_cutout.png";
+
+      const stock = typeof live.stockQuantity === "number" ? live.stockQuantity : 50;
+      const isAvailable = typeof live.inStock === "boolean" ? live.inStock : stock > 0;
+
+      productData = {
+        id: live.id,
+        title: live.title,
+        slug: live.slug,
+        tagline: live.tagline || "Engineered for everyday Indian cooking",
+        description: live.description || "Crafted with highest quality materials.",
+        numericPrice: price,
+        formattedPrice: `₹ ${price.toLocaleString("en-IN")}`,
+        image: primaryImg,
+        category: live.category?.name || "Cookware",
+        inStock: isAvailable,
+        stockQuantity: stock > 0 ? stock : 50,
+      };
+    }
+  } catch (error) {
+    console.warn("Could not fetch live product detail, using fallback:", error);
+  }
+
+  // Fallback to static mock product if not found in live API
+  if (!productData) {
+    const staticProd = products.find((p) => p.slug === slug);
+    if (!staticProd) {
+      notFound();
+    }
+    const defaultPrice = 3499;
+    productData = {
+      id: staticProd.id,
+      title: staticProd.name,
+      slug: staticProd.slug,
+      tagline: staticProd.tagline,
+      description: staticProd.description,
+      numericPrice: defaultPrice,
+      formattedPrice: `₹ ${defaultPrice.toLocaleString("en-IN")}`,
+      image: staticProd.image,
+      category: staticProd.category.replace("-", " "),
+      inStock: true,
+      stockQuantity: 50,
+    };
   }
 
   return (
@@ -44,10 +118,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
           {/* Product Image */}
-          <div className="relative aspect-square bg-bharati-ivory">
+          <div className="relative aspect-square bg-bharati-ivory rounded-2xl overflow-hidden border border-bharati-mist/50">
             <Image
-              src={product.media && product.media.length > 0 ? product.media[0].url : "/products/Cooker-front.jpg"}
-              alt={product.title}
+              src={productData.image}
+              alt={productData.title}
               fill
               className="object-contain p-12"
               sizes="(max-width: 1024px) 100vw, 50vw"
@@ -57,27 +131,61 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
           {/* Product Info */}
           <div className="flex flex-col justify-center">
-            <span className="text-label text-bharati-mint-dark mb-4 block font-medium">
-              {product.category.name}
+            <span className="text-label text-bharati-mint-dark mb-4 block font-medium capitalize">
+              {productData.category}
             </span>
             <h1 className="text-headline text-bharati-black mb-4">
-              {product.title}
+              {productData.title}
             </h1>
             <p className="text-body-large text-bharati-ash mb-3">
-              {product.tagline}
+              {productData.tagline}
             </p>
             <p className="text-[0.95rem] text-bharati-silver font-light leading-relaxed mb-8 max-w-md">
-              {product.description}
+              {productData.description}
             </p>
-            <p className="text-[1.75rem] font-medium text-bharati-mint-dark mb-8">
-              ₹ {product.discountedPrice}
-            </p>
+            <div className="flex items-baseline gap-4 mb-8">
+              <span className="text-[1.75rem] font-medium text-bharati-mint-dark">
+                {productData.formattedPrice}
+              </span>
+              <span className="text-sm text-bharati-silver font-light">
+                (Inclusive of all taxes)
+              </span>
+            </div>
 
-            {/* CTA */}
-            <button className="btn-primary w-fit mb-6">Add to Cart</button>
+            {/* Interactive Add to Cart & Quantity */}
+            <div className="mb-8">
+              <AddToCartSection
+                productId={productData.id}
+                title={productData.title}
+                slug={productData.slug}
+                price={productData.numericPrice}
+                imageUrl={productData.image}
+                inStock={productData.inStock}
+                maxStock={productData.stockQuantity}
+              />
+            </div>
+
+            {/* Value Props */}
+            <div className="grid grid-cols-3 gap-4 py-6 border-y border-bharati-mist/60 text-center">
+              <div className="flex flex-col items-center gap-1.5">
+                <Truck size={20} className="text-bharati-mint-dark" />
+                <span className="text-xs text-bharati-charcoal font-medium">Free Delivery</span>
+                <span className="text-[10px] text-bharati-silver font-light">Across India</span>
+              </div>
+              <div className="flex flex-col items-center gap-1.5">
+                <ShieldCheck size={20} className="text-bharati-mint-dark" />
+                <span className="text-xs text-bharati-charcoal font-medium">5-Year Warranty</span>
+                <span className="text-[10px] text-bharati-silver font-light">Genuine Bharati</span>
+              </div>
+              <div className="flex flex-col items-center gap-1.5">
+                <CheckCircle2 size={20} className="text-bharati-mint-dark" />
+                <span className="text-xs text-bharati-charcoal font-medium">Certified Safe</span>
+                <span className="text-[10px] text-bharati-silver font-light">ISI & Food Grade</span>
+              </div>
+            </div>
 
             {/* Features (show for pressure cooker) */}
-            {product.slug === "pressure-cooker" && (
+            {(productData.slug.includes("cooker") || slug === "pressure-cooker") && (
               <div className="mt-10 pt-10 border-t border-bharati-mist">
                 <span className="text-label text-bharati-mint-dark mb-6 block font-medium">
                   Features

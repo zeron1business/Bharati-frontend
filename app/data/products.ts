@@ -1,3 +1,118 @@
+export interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  tagline: string;
+  description: string;
+  price: string;
+  image: string;
+  category: string;
+  featured?: boolean;
+}
+
+export const products: Product[] = [
+  {
+    id: "prod-1",
+    name: "Pressure Cooker",
+    slug: "pressure-cooker",
+    tagline: "Everyday pressure. Reimagined.",
+    description:
+      "Built for the way India cooks. Premium aluminium construction with precision pressure control.",
+    price: "₹ 3,499",
+    image: "/products/Cooker-front.jpg",
+    category: "pressure-cookers",
+    featured: true,
+  },
+  {
+    id: "prod-2",
+    name: "Kadhai",
+    slug: "kadhai",
+    tagline: "Deep flavours. Perfect form.",
+    description:
+      "The essential vessel for every Indian kitchen. Designed for high-heat cooking.",
+    price: "₹ 2,199",
+    image: "/products/Cooker-slight-left.jpg",
+    category: "cookware",
+  },
+  {
+    id: "prod-3",
+    name: "Saucepan",
+    slug: "saucepan",
+    tagline: "Precision in every pour.",
+    description:
+      "From tempering spices to simmering sauces. Engineered for control.",
+    price: "₹ 1,799",
+    image: "/products/Cooker-right.jpg",
+    category: "cookware",
+  },
+  {
+    id: "prod-4",
+    name: "Frypan",
+    slug: "frypan",
+    tagline: "Sear. Sizzle. Serve.",
+    description:
+      "Even heat distribution for the perfect sear. Every single time.",
+    price: "₹ 1,899",
+    image: "/products/cooker-left.jpg",
+    category: "cookware",
+  },
+  {
+    id: "prod-5",
+    name: "Biryani Pot",
+    slug: "biryani-pot",
+    tagline: "Layer by layer. Perfection.",
+    description:
+      "Designed for slow-cooking and dum. The perfect vessel for every celebration.",
+    price: "₹ 3,999",
+    image: "/products/Cooker-slightRight.jpg",
+    category: "cookware",
+  },
+  {
+    id: "prod-6",
+    name: "Thali",
+    slug: "thali",
+    tagline: "The complete experience.",
+    description:
+      "Mirror-finished stainless steel. Designed to elevate your everyday meal.",
+    price: "₹ 899",
+    image: "/products/Cooker-top.jpg",
+    category: "steel-utensils",
+  },
+  {
+    id: "prod-7",
+    name: "Vati",
+    slug: "vati",
+    tagline: "Small vessel. Big character.",
+    description:
+      "Perfectly proportioned for sides, dips, and accompaniments.",
+    price: "₹ 349",
+    image: "/products/Cooker-front.jpg",
+    category: "steel-utensils",
+  },
+  {
+    id: "prod-8",
+    name: "Glasses",
+    slug: "glasses",
+    tagline: "Clarity in every sip.",
+    description:
+      "Stainless steel glasses built to last generations. Timeless design.",
+    price: "₹ 499",
+    image: "/products/Cooker-right.jpg",
+    category: "steel-utensils",
+  },
+  {
+    id: "prod-9",
+    name: "Racks & Baskets",
+    slug: "racks-baskets",
+    tagline: "Order. Beautifully.",
+    description:
+      "Kitchen organisation that looks as good as it works.",
+    price: "₹ 2,499",
+    image: "/products/Cooker-slight-left.jpg",
+    category: "kitchen-racks",
+  },
+];
+
 export interface ProductFeature {
   number: string;
   title: string;
