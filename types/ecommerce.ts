@@ -35,6 +35,8 @@ export interface ProductVariant {
   materialType?: string | null;
   inductionCompatible?: boolean;
   isActive?: boolean;
+  warrantyOverride?: string | null;
+  specifications?: Array<{ specKey: string; specValue: string }>;
 }
 
 export interface ProductCategory {
@@ -62,6 +64,9 @@ export interface ProductDetail {
   category?: ProductCategory | null;
   media: ProductMedia[];
   variants: ProductVariant[];
+  warrantyDuration?: string | null;
+  warrantyDetails?: string | null;
+  specifications?: Array<{ specKey: string; specValue: string }>;
   // Legacy fields for backward compat with fallback data
   basePrice?: number;
   discountedPrice?: number | null;
