@@ -34,6 +34,9 @@ export interface ProductCard {
   primaryImageUrl: string;
   badges: string[];
   inStock: boolean;
+  name?: string;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 export interface ProductDetail {
