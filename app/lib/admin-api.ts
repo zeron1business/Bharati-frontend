@@ -1,4 +1,4 @@
-export const ADMIN_API_BASE_URL = "http://localhost:8080/api/v1/admin";
+export const ADMIN_API_BASE_URL = "http://localhost:8081/api/v1/admin";
 
 export const getAuthToken = () => {
   if (typeof window !== "undefined") {
@@ -52,6 +52,8 @@ export const adminUpdateProduct = (id: string, data: any) =>
   adminFetch(`/products/${id}`, { method: "PUT", body: JSON.stringify(data) });
 
 export const adminFetchCategories = () => adminFetch("/categories");
+
+export const adminFetchSubcategories = (categoryId: string) => adminFetch(`/categories/${categoryId}/subcategories`);
 
 export const adminCreateCategory = (data: any) => 
   adminFetch("/categories", { method: "POST", body: JSON.stringify(data) });

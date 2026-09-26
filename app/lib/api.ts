@@ -1,6 +1,6 @@
 import { ApiResponse, PagedResponse, ProductCard, ProductDetail, Category } from './types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api/v1';
 
 export async function fetchCategories(): Promise<Category[]> {
   try {

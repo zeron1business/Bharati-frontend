@@ -110,7 +110,7 @@ export function ShopProducts() {
                   <div className="relative aspect-square bg-bharati-ivory overflow-hidden mb-5 border border-transparent group-hover:border-bharati-mint/30 transition-all duration-500">
                     <Image
                       src={product.primaryImageUrl || "/products/Cooker-front.jpg"}
-                      alt={product.title}
+                      alt={product.title || product.name || "Product"}
                       fill
                       className="object-contain p-10 transition-transform duration-700 ease-out group-hover:scale-105"
                       sizes="(max-width: 768px) 300px, (max-width: 1024px) 360px, 400px"
@@ -124,6 +124,22 @@ export function ShopProducts() {
                     </h3>
                     <p className="text-[0.85rem] text-bharati-silver font-light leading-relaxed">
                       {product.tagline}
+                    </p>
+                    
+                    {/* Price */}
+                    <p className="text-[0.95rem] text-bharati-mint-dark font-semibold">
+                        {(() => {
+                            if (product.minPrice != null && product.maxPrice != null && product.minPrice > 0) {
+                                if (product.minPrice === product.maxPrice) {
+                                    return `₹ ${Number(product.minPrice).toLocaleString("en-IN")}`;
+                                }
+                                return `₹ ${Number(product.minPrice).toLocaleString("en-IN")} – ₹ ${Number(product.maxPrice).toLocaleString("en-IN")}`;
+                            } else if (product.discountedPrice || product.basePrice) {
+                                const rawPrice = product.discountedPrice || product.basePrice;
+                                return `₹ ${Number(rawPrice).toLocaleString("en-IN")}`;
+                            }
+                            return "₹ 3,499";
+                        })()}
                     </p>
 
                     {/* CTA */}

@@ -29,18 +29,27 @@ export default async function ProductsPage() {
     const res = await getProducts({ size: 50 });
     if (res && res.content && res.content.length > 0) {
       displayProducts = res.content.map((p) => {
-        const rawPrice = p.discountedPrice || p.basePrice;
-        const formattedPrice = rawPrice
-          ? `₹ ${Number(rawPrice).toLocaleString("en-IN")}`
-          : "₹ 3,499";
+        let formattedPrice = "₹ 3,499"; // Fallback
+        
+        if (p.minPrice != null && p.maxPrice != null && p.minPrice > 0) {
+            if (p.minPrice === p.maxPrice) {
+                formattedPrice = `₹ ${Number(p.minPrice).toLocaleString("en-IN")}`;
+            } else {
+                formattedPrice = `₹ ${Number(p.minPrice).toLocaleString("en-IN")} – ₹ ${Number(p.maxPrice).toLocaleString("en-IN")}`;
+            }
+        } else if (p.discountedPrice || p.basePrice) {
+            const rawPrice = p.discountedPrice || p.basePrice;
+            formattedPrice = `₹ ${Number(rawPrice).toLocaleString("en-IN")}`;
+        }
+        
         return {
           id: p.id,
           slug: p.slug,
-          name: p.title,
+          name: p.title || p.name || "Product",
           tagline: p.tagline || "Engineered for everyday Indian cooking",
           price: formattedPrice,
           image: p.primaryImageUrl || "/products/cooker_cutout.png",
-          category: p.categoryName || "Cookware",
+          category: p.subcategoryName || p.categoryName || "Cookware",
         };
       });
     }

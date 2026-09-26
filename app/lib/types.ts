@@ -16,10 +16,15 @@ export interface ProductMedia {
 
 export interface ProductVariant {
   id: string;
-  name: string;
-  priceDelta: number;
+  sku: string;
+  basePrice: number;
+  discountedPrice: number;
   stockQuantity: number;
-  skuSuffix: string;
+  volumeLitres?: number;
+  materialType?: string;
+  inductionCompatible?: boolean;
+  warrantyOverride?: string;
+  specifications?: Array<{ specKey: string; specValue: string }>;
 }
 
 export interface ProductCard {
@@ -34,6 +39,9 @@ export interface ProductCard {
   primaryImageUrl: string;
   badges: string[];
   inStock: boolean;
+  name?: string;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 export interface ProductDetail {
@@ -50,6 +58,8 @@ export interface ProductDetail {
   badges: string[];
   media: ProductMedia[];
   variants: ProductVariant[];
+  warrantyDuration?: string;
+  warrantyDetails?: string;
 }
 
 export interface PagedResponse<T> {
