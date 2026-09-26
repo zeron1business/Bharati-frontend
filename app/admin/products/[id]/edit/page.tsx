@@ -21,6 +21,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [warrantyPreset, setWarrantyPreset] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -31,6 +32,8 @@ export default function EditProduct({ params }: { params: { id: string } }) {
     badges: "[]",
     isActive: true,
     isFeatured: false,
+    warrantyDuration: "",
+    warrantyDetails: "",
   });
 
   const [variants, setVariants] = useState<any[]>([]);
@@ -86,7 +89,18 @@ export default function EditProduct({ params }: { params: { id: string } }) {
                   badges: p.badges ? JSON.stringify(p.badges) : "[]",
                   isActive: p.isActive,
                   isFeatured: p.isFeatured,
+                  warrantyDuration: p.warrantyDuration || "",
+                  warrantyDetails: p.warrantyDetails || "",
               });
+              
+              if (p.warrantyDuration) {
+                  const presets = ["6 months", "1 year", "2 years", "5 years", "Lifetime"];
+                  if (presets.includes(p.warrantyDuration)) {
+                      setWarrantyPreset(p.warrantyDuration);
+                  } else {
+                      setWarrantyPreset("Custom");
+                  }
+              }
 
               if (p.variants && p.variants.length > 0) {
                   setVariants(p.variants.map((v: any) => ({
@@ -96,7 +110,9 @@ export default function EditProduct({ params }: { params: { id: string } }) {
                       stockQuantity: v.stockQuantity?.toString() || "0",
                       volumeLitres: v.volumeLitres?.toString() || "",
                       materialType: v.materialType || "",
-                      inductionCompatible: v.inductionCompatible || false
+                      inductionCompatible: v.inductionCompatible || false,
+                      warrantyOverride: v.warrantyOverride || "",
+                      specifications: v.specifications || []
                   })));
               } else {
                   setVariants([{
@@ -106,7 +122,9 @@ export default function EditProduct({ params }: { params: { id: string } }) {
                       stockQuantity: p.stockQuantity?.toString() || "0",
                       volumeLitres: "",
                       materialType: "",
-                      inductionCompatible: false
+                      inductionCompatible: false,
+                      warrantyOverride: "",
+                      specifications: []
                   }]);
               }
               setIsLoading(false);
@@ -146,6 +164,16 @@ export default function EditProduct({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleWarrantyPresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setWarrantyPreset(val);
+    if (val !== "Custom") {
+      setFormData(prev => ({ ...prev, warrantyDuration: val }));
+    } else {
+      setFormData(prev => ({ ...prev, warrantyDuration: "" }));
+    }
+  };
+
   const handleVariantChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     const newVariants = [...variants];
@@ -165,7 +193,9 @@ export default function EditProduct({ params }: { params: { id: string } }) {
       stockQuantity: "",
       volumeLitres: "",
       materialType: "",
-      inductionCompatible: false
+      inductionCompatible: false,
+      warrantyOverride: "",
+      specifications: []
     }]);
   };
 
@@ -173,6 +203,25 @@ export default function EditProduct({ params }: { params: { id: string } }) {
     if (variants.length > 1) {
       setVariants(variants.filter((_, i) => i !== index));
     }
+  };
+
+  const handleSpecChange = (variantIndex: number, specIndex: number, field: 'specKey' | 'specValue', value: string) => {
+    const newVariants = [...variants];
+    newVariants[variantIndex].specifications[specIndex][field] = value;
+    setVariants(newVariants);
+  };
+
+  const addSpec = (variantIndex: number) => {
+    const newVariants = [...variants];
+    newVariants[variantIndex].specifications.push({ specKey: "", specValue: "", sortOrder: newVariants[variantIndex].specifications.length });
+    setVariants(newVariants);
+  };
+
+  const removeSpec = (variantIndex: number, specIndex: number) => {
+    const newVariants = [...variants];
+    newVariants[variantIndex].specifications = newVariants[variantIndex].specifications.filter((_: any, i: number) => i !== specIndex);
+    newVariants[variantIndex].specifications.forEach((spec: any, i: number) => spec.sortOrder = i);
+    setVariants(newVariants);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -344,6 +393,36 @@ export default function EditProduct({ params }: { params: { id: string } }) {
         </div>
 
         <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
+          <h2 className="text-lg font-medium text-bharati-black border-b border-bharati-mist pb-2">Warranty</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-bharati-charcoal mb-2">Duration</label>
+              <select value={warrantyPreset} onChange={handleWarrantyPresetChange} className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors bg-white">
+                <option value="">No warranty (default)</option>
+                <option value="6 months">6 months</option>
+                <option value="1 year">1 year</option>
+                <option value="2 years">2 years</option>
+                <option value="5 years">5 years</option>
+                <option value="Lifetime">Lifetime</option>
+                <option value="Custom">Custom...</option>
+              </select>
+            </div>
+            {warrantyPreset === "Custom" && (
+              <div>
+                <label className="block text-sm font-medium text-bharati-charcoal mb-2">Custom Duration *</label>
+                <input type="text" name="warrantyDuration" value={formData.warrantyDuration} onChange={handleChange} required placeholder="e.g. 18 months" className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors" />
+              </div>
+            )}
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-bharati-charcoal mb-2">Details (Optional)</label>
+            <textarea name="warrantyDetails" value={formData.warrantyDetails} onChange={handleChange} rows={2} placeholder="e.g. Covers manufacturing defects. Does not cover physical damage." className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors resize-none" />
+          </div>
+        </div>
+
+        <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
           <div className="flex justify-between items-center border-b border-bharati-mist pb-2">
             <h2 className="text-lg font-medium text-bharati-black">Product Variants</h2>
             <button type="button" onClick={addVariant} className="flex items-center gap-2 text-sm text-bharati-gold hover:text-bharati-charcoal font-medium transition-colors">
@@ -391,6 +470,39 @@ export default function EditProduct({ params }: { params: { id: string } }) {
                       <input type="checkbox" name="inductionCompatible" checked={variant.inductionCompatible} onChange={(e) => handleVariantChange(index, e)} className="w-4 h-4 accent-bharati-charcoal" />
                       <span className="text-sm text-gray-600">Induction Compatible</span>
                     </label>
+                  </div>
+                  <div className="col-span-1 md:col-span-3 mt-2">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Warranty Override (Optional)</label>
+                    <input type="text" name="warrantyOverride" value={variant.warrantyOverride} onChange={(e) => handleVariantChange(index, e)} className="w-full p-2.5 border border-bharati-mist rounded-md focus:border-bharati-black text-sm bg-white" placeholder="e.g. 5 Years (leaves blank to inherit product warranty)" />
+                  </div>
+                  
+                  {/* Specifications */}
+                  <div className="col-span-1 md:col-span-3 mt-4 pt-4 border-t border-bharati-mist/50">
+                    <div className="flex justify-between items-center mb-4">
+                        <label className="block text-xs font-medium text-bharati-charcoal">Specifications</label>
+                        <button type="button" onClick={() => addSpec(index)} className="flex items-center gap-1 text-xs text-bharati-gold hover:text-bharati-charcoal font-medium transition-colors">
+                            <Plus size={14} /> Add Spec
+                        </button>
+                    </div>
+                    {variant.specifications && variant.specifications.length > 0 ? (
+                        <div className="space-y-3">
+                            {variant.specifications.map((spec: any, specIndex: number) => (
+                                <div key={specIndex} className="flex gap-3 items-start">
+                                    <div className="flex-1">
+                                        <input type="text" value={spec.specKey} onChange={(e) => handleSpecChange(index, specIndex, 'specKey', e.target.value)} placeholder="Name (e.g. Dimensions)" className="w-full p-2 border border-bharati-mist rounded-md focus:border-bharati-black text-xs bg-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <input type="text" value={spec.specValue} onChange={(e) => handleSpecChange(index, specIndex, 'specValue', e.target.value)} placeholder="Value (e.g. 10x20 cm)" className="w-full p-2 border border-bharati-mist rounded-md focus:border-bharati-black text-xs bg-white" />
+                                    </div>
+                                    <button type="button" onClick={() => removeSpec(index, specIndex)} className="p-2 text-red-400 hover:text-red-600 transition-colors mt-0.5">
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-xs text-gray-400 italic">No specifications added yet.</p>
+                    )}
                   </div>
                 </div>
               </div>

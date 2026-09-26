@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import { Check, ShoppingBag, Plus, Minus } from "lucide-react";
+import { Check, ShoppingBag, Plus, Minus, Truck, ShieldCheck, CheckCircle2 } from "lucide-react";
 
 interface Variant {
   id: string;
@@ -14,6 +14,8 @@ interface Variant {
   volumeLitres?: number;
   materialType?: string;
   inductionCompatible?: boolean;
+  warrantyOverride?: string;
+  specifications?: Array<{ specKey: string; specValue: string }>;
 }
 
 interface AddToCartSectionProps {
@@ -25,6 +27,7 @@ interface AddToCartSectionProps {
   variants?: Variant[];
   fallbackInStock?: boolean;
   fallbackStock?: number;
+  productWarranty?: string;
 }
 
 export function AddToCartSection({
@@ -36,6 +39,7 @@ export function AddToCartSection({
   variants = [],
   fallbackInStock = true,
   fallbackStock = 99,
+  productWarranty = "5-Year Warranty",
 }: AddToCartSectionProps) {
   const { addItem } = useCart();
   
@@ -344,6 +348,46 @@ export function AddToCartSection({
           >
             View Cart & Checkout &rarr;
           </Link>
+        </div>
+      )}
+
+      {/* Value Props */}
+      <div className="grid grid-cols-3 gap-4 py-6 border-y border-bharati-mist/60 text-center mt-8">
+        <div className="flex flex-col items-center gap-1.5">
+          <Truck size={20} className="text-bharati-mint-dark" />
+          <span className="text-xs text-bharati-charcoal font-medium">Free Delivery</span>
+          <span className="text-[10px] text-bharati-silver font-light">Across India</span>
+        </div>
+        <div className="flex flex-col items-center gap-1.5">
+          <ShieldCheck size={20} className="text-bharati-mint-dark" />
+          <span className="text-xs text-bharati-charcoal font-medium">
+            {selectedVariant?.warrantyOverride || productWarranty || "5-Year Warranty"}
+          </span>
+          <span className="text-[10px] text-bharati-silver font-light">Genuine Bharati</span>
+        </div>
+        <div className="flex flex-col items-center gap-1.5">
+          <CheckCircle2 size={20} className="text-bharati-mint-dark" />
+          <span className="text-xs text-bharati-charcoal font-medium">Certified Safe</span>
+          <span className="text-[10px] text-bharati-silver font-light">ISI & Food Grade</span>
+        </div>
+      </div>
+
+      {/* Specifications Table */}
+      {selectedVariant?.specifications && selectedVariant.specifications.length > 0 && (
+        <div className="mt-8">
+            <h3 className="text-sm font-medium text-bharati-charcoal mb-4">Specifications</h3>
+            <div className="border border-bharati-mist rounded-lg overflow-hidden text-sm">
+                {selectedVariant.specifications.map((spec, idx) => (
+                    <div key={idx} className={`flex border-b border-bharati-mist last:border-b-0 ${idx % 2 === 0 ? 'bg-gray-50/50' : 'bg-white'}`}>
+                        <div className="w-1/3 p-3 font-medium text-bharati-charcoal border-r border-bharati-mist bg-gray-50/80">
+                            {spec.specKey}
+                        </div>
+                        <div className="w-2/3 p-3 text-bharati-silver font-light">
+                            {spec.specValue}
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
       )}
     </div>

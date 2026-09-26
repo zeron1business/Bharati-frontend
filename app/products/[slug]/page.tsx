@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { products, cookerFeatures } from "@/app/data/products";
 import { getProductBySlug } from "@/lib/api";
-import { ArrowLeft, CheckCircle2, ShieldCheck, Truck } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { AddToCartSection } from "../components/AddToCartSection";
 
 interface ProductPageProps {
@@ -51,6 +51,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     inStock: boolean;
     stockQuantity: number;
     variants: any[];
+    warrantyDuration: string;
   } | null = null;
 
   try {
@@ -83,7 +84,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
         category: live.subcategory?.name || live.category?.name || "Cookware",
         inStock: isAvailable,
         stockQuantity: stock > 0 ? stock : 50,
-        variants: live.variants || []
+        variants: live.variants || [],
+        warrantyDuration: live.warrantyDuration || "5-Year Warranty"
       };
     }
   } catch (error) {
@@ -110,7 +112,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
       category: staticProd.category.replace("-", " "),
       inStock: true,
       stockQuantity: 50,
-      variants: []
+      variants: [],
+      warrantyDuration: "5-Year Warranty"
     };
   }
 
@@ -164,27 +167,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 variants={productData.variants}
                 fallbackInStock={productData.inStock}
                 fallbackStock={productData.stockQuantity}
+                productWarranty={productData.warrantyDuration}
               />
             </div>
 
-            {/* Value Props */}
-            <div className="grid grid-cols-3 gap-4 py-6 border-y border-bharati-mist/60 text-center">
-              <div className="flex flex-col items-center gap-1.5">
-                <Truck size={20} className="text-bharati-mint-dark" />
-                <span className="text-xs text-bharati-charcoal font-medium">Free Delivery</span>
-                <span className="text-[10px] text-bharati-silver font-light">Across India</span>
-              </div>
-              <div className="flex flex-col items-center gap-1.5">
-                <ShieldCheck size={20} className="text-bharati-mint-dark" />
-                <span className="text-xs text-bharati-charcoal font-medium">5-Year Warranty</span>
-                <span className="text-[10px] text-bharati-silver font-light">Genuine Bharati</span>
-              </div>
-              <div className="flex flex-col items-center gap-1.5">
-                <CheckCircle2 size={20} className="text-bharati-mint-dark" />
-                <span className="text-xs text-bharati-charcoal font-medium">Certified Safe</span>
-                <span className="text-[10px] text-bharati-silver font-light">ISI & Food Grade</span>
-              </div>
-            </div>
 
             {/* Features (show for pressure cooker) */}
             {(productData.slug.includes("cooker") || slug === "pressure-cooker") && (
