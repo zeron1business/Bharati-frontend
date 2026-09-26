@@ -92,7 +92,14 @@ export default function AdminProducts() {
                   </td>
                 </tr>
               ) : (
-                products.map((product) => (
+                products.map((product) => {
+                  const firstVariant = product.variants && product.variants.length > 0 ? product.variants[0] : null;
+                  const variantCount = product.variants ? product.variants.length : 0;
+                  const totalStock = product.variants ? product.variants.reduce((sum: number, v: any) => sum + (v.stockQuantity || 0), 0) : 0;
+                  const displayPrice = firstVariant ? (firstVariant.discountedPrice || firstVariant.basePrice) : null;
+                  const displayBasePrice = firstVariant ? firstVariant.basePrice : null;
+                  
+                  return (
                   <tr key={product.id} className="hover:bg-bharati-cream/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
@@ -100,7 +107,7 @@ export default function AdminProducts() {
                           {product.media && product.media.length > 0 ? (
                             <Image 
                               src={product.media.find((m: any) => m.isPrimary)?.url || product.media[0].url} 
-                              alt={product.title} 
+                              alt={product.name} 
                               fill 
                               className="object-cover" 
                             />
@@ -109,27 +116,36 @@ export default function AdminProducts() {
                           )}
                         </div>
                         <div>
-                          <div className="font-medium text-bharati-black">{product.title}</div>
-                          <div className="text-xs text-bharati-ash mt-0.5">{product.sku}</div>
+                          <div className="font-medium text-bharati-black">{product.name}</div>
+                          <div className="text-xs text-bharati-ash mt-0.5">
+                            {variantCount > 0 ? `${variantCount} variant${variantCount > 1 ? 's' : ''}` : 'No variants'}
+                          </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-bharati-charcoal">
-                      {product.category?.name || "Uncategorized"}
+                      {product.subcategory?.name || "Uncategorized"}
                     </td>
                     <td className="px-6 py-4 text-bharati-charcoal">
-                      ₹{product.discountedPrice}
-                      {product.basePrice > product.discountedPrice && (
-                        <span className="text-bharati-ash line-through ml-2 text-xs">₹{product.basePrice}</span>
+                      {displayPrice ? (
+                        <>
+                          ₹{displayPrice}
+                          {displayBasePrice && displayBasePrice > displayPrice && (
+                            <span className="text-bharati-ash line-through ml-2 text-xs">₹{displayBasePrice}</span>
+                          )}
+                          {variantCount > 1 && <span className="text-bharati-ash ml-1 text-xs">+</span>}
+                        </>
+                      ) : (
+                        <span className="text-bharati-ash text-xs">No price set</span>
                       )}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        product.stockQuantity > 10 ? 'bg-green-100 text-green-800' :
-                        product.stockQuantity > 0 ? 'bg-orange-100 text-orange-800' :
+                        totalStock > 10 ? 'bg-green-100 text-green-800' :
+                        totalStock > 0 ? 'bg-orange-100 text-orange-800' :
                         'bg-red-100 text-red-800'
                       }`}>
-                        {product.stockQuantity} in stock
+                        {totalStock} in stock
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -148,7 +164,8 @@ export default function AdminProducts() {
                       </Link>
                     </td>
                   </tr>
-                ))
+                  );
+                })
               )}
             </tbody>
           </table>

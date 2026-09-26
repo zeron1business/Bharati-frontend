@@ -1,13 +1,18 @@
 export interface ProductCard {
   id: string;
   title: string;
+  name?: string;  // backend sends 'name', frontend historically used 'title'
   slug: string;
   tagline?: string;
   basePrice: number;
   discountedPrice?: number | null;
+  minPrice?: number;
+  maxPrice?: number;
   primaryImageUrl?: string | null;
   categoryName?: string | null;
   categorySlug?: string | null;
+  subcategoryName?: string | null;
+  subcategorySlug?: string | null;
   stockQuantity?: number;
   inStock: boolean;
   badges?: string[];
@@ -22,10 +27,14 @@ export interface ProductMedia {
 
 export interface ProductVariant {
   id: string;
-  name: string;
-  priceDelta: number;
+  sku: string;
+  basePrice: number;
+  discountedPrice?: number | null;
   stockQuantity: number;
-  skuSuffix: string;
+  volumeLitres?: number | null;
+  materialType?: string | null;
+  inductionCompatible?: boolean;
+  isActive?: boolean;
 }
 
 export interface ProductCategory {
@@ -35,21 +44,30 @@ export interface ProductCategory {
   productCount?: number;
 }
 
+export interface ProductSubcategory {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 export interface ProductDetail {
   id: string;
-  title: string;
+  title: string;  // mapped from backend "name"
+  name?: string;
   slug: string;
   tagline?: string;
   description: string;
-  basePrice: number;
-  discountedPrice?: number | null;
-  sku: string;
-  stockQuantity?: number;
-  inStock: boolean;
   badges: string[];
+  subcategory?: ProductSubcategory | null;
   category?: ProductCategory | null;
   media: ProductMedia[];
   variants: ProductVariant[];
+  // Legacy fields for backward compat with fallback data
+  basePrice?: number;
+  discountedPrice?: number | null;
+  sku?: string;
+  stockQuantity?: number;
+  inStock?: boolean;
 }
 
 export interface CartItem {

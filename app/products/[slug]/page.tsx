@@ -19,7 +19,7 @@ export async function generateMetadata({
     const live = await getProductBySlug(slug);
     if (live) {
       return {
-        title: `${live.title} — BHARATI`,
+        title: `${live.title || live.name || "Product"} — BHARATI`,
         description: live.description || live.tagline,
       };
     }
@@ -50,32 +50,40 @@ export default async function ProductPage({ params }: ProductPageProps) {
     category: string;
     inStock: boolean;
     stockQuantity: number;
+    variants: any[];
   } | null = null;
 
   try {
     const live = await getProductBySlug(slug);
     if (live) {
-      const price = Number(live.discountedPrice || live.basePrice || 3499);
+      // Derive price from first variant, or fallback to top-level legacy fields
+      const firstVariant = live.variants && live.variants.length > 0 ? live.variants[0] : null;
+      const price = firstVariant 
+        ? Number(firstVariant.discountedPrice || firstVariant.basePrice || 3499)
+        : Number(live.discountedPrice || live.basePrice || 3499);
       const primaryImg =
         live.media && live.media.length > 0
           ? live.media.find((m) => m.isPrimary)?.url || live.media[0].url
           : "/products/cooker_cutout.png";
 
-      const stock = typeof live.stockQuantity === "number" ? live.stockQuantity : 50;
-      const isAvailable = typeof live.inStock === "boolean" ? live.inStock : stock > 0;
+      const stock = firstVariant 
+        ? (firstVariant.stockQuantity ?? 50)
+        : (typeof live.stockQuantity === "number" ? live.stockQuantity : 50);
+      const isAvailable = stock > 0;
 
-      productData = {
+        productData = {
         id: live.id,
-        title: live.title,
+        title: live.title || live.name || "Product",
         slug: live.slug,
         tagline: live.tagline || "Engineered for everyday Indian cooking",
         description: live.description || "Crafted with highest quality materials.",
         numericPrice: price,
         formattedPrice: `₹ ${price.toLocaleString("en-IN")}`,
         image: primaryImg,
-        category: live.category?.name || "Cookware",
+        category: live.subcategory?.name || live.category?.name || "Cookware",
         inStock: isAvailable,
         stockQuantity: stock > 0 ? stock : 50,
+        variants: live.variants || []
       };
     }
   } catch (error) {
@@ -87,6 +95,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     const staticProd = products.find((p) => p.slug === slug);
     if (!staticProd) {
       notFound();
+      return; // unreachable but satisfies TS null analysis
     }
     const defaultPrice = 3499;
     productData = {
@@ -101,6 +110,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       category: staticProd.category.replace("-", " "),
       inStock: true,
       stockQuantity: 50,
+      variants: []
     };
   }
 
@@ -143,25 +153,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <p className="text-[0.95rem] text-bharati-silver font-light leading-relaxed mb-8 max-w-md">
               {productData.description}
             </p>
-            <div className="flex items-baseline gap-4 mb-8">
-              <span className="text-[1.75rem] font-medium text-bharati-mint-dark">
-                {productData.formattedPrice}
-              </span>
-              <span className="text-sm text-bharati-silver font-light">
-                (Inclusive of all taxes)
-              </span>
-            </div>
-
-            {/* Interactive Add to Cart & Quantity */}
+            {/* Interactive Price, Variant Selection & Add to Cart */}
             <div className="mb-8">
               <AddToCartSection
                 productId={productData.id}
                 title={productData.title}
                 slug={productData.slug}
-                price={productData.numericPrice}
+                baseNumericPrice={productData.numericPrice}
                 imageUrl={productData.image}
-                inStock={productData.inStock}
-                maxStock={productData.stockQuantity}
+                variants={productData.variants}
+                fallbackInStock={productData.inStock}
+                fallbackStock={productData.stockQuantity}
               />
             </div>
 

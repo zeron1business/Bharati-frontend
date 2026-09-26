@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Header } from "./components/navigation/Header";
-import { MobileNav } from "./components/navigation/MobileNav";
-import { Footer } from "./components/footer/Footer";
 import { Providers } from "./providers";
+import { ConditionalLayout } from "./components/layout/ConditionalLayout";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -42,10 +40,7 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <body className={inter.className}>
         <Providers>
-          <Header />
-          <MobileNav />
-          <main>{children}</main>
-          <Footer />
+          <ConditionalLayout>{children}</ConditionalLayout>
         </Providers>
       </body>
     </html>
