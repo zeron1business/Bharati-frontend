@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
-import { ShoppingBag, ArrowRight, Trash2, Plus, Minus, ShieldCheck, Truck } from "lucide-react";
+import { ShoppingBag, ArrowRight, ArrowLeft, Trash2, Plus, Minus, ShieldCheck, Truck } from "lucide-react";
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, clearCart, subtotal, itemCount, isHydrated } = useCart();
@@ -63,6 +63,16 @@ export default function CartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
           {/* Cart Items List */}
           <div className="lg:col-span-8 space-y-6">
+            <div>
+              <Link
+                href="/products"
+                className="inline-flex items-center gap-2 text-xs tracking-[0.15em] uppercase font-semibold text-bharati-ash hover:text-bharati-mint-dark transition-colors group"
+              >
+                <ArrowLeft size={14} className="transition-transform group-hover:-translate-x-1" />
+                Continue Shopping
+              </Link>
+            </div>
+
             {items.map((item) => (
               <div
                 key={`${item.productId}-${item.variantId || "default"}`}
@@ -133,15 +143,6 @@ export default function CartPage() {
                 </div>
               </div>
             ))}
-
-            <div className="pt-4">
-              <Link
-                href="/products"
-                className="inline-flex items-center gap-2 text-xs tracking-[0.15em] uppercase font-semibold text-bharati-ash hover:text-bharati-mint-dark transition-colors"
-              >
-                &larr; Continue Shopping
-              </Link>
-            </div>
           </div>
 
           {/* Order Summary Card */}

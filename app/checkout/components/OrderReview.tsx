@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { CartItem, Address, AddressInput } from "@/types/ecommerce";
-import { MapPin, ShieldCheck, CheckCircle2, RefreshCw, Truck, Package } from "lucide-react";
+import { MapPin, ShieldCheck, RefreshCw, Truck, Package, Banknote } from "lucide-react";
 
 interface OrderReviewProps {
   items: CartItem[];
@@ -151,6 +151,12 @@ export function OrderReview({
 
       {/* Place Order CTA */}
       <div className="space-y-3 pt-2">
+        {/* COD badge */}
+        <div className="flex items-center justify-center gap-2 text-xs font-semibold text-bharati-mint-dark bg-bharati-mint/10 border border-bharati-mint/20 rounded-xl py-2.5">
+          <Banknote size={16} />
+          <span>Payment Method: Cash on Delivery</span>
+        </div>
+
         <button
           onClick={onPlaceOrder}
           disabled={loading}
@@ -163,11 +169,15 @@ export function OrderReview({
             </>
           ) : (
             <>
-              <Package size={18} />
-              <span>Place Order (₹ {subtotal.toLocaleString("en-IN")})</span>
+              <Truck size={18} />
+              <span>Place Order — Pay on Delivery (₹ {subtotal.toLocaleString("en-IN")})</span>
             </>
           )}
         </button>
+
+        <p className="text-center text-[11px] text-bharati-silver font-light">
+          You will pay <strong className="text-bharati-charcoal">₹ {subtotal.toLocaleString("en-IN")}</strong> in cash when your order arrives at your doorstep.
+        </p>
 
         <div className="flex items-center justify-center gap-4 text-[11px] text-bharati-silver pt-1">
           <span className="inline-flex items-center gap-1">

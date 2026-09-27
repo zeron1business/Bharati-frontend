@@ -137,6 +137,7 @@ export interface OrderCreatePayload {
   items: OrderItemCreatePayload[];
   addressId?: string;
   newAddress?: AddressInput;
+  paymentMethod: "COD" | "RAZORPAY";
 }
 
 export interface OrderResponse {

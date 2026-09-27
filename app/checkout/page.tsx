@@ -39,11 +39,20 @@ export default function CheckoutPage() {
 
     if (isLoggedIn && customer) {
       const isDefaultName = !customer.name || customer.name === "Bharati Customer";
-      if (isDefaultName) {
+      
+      // If user is at OTP, forward them to the correct next step
+      if (step === "OTP") {
+        setStep(isDefaultName ? "PROFILE" : "ADDRESS");
+      } 
+      // If user is at an advanced step but needs profile completion, force them back
+      else if (isDefaultName && (step === "ADDRESS" || step === "REVIEW")) {
         setStep("PROFILE");
-      } else {
+      }
+      // If user is at PROFILE but already has a name, forward them
+      else if (step === "PROFILE" && !isDefaultName) {
         setStep("ADDRESS");
       }
+      // Otherwise (user is at ADDRESS or REVIEW and has a name), leave the step as is.
     } else {
       setStep("OTP");
     }
@@ -80,7 +89,7 @@ export default function CheckoutPage() {
     []
   );
 
-  // Place order (creates order in backend and stops at order creation)
+  // Place order (COD only — creates confirmed order in backend)
   const handlePlaceOrder = async () => {
     if (items.length === 0) {
       setErrorMessage("Your cart is empty");
@@ -99,9 +108,12 @@ export default function CheckoutPage() {
         })),
         addressId: selectedAddressId,
         newAddress: newAddress,
+        paymentMethod: "COD",
       };
 
       const orderRes = await createOrder(payload);
+      // Refresh profile so newly saved address is immediately available
+      await refreshProfile();
       setCreatedOrder(orderRes);
       clearCart();
       setStep("ORDER_CREATED");
@@ -255,18 +267,30 @@ export default function CheckoutPage() {
               </div>
 
               <div className="space-y-2">
-                <span className="inline-block text-[11px] font-semibold uppercase tracking-wider text-amber-800 bg-amber-100 px-3 py-1 rounded-full">
-                  Status: Created (Payment Pending)
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
+                  <Package size={12} />
+                  Order Confirmed — Cash on Delivery
                 </span>
                 <h1 className="text-2xl font-bold text-bharati-charcoal">
-                  Order Placed Successfully!
+                  Thank You! Your Order is Placed.
                 </h1>
                 <p className="text-sm text-bharati-ash font-medium">
                   Order Number: <strong className="text-bharati-charcoal">#{createdOrder.orderNumber}</strong>
                 </p>
                 <p className="text-xs text-bharati-silver max-w-md mx-auto leading-relaxed pt-2">
-                  Your order has been recorded in the database, inventory has been reserved, and your delivery address has been snapshotted.
+                  Your Bharati cookware is being prepared for dispatch. Our team will reach out to confirm your delivery slot.
                 </p>
+              </div>
+
+              {/* COD Payment Notice */}
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 max-w-md mx-auto text-sm text-amber-800 flex items-start gap-3 text-left">
+                <Calendar size={18} className="shrink-0 mt-0.5 text-amber-600" />
+                <div>
+                  <p className="font-semibold mb-0.5">Pay on Delivery</p>
+                  <p className="text-xs font-light">
+                    Please keep <strong>₹ {Number(createdOrder.amount).toLocaleString("en-IN")}</strong> ready in cash at the time of delivery.
+                  </p>
+                </div>
               </div>
 
               <div className="bg-bharati-ivory/60 rounded-xl p-4 max-w-md mx-auto text-xs text-bharati-ash border border-bharati-mist/60 text-left space-y-2">
@@ -275,12 +299,16 @@ export default function CheckoutPage() {
                   <span className="font-semibold text-bharati-charcoal">{createdOrder.orderNumber}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Payable Amount:</span>
-                  <span className="font-semibold text-bharati-charcoal">₹ {Number(createdOrder.amount).toLocaleString("en-IN")}</span>
+                  <span>Amount to Pay at Delivery:</span>
+                  <span className="font-bold text-bharati-charcoal text-sm">₹ {Number(createdOrder.amount).toLocaleString("en-IN")}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Customer Phone:</span>
                   <span className="text-bharati-charcoal">+91 {customer?.phone}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Payment Method:</span>
+                  <span className="font-semibold text-bharati-charcoal">Cash on Delivery</span>
                 </div>
               </div>
 

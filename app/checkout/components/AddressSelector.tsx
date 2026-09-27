@@ -27,7 +27,30 @@ export function AddressSelector({
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [pincode, setPincode] = useState("");
+  const [pincodeLoading, setPincodeLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handlePincodeChange = async (value: string) => {
+    const clean = value.replace(/\D/g, "");
+    setPincode(clean);
+
+    if (clean.length === 6) {
+      setPincodeLoading(true);
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${clean}`);
+        const data = await res.json();
+        const post = data?.[0]?.PostOffice?.[0];
+        if (post && data?.[0]?.Status === "Success") {
+          setCity(post.District || post.Name || "");
+          setState(post.State || "");
+        }
+      } catch {
+        // silently fail — user can type manually
+      } finally {
+        setPincodeLoading(false);
+      }
+    }
+  };
 
   const handleContinue = (e: React.FormEvent) => {
     e.preventDefault();
@@ -215,15 +238,16 @@ export function AddressSelector({
                 type="text"
                 maxLength={6}
                 value={pincode}
-                onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
+                onChange={(e) => handlePincodeChange(e.target.value)}
                 placeholder="500034"
                 required
                 className="w-full px-4 py-2.5 rounded-xl border border-bharati-mist bg-bharati-ivory/40 text-bharati-charcoal text-sm focus:outline-hidden focus:border-bharati-mint-dark focus:bg-white font-medium"
               />
             </div>
-            <div>
+            <div className="relative">
               <label className="block text-xs font-medium text-bharati-ash mb-1">
                 City / Town *
+                {pincodeLoading && <span className="ml-1 text-bharati-mint-dark text-[10px]">fetching...</span>}
               </label>
               <input
                 type="text"
@@ -231,12 +255,18 @@ export function AddressSelector({
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="Hyderabad"
                 required
-                className="w-full px-4 py-2.5 rounded-xl border border-bharati-mist bg-bharati-ivory/40 text-bharati-charcoal text-sm focus:outline-hidden focus:border-bharati-mint-dark focus:bg-white"
+                disabled={pincodeLoading}
+                className={`w-full px-4 py-2.5 rounded-xl border border-bharati-mist text-bharati-charcoal text-sm focus:outline-hidden focus:border-bharati-mint-dark focus:bg-white transition-all ${
+                  pincodeLoading
+                    ? "bg-bharati-mint/5 border-bharati-mint/30 animate-pulse"
+                    : "bg-bharati-ivory/40"
+                }`}
               />
             </div>
-            <div>
+            <div className="relative">
               <label className="block text-xs font-medium text-bharati-ash mb-1">
                 State *
+                {pincodeLoading && <span className="ml-1 text-bharati-mint-dark text-[10px]">fetching...</span>}
               </label>
               <input
                 type="text"
@@ -244,33 +274,61 @@ export function AddressSelector({
                 onChange={(e) => setState(e.target.value)}
                 placeholder="Telangana"
                 required
-                className="w-full px-4 py-2.5 rounded-xl border border-bharati-mist bg-bharati-ivory/40 text-bharati-charcoal text-sm focus:outline-hidden focus:border-bharati-mint-dark focus:bg-white"
+                disabled={pincodeLoading}
+                className={`w-full px-4 py-2.5 rounded-xl border border-bharati-mist text-bharati-charcoal text-sm focus:outline-hidden focus:border-bharati-mint-dark focus:bg-white transition-all ${
+                  pincodeLoading
+                    ? "bg-bharati-mint/5 border-bharati-mint/30 animate-pulse"
+                    : "bg-bharati-ivory/40"
+                }`}
               />
             </div>
+          </div>
+
+          {/* Continue CTA — inside form so type="submit" works */}
+          <div className="pt-2 flex items-center gap-3">
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="px-5 py-3.5 rounded-xl border border-bharati-mist text-bharati-ash hover:text-bharati-charcoal text-sm font-medium transition-colors"
+              >
+                Back
+              </button>
+            )}
+            <button
+              type="submit"
+              disabled={pincodeLoading}
+              className="btn-primary flex-1 py-3.5 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+            >
+              <span>Continue to Order Review</span>
+              <ArrowRight size={16} />
+            </button>
           </div>
         </form>
       )}
 
-      {/* Continue CTA */}
-      <div className="pt-2 flex items-center gap-3">
-        {onBack && (
+      {/* Continue CTA for saved address selection (not adding new) */}
+      {!isAddingNew && (
+        <div className="pt-2 flex items-center gap-3">
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="px-5 py-3.5 rounded-xl border border-bharati-mist text-bharati-ash hover:text-bharati-charcoal text-sm font-medium transition-colors"
+            >
+              Back
+            </button>
+          )}
           <button
             type="button"
-            onClick={onBack}
-            className="px-5 py-3.5 rounded-xl border border-bharati-mist text-bharati-ash hover:text-bharati-charcoal text-sm font-medium transition-colors"
+            onClick={handleContinue}
+            className="btn-primary flex-1 py-3.5 flex items-center justify-center gap-2 text-sm"
           >
-            Back
+            <span>Continue to Order Review</span>
+            <ArrowRight size={16} />
           </button>
-        )}
-        <button
-          type="button"
-          onClick={handleContinue}
-          className="btn-primary flex-1 py-3.5 flex items-center justify-center gap-2 text-sm"
-        >
-          <span>Continue to Order Review</span>
-          <ArrowRight size={16} />
-        </button>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

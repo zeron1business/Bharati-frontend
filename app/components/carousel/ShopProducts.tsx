@@ -126,22 +126,6 @@ export function ShopProducts() {
                       {product.tagline}
                     </p>
                     
-                    {/* Price */}
-                    <p className="text-[0.95rem] text-bharati-mint-dark font-semibold">
-                        {(() => {
-                            if (product.minPrice != null && product.maxPrice != null && product.minPrice > 0) {
-                                if (product.minPrice === product.maxPrice) {
-                                    return `₹ ${Number(product.minPrice).toLocaleString("en-IN")}`;
-                                }
-                                return `₹ ${Number(product.minPrice).toLocaleString("en-IN")} – ₹ ${Number(product.maxPrice).toLocaleString("en-IN")}`;
-                            } else if (product.discountedPrice || product.basePrice) {
-                                const rawPrice = product.discountedPrice || product.basePrice;
-                                return `₹ ${Number(rawPrice).toLocaleString("en-IN")}`;
-                            }
-                            return "₹ 3,499";
-                        })()}
-                    </p>
-
                     {/* CTA */}
                     <span className="inline-flex items-center gap-2 text-[0.7rem] tracking-[0.15em] uppercase font-semibold text-bharati-mint-dark group-hover:text-bharati-mint transition-colors duration-300 mt-2">
                       Explore
