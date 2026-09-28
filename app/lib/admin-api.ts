@@ -51,6 +51,25 @@ export const adminCreateProduct = (data: any) =>
 export const adminUpdateProduct = (id: string, data: any) => 
   adminFetch(`/products/${id}`, { method: "PUT", body: JSON.stringify(data) });
 
+export const adminDeleteProduct = (id: string) => 
+  adminFetch(`/products/${id}`, { method: "DELETE" });
+
+export const adminCheckSlug = async (slug: string, excludeId?: string): Promise<boolean> => {
+  if (!slug || !slug.trim()) return false;
+  let url = `/products/check-slug?slug=${encodeURIComponent(slug.trim())}`;
+  if (excludeId) url += `&excludeId=${encodeURIComponent(excludeId)}`;
+  const res = await adminFetch(url);
+  return Boolean(res.data);
+};
+
+export const adminCheckSku = async (sku: string, excludeVariantId?: string): Promise<boolean> => {
+  if (!sku || !sku.trim()) return false;
+  let url = `/products/check-sku?sku=${encodeURIComponent(sku.trim())}`;
+  if (excludeVariantId) url += `&excludeVariantId=${encodeURIComponent(excludeVariantId)}`;
+  const res = await adminFetch(url);
+  return Boolean(res.data);
+};
+
 export const adminFetchCategories = () => adminFetch("/categories");
 
 export const adminFetchSubcategories = (categoryId: string) => adminFetch(`/categories/${categoryId}/subcategories`);

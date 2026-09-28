@@ -12,6 +12,7 @@ import {
   adminUpdateOrderStatus,
 } from "@/app/lib/admin-api";
 import { getSessionCache, setSessionCache, CACHE_KEYS } from "@/app/lib/cache";
+import { useToast } from "@/app/admin/ToastContext";
 
 interface AdminOrder {
   id: string;
@@ -49,9 +50,10 @@ const statusColor: Record<string, string> = {
 };
 
 export default function AdminOrdersPage() {
+  const { showToast } = useToast();
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<"syncing" | "synced" | "idle">("syncing");
 
   const getCacheKey = useCallback((status: string) => `${CACHE_KEYS.ADMIN_ORDERS}_${status || "all"}`, []);
 
@@ -73,7 +75,7 @@ export default function AdminOrdersPage() {
       }
     }
 
-    setIsSyncing(true);
+    setSyncStatus("syncing");
     if (orders.length === 0 && !getSessionCache(cacheKey)) {
       setLoading(true);
     }
@@ -82,11 +84,12 @@ export default function AdminOrdersPage() {
       const res = await adminFetchAllOrders(statusFilter || undefined);
       setOrders(res.data);
       setSessionCache(cacheKey, res.data);
+      setSyncStatus("synced");
     } catch (error) {
       console.error("Failed to fetch orders:", error);
+      setSyncStatus("idle");
     } finally {
       setLoading(false);
-      setIsSyncing(false);
     }
   };
 
@@ -98,13 +101,17 @@ export default function AdminOrdersPage() {
     setUpdatingId(orderId);
     try {
       await adminUpdateOrderStatus(orderId, newStatus);
+      const targetOrder = orders.find(o => o.id === orderId);
+      const orderLabel = targetOrder ? targetOrder.orderNumber : orderId.substring(0, 8);
+      showToast(`Order #${orderLabel} updated to ${newStatus.replace('_', ' ')}`, "success");
       setOrders((prev) => {
         const updated = prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o));
         setSessionCache(getCacheKey(statusFilter), updated);
         return updated;
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to update order status:", error);
+      showToast(error.message || "Failed to update order status", "error");
     } finally {
       setUpdatingId(null);
     }
@@ -122,9 +129,23 @@ export default function AdminOrdersPage() {
             <ArrowLeft size={18} />
           </Link>
           <div>
-            <h1 className="text-2xl font-light text-bharati-black tracking-wide">
-              Orders
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-light text-bharati-black tracking-wide">
+                Orders
+              </h1>
+              {syncStatus === "syncing" && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200/60 animate-pulse">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
+                  Syncing...
+                </span>
+              )}
+              {syncStatus === "synced" && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60 transition-all duration-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  Synced
+                </span>
+              )}
+            </div>
             <p className="text-sm text-bharati-ash mt-0.5">
               {orders.length} order{orders.length !== 1 ? "s" : ""}
               {statusFilter ? ` · ${statusFilter.replace(/_/g, " ")}` : ""}
@@ -155,11 +176,11 @@ export default function AdminOrdersPage() {
 
           <button
             onClick={() => fetchOrders(true)}
-            disabled={isSyncing}
+            disabled={syncStatus === "syncing"}
             className="flex items-center gap-2 px-4 py-2 text-sm text-bharati-ash hover:text-bharati-black border border-bharati-mist rounded-md hover:bg-bharati-cream transition-colors disabled:opacity-50"
           >
-            <RefreshCw size={16} className={isSyncing ? "animate-spin text-bharati-mint-dark" : ""} />
-            {isSyncing ? "Syncing..." : "Refresh"}
+            <RefreshCw size={16} className={syncStatus === "syncing" ? "animate-spin text-bharati-mint-dark" : ""} />
+            <span>Refresh</span>
           </button>
         </div>
       </div>

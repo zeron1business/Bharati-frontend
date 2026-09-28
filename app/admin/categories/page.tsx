@@ -14,7 +14,7 @@ export default function AdminCategories() {
   const [isLoading, setIsLoading] = useState<boolean>(() => {
     return !getSessionCache<any[]>(CACHE_KEYS.ADMIN_CATEGORIES);
   });
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<"syncing" | "synced" | "idle">("syncing");
 
   const fetchCategories = async (forceRefresh = false) => {
     if (!forceRefresh && categories.length === 0) {
@@ -25,7 +25,7 @@ export default function AdminCategories() {
       }
     }
 
-    setIsSyncing(true);
+    setSyncStatus("syncing");
     if (categories.length === 0 && !getSessionCache(CACHE_KEYS.ADMIN_CATEGORIES)) {
       setIsLoading(true);
     }
@@ -34,11 +34,12 @@ export default function AdminCategories() {
       const response = await adminFetchCategories();
       setCategories(response.data);
       setSessionCache(CACHE_KEYS.ADMIN_CATEGORIES, response.data);
+      setSyncStatus("synced");
     } catch (error) {
       console.error("Failed to fetch categories:", error);
+      setSyncStatus("idle");
     } finally {
       setIsLoading(false);
-      setIsSyncing(false);
     }
   };
 
@@ -51,21 +52,27 @@ export default function AdminCategories() {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-light text-bharati-black tracking-wide">Categories</h1>
-          {isSyncing && (
-            <span className="text-xs text-bharati-ash flex items-center gap-1.5 animate-pulse">
-              <span className="w-1.5 h-1.5 rounded-full bg-bharati-mint"></span>
+          {syncStatus === "syncing" && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200/60 animate-pulse">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
               Syncing...
+            </span>
+          )}
+          {syncStatus === "synced" && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60 transition-all duration-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Synced
             </span>
           )}
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => fetchCategories(true)}
-            disabled={isSyncing}
+            disabled={syncStatus === "syncing"}
             className="flex items-center gap-2 px-3.5 py-2.5 rounded-md border border-bharati-mist text-bharati-charcoal hover:bg-bharati-cream transition-colors text-sm font-medium disabled:opacity-50"
             title="Refresh categories list"
           >
-            <RefreshCw size={16} className={isSyncing ? "animate-spin text-bharati-mint-dark" : "text-bharati-charcoal"} />
+            <RefreshCw size={16} className={syncStatus === "syncing" ? "animate-spin text-bharati-mint-dark" : "text-bharati-charcoal"} />
             <span className="hidden sm:inline">Refresh</span>
           </button>
           <Link href="/admin/categories/new" className="btn-primary flex items-center gap-2">

@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { adminCreateCategory } from "@/app/lib/admin-api";
 import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
+import { useToast, setFlashToast } from "@/app/admin/ToastContext";
 
 export default function NewCategory() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -46,9 +48,11 @@ export default function NewCategory() {
       };
 
       await adminCreateCategory(payload);
+      setFlashToast("Category created successfully!", "success");
       router.push("/admin/categories");
     } catch (err: any) {
       setError(err.message || "Failed to create category");
+      showToast(err.message || "Failed to create category", "error");
     } finally {
       setIsLoading(false);
     }
@@ -63,11 +67,7 @@ export default function NewCategory() {
         <h1 className="text-2xl font-light text-bharati-black tracking-wide">Add New Category</h1>
       </div>
 
-      {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-md text-sm border border-red-100">
-          {error}
-        </div>
-      )}
+      {/* Floating toasts handle error/success feedback */}
 
       <form onSubmit={handleSubmit} className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
         

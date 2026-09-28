@@ -2,25 +2,46 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { adminFetchProduct, adminUpdateProduct, adminFetchCategories, adminFetchSubcategories, adminUploadImage, adminUploadImages } from "@/app/lib/admin-api";
+import { 
+  adminFetchProduct, 
+  adminUpdateProduct, 
+  adminFetchCategories, 
+  adminFetchSubcategories, 
+  adminUploadImage, 
+  adminUploadImages,
+  adminCheckSlug,
+  adminCheckSku 
+} from "@/app/lib/admin-api";
 import { getSessionCache, setSessionCache, clearSessionCacheByPrefix, CACHE_KEYS } from "@/app/lib/cache";
 import Link from "next/link";
-import { ArrowLeft, Save, Loader2, Upload, X, Plus, Trash2, CheckCircle } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Upload, X, Plus, Trash2, CheckCircle, AlertCircle, AlertTriangle } from "lucide-react";
 import React from "react";
+import { useToast, setFlashToast } from "@/app/admin/ToastContext";
 
 export default function EditProduct({ params }: { params: { id: string } }) {
   const unwrappedParams = React.use(params as any) as any;
   const id = unwrappedParams.id;
   const router = useRouter();
+  const { showToast } = useToast();
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadingVariantIndex, setUploadingVariantIndex] = useState<number | null>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [subcategories, setSubcategories] = useState<any[]>([]);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  
+  // Real-time validation states
+  const [slugError, setSlugError] = useState<string | null>(null);
+  const [isCheckingSlug, setIsCheckingSlug] = useState(false);
+  const [skuErrors, setSkuErrors] = useState<{ [key: number]: string }>({});
+  
+  // Variant deletion modal state
+  const [variantToDeleteIndex, setVariantToDeleteIndex] = useState<number | null>(null);
+  const [variantDeleteConfirmText, setVariantDeleteConfirmText] = useState("");
   
   const [selectedCategory, setSelectedCategory] = useState("");
   const [warrantyPreset, setWarrantyPreset] = useState("");
@@ -112,6 +133,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
 
               if (p.variants && p.variants.length > 0) {
                   setVariants(p.variants.map((v: any) => ({
+                      id: v.id,
                       sku: v.sku || "",
                       basePrice: v.basePrice?.toString() || "0",
                       discountedPrice: v.discountedPrice?.toString() || "0",
@@ -121,6 +143,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
                       inductionCompatible: v.inductionCompatible || false,
                       warrantyOverride: v.warrantyOverride || "",
                       isActive: v.isActive !== undefined ? v.isActive : true,
+                      mediaUrls: v.mediaUrls || (v.media ? v.media.map((m: any) => m.url) : []),
                       specifications: v.specifications || []
                   })));
               } else {
@@ -134,6 +157,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
                       inductionCompatible: false,
                       warrantyOverride: "",
                       isActive: true,
+                      mediaUrls: [],
                       specifications: []
                   }]);
               }
@@ -152,8 +176,6 @@ export default function EditProduct({ params }: { params: { id: string } }) {
         try {
           const response = await adminFetchSubcategories(selectedCategory);
           setSubcategories(response.data);
-          // Only clear subcategoryId if it's not the initial load matching the category
-          // setFormData(prev => ({ ...prev, subcategoryId: "" }));
         } catch (err) {
           console.error("Failed to load subcategories:", err);
         }
@@ -163,6 +185,72 @@ export default function EditProduct({ params }: { params: { id: string } }) {
       setSubcategories([]);
     }
   }, [selectedCategory]);
+
+  // Real-time debounce check for slug (excluding current product)
+  useEffect(() => {
+    const slug = formData.slug?.trim().toLowerCase();
+    if (!slug) {
+      setSlugError(null);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setIsCheckingSlug(true);
+      try {
+        const exists = await adminCheckSlug(slug, id);
+        if (exists) {
+          setSlugError("Duplicate value exists: This slug is already in use by another product.");
+        } else {
+          setSlugError(null);
+        }
+      } catch (e) {
+        // ignore
+      } finally {
+        setIsCheckingSlug(false);
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [formData.slug, id]);
+
+  // Real-time debounce check for variant SKUs
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      const newSkuErrors: { [key: number]: string } = {};
+      const skuMap = new Map<string, number>();
+
+      for (let i = 0; i < variants.length; i++) {
+        const rawSku = variants[i].sku?.trim();
+        if (!rawSku) continue;
+        const normalizedSku = rawSku.toUpperCase();
+
+        if (skuMap.has(normalizedSku)) {
+          newSkuErrors[i] = "Duplicate value exists: SKU is repeated across variants.";
+          const firstIdx = skuMap.get(normalizedSku)!;
+          newSkuErrors[firstIdx] = "Duplicate value exists: SKU is repeated across variants.";
+        } else {
+          skuMap.set(normalizedSku, i);
+        }
+      }
+
+      for (let i = 0; i < variants.length; i++) {
+        if (newSkuErrors[i]) continue;
+        const sku = variants[i].sku?.trim();
+        if (!sku) continue;
+
+        try {
+          const exists = await adminCheckSku(sku, variants[i].id);
+          if (exists) {
+            newSkuErrors[i] = "Duplicate value exists: SKU is already assigned in the catalog.";
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      setSkuErrors(newSkuErrors);
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [variants]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -206,6 +294,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
       inductionCompatible: false,
       warrantyOverride: "",
       isActive: true,
+      mediaUrls: [],
       specifications: []
     }]);
   };
@@ -213,6 +302,15 @@ export default function EditProduct({ params }: { params: { id: string } }) {
   const removeVariant = (index: number) => {
     if (variants.length > 1) {
       setVariants(variants.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleConfirmDeleteVariant = () => {
+    if (variantToDeleteIndex !== null && variantDeleteConfirmText.trim().toLowerCase() === "confirm") {
+      removeVariant(variantToDeleteIndex);
+      setVariantToDeleteIndex(null);
+      setVariantDeleteConfirmText("");
+      showToast("Successfully deleted variant", "success");
     }
   };
 
@@ -256,9 +354,46 @@ export default function EditProduct({ params }: { params: { id: string } }) {
       setMediaUrls(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleVariantImageUpload = async (variantIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const files = Array.from(e.target.files);
+
+    setUploadingVariantIndex(variantIndex);
+    setError("");
+    try {
+      const urls = await adminUploadImages(files);
+      const newVariants = [...variants];
+      const existingUrls = newVariants[variantIndex].mediaUrls || [];
+      newVariants[variantIndex].mediaUrls = [...existingUrls, ...urls];
+      setVariants(newVariants);
+    } catch (err: any) {
+      setError(err.message || "Failed to upload variant image(s)");
+    } finally {
+      setUploadingVariantIndex(null);
+      e.target.value = "";
+    }
+  };
+
+  const removeVariantImage = (variantIndex: number, imageIndex: number) => {
+    const newVariants = [...variants];
+    newVariants[variantIndex].mediaUrls = (newVariants[variantIndex].mediaUrls || []).filter((_: any, i: number) => i !== imageIndex);
+    setVariants(newVariants);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (slugError) {
+      setError("Cannot save: Duplicate slug value exists. Please enter a unique slug.");
+      return;
+    }
+    const hasSkuErrors = Object.values(skuErrors).some(err => !!err);
+    if (hasSkuErrors) {
+      setError("Cannot save: Duplicate SKU value exists. Please ensure all variant SKUs are unique.");
+      return;
+    }
+
     setIsSaving(true);
 
     try {
@@ -272,11 +407,13 @@ export default function EditProduct({ params }: { params: { id: string } }) {
 
       const formattedVariants = variants.map(v => ({
         ...v,
+        id: v.id,
         basePrice: parseFloat(v.basePrice) || 0,
         discountedPrice: parseFloat(v.discountedPrice) || 0,
         stockQuantity: parseInt(v.stockQuantity) || 0,
         isActive: v.isActive !== undefined ? v.isActive : true,
-        volumeLitres: v.volumeLitres ? parseFloat(v.volumeLitres) : null
+        volumeLitres: v.volumeLitres ? parseFloat(v.volumeLitres) : null,
+        mediaUrls: v.mediaUrls || []
       }));
 
       const payload = {
@@ -290,12 +427,14 @@ export default function EditProduct({ params }: { params: { id: string } }) {
       await adminUpdateProduct(id, payload);
       clearSessionCacheByPrefix(CACHE_KEYS.ADMIN_PRODUCTS);
       clearSessionCacheByPrefix(CACHE_KEYS.STORE_PRODUCTS);
-      setSuccessMessage("Product updated successfully!");
+      setFlashToast("Product updated successfully!", "success");
+      showToast("Product updated successfully!", "success");
       setTimeout(() => {
         router.push("/admin/products");
-      }, 1500);
+      }, 1000);
     } catch (err: any) {
       setError(err.message || "Failed to update product");
+      showToast(err.message || "Failed to update product", "error");
     } finally {
       setIsSaving(false);
     }
@@ -318,18 +457,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
         <h1 className="text-2xl font-light text-bharati-black tracking-wide">Edit Product</h1>
       </div>
 
-      {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-md text-sm border border-red-100">
-          {error}
-        </div>
-      )}
-
-      {successMessage && (
-        <div className="bg-bharati-mint-muted border border-bharati-mint/30 text-bharati-charcoal p-4 rounded-md text-sm flex items-center gap-3 shadow-sm transition-all duration-300">
-          <CheckCircle size={20} className="text-bharati-mint-dark shrink-0" />
-          <span className="font-medium text-bharati-charcoal">{successMessage}</span>
-        </div>
-      )}
+      {/* Floating toasts handle success/error feedback now */}
 
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-4">
@@ -381,7 +509,31 @@ export default function EditProduct({ params }: { params: { id: string } }) {
             </div>
             <div>
               <label className="block text-sm font-medium text-bharati-charcoal mb-2">Slug *</label>
-              <input type="text" name="slug" value={formData.slug} onChange={handleChange} required className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors" />
+              <div className="relative">
+                <input 
+                  type="text" 
+                  name="slug" 
+                  value={formData.slug} 
+                  onChange={handleChange} 
+                  required 
+                  className={`w-full p-3 border rounded-md transition-colors ${
+                    slugError 
+                      ? "border-red-500 bg-red-50/20 text-red-900 focus:border-red-500 focus:ring-1 focus:ring-red-200" 
+                      : "border-bharati-mist focus:border-bharati-black"
+                  }`} 
+                />
+                {isCheckingSlug && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="w-4 h-4 border-2 border-bharati-charcoal border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
+              </div>
+              {slugError && (
+                <div className="flex items-center gap-1.5 text-xs text-red-600 mt-1.5 font-medium animate-fadeIn">
+                  <AlertCircle size={14} className="shrink-0" />
+                  <span>{slugError}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -464,7 +616,15 @@ export default function EditProduct({ params }: { params: { id: string } }) {
             {variants.map((variant, index) => (
               <div key={index} className="p-5 border border-bharati-mist rounded-md bg-gray-50/50 relative">
                 {variants.length > 1 && (
-                  <button type="button" onClick={() => removeVariant(index)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 transition-colors">
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setVariantToDeleteIndex(index);
+                      setVariantDeleteConfirmText("");
+                    }} 
+                    className="absolute top-4 right-4 text-red-400 hover:text-red-600 transition-colors p-1.5 rounded hover:bg-red-50"
+                    title="Delete variant"
+                  >
                     <Trash2 size={18} />
                   </button>
                 )}
@@ -473,7 +633,24 @@ export default function EditProduct({ params }: { params: { id: string } }) {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   <div>
                     <label className="block text-xs font-medium text-gray-500 mb-1">SKU *</label>
-                    <input type="text" name="sku" value={variant.sku} onChange={(e) => handleVariantChange(index, e)} required className="w-full p-2.5 border border-bharati-mist rounded-md focus:border-bharati-black text-sm bg-white" />
+                    <input 
+                      type="text" 
+                      name="sku" 
+                      value={variant.sku} 
+                      onChange={(e) => handleVariantChange(index, e)} 
+                      required 
+                      className={`w-full p-2.5 border rounded-md text-sm bg-white transition-colors ${
+                        skuErrors[index] 
+                          ? "border-red-500 bg-red-50/20 text-red-900 focus:border-red-500 focus:ring-1 focus:ring-red-200" 
+                          : "border-bharati-mist focus:border-bharati-black"
+                      }`} 
+                    />
+                    {skuErrors[index] && (
+                      <div className="flex items-center gap-1.5 text-xs text-red-600 mt-1 font-medium animate-fadeIn">
+                        <AlertCircle size={13} className="shrink-0" />
+                        <span>{skuErrors[index]}</span>
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-500 mb-1">Base Price (₹) *</label>
@@ -538,6 +715,60 @@ export default function EditProduct({ params }: { params: { id: string } }) {
                         <p className="text-xs text-gray-400 italic">No specifications added yet.</p>
                     )}
                   </div>
+
+                  {/* Variant Images */}
+                  <div className="col-span-1 md:col-span-3 mt-4 pt-4 border-t border-bharati-mist/50">
+                    <div className="flex justify-between items-center mb-3">
+                      <div>
+                        <label className="block text-xs font-medium text-bharati-charcoal">
+                          Variant Images (Specific to this variant)
+                        </label>
+                        <p className="text-[11px] text-gray-400">
+                          Add photos showing this specific size, material, or color
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                      {variant.mediaUrls && variant.mediaUrls.map((url: string, imgIdx: number) => (
+                        <div key={imgIdx} className="relative aspect-square rounded border border-bharati-mist overflow-hidden group bg-white">
+                          <img src={url} alt={`Variant ${index + 1} - ${imgIdx + 1}`} className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => removeVariantImage(index, imgIdx)}
+                            className="absolute top-1 right-1 bg-white/90 p-1 rounded-full text-red-500 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                            title="Remove image"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+
+                      <label className="flex flex-col items-center justify-center aspect-square border-2 border-dashed border-bharati-mist rounded cursor-pointer hover:bg-gray-100/70 transition-colors">
+                        <div className="flex flex-col items-center space-y-1 p-2 text-center">
+                          {uploadingVariantIndex === index ? (
+                            <>
+                              <div className="w-5 h-5 border-2 border-bharati-charcoal border-t-transparent rounded-full animate-spin"></div>
+                              <span className="text-[10px] text-bharati-charcoal">Uploading...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Upload size={18} className="text-gray-400" />
+                              <span className="text-xs font-medium text-bharati-charcoal">Add Images</span>
+                            </>
+                          )}
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={(e) => handleVariantImageUpload(index, e)}
+                          className="hidden"
+                          disabled={uploadingVariantIndex === index}
+                        />
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
@@ -573,6 +804,97 @@ export default function EditProduct({ params }: { params: { id: string } }) {
           </button>
         </div>
       </form>
+
+      {/* Variant Delete Confirmation Modal */}
+      {variantToDeleteIndex !== null && variants[variantToDeleteIndex] && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 border border-bharati-mist space-y-4">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-red-50 border border-red-100 flex items-center justify-center text-red-600 shrink-0">
+                  <AlertTriangle size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-bharati-black">Delete Variant</h3>
+                  <p className="text-xs text-bharati-ash">Confirm Variant Removal</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setVariantToDeleteIndex(null);
+                  setVariantDeleteConfirmText("");
+                }}
+                className="text-bharati-ash hover:text-bharati-black p-1 rounded-md transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="bg-bharati-cream/60 p-3 rounded-lg border border-bharati-mist/60 text-sm space-y-1">
+              <div className="font-semibold text-bharati-black">
+                Variant {variantToDeleteIndex + 1}
+                {variants[variantToDeleteIndex].volumeLitres ? ` • ${variants[variantToDeleteIndex].volumeLitres}L` : ""}
+                {variants[variantToDeleteIndex].materialType ? ` • ${variants[variantToDeleteIndex].materialType}` : ""}
+              </div>
+              <div className="text-xs text-bharati-ash font-mono">
+                SKU: {variants[variantToDeleteIndex].sku || "Unspecified"}
+              </div>
+              <div className="text-xs text-bharati-ash">
+                Price: ₹{variants[variantToDeleteIndex].discountedPrice || variants[variantToDeleteIndex].basePrice || "0"} | Stock: {variants[variantToDeleteIndex].stockQuantity || "0"}
+                {variants[variantToDeleteIndex].mediaUrls && variants[variantToDeleteIndex].mediaUrls.length > 0 ? ` | ${variants[variantToDeleteIndex].mediaUrls.length} image(s)` : ""}
+              </div>
+            </div>
+
+            <p className="text-sm text-bharati-charcoal leading-relaxed">
+              Are you sure you want to delete this variant? When you save changes, this variant and all its specifications and uploaded media will be permanently removed.
+            </p>
+
+            <div className="space-y-2 pt-1">
+              <label className="block text-xs font-semibold text-bharati-charcoal uppercase tracking-wider">
+                Type <span className="font-bold text-red-600 font-mono">confirm</span> to delete:
+              </label>
+              <input
+                type="text"
+                value={variantDeleteConfirmText}
+                onChange={(e) => setVariantDeleteConfirmText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (variantDeleteConfirmText.trim().toLowerCase() === "confirm") {
+                      handleConfirmDeleteVariant();
+                    }
+                  }
+                }}
+                placeholder="confirm"
+                className="w-full px-3 py-2 border border-bharati-mist rounded-md font-mono text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-200 transition-colors"
+                autoFocus
+              />
+            </div>
+
+            <div className="flex gap-3 justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setVariantToDeleteIndex(null);
+                  setVariantDeleteConfirmText("");
+                }}
+                className="px-4 py-2 border border-bharati-mist text-bharati-charcoal rounded-md text-sm hover:bg-bharati-cream transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteVariant}
+                disabled={variantDeleteConfirmText.trim().toLowerCase() !== "confirm"}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-40 disabled:hover:bg-red-600 text-white rounded-md text-sm font-medium transition-colors cursor-pointer disabled:cursor-not-allowed"
+              >
+                Delete Variant
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

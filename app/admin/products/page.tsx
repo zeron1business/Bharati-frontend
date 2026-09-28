@@ -1,16 +1,25 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { adminFetchProducts } from "@/app/lib/admin-api";
-import { getSessionCache, setSessionCache, CACHE_KEYS } from "@/app/lib/cache";
+import { adminFetchProducts, adminDeleteProduct } from "@/app/lib/admin-api";
+import { getSessionCache, setSessionCache, clearSessionCacheByPrefix, CACHE_KEYS } from "@/app/lib/cache";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Plus, Edit2, RefreshCw } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, RefreshCw, AlertTriangle, CheckCircle2, X } from "lucide-react";
+import { useToast } from "@/app/admin/ToastContext";
 
 export default function AdminProducts() {
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<"syncing" | "synced" | "idle">("syncing");
+
+  // Delete modal states
+  const [productToDelete, setProductToDelete] = useState<any | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
 
   const getCacheKey = useCallback((p: number, s: string) => `${CACHE_KEYS.ADMIN_PRODUCTS}_p${p}_s${s}`, []);
 
@@ -42,7 +51,7 @@ export default function AdminProducts() {
     }
 
     // Indicate background syncing without blocking the existing table
-    setIsSyncing(true);
+    setSyncStatus("syncing");
     if (products.length === 0 && !getSessionCache(cacheKey)) {
       setIsLoading(true);
     }
@@ -53,11 +62,12 @@ export default function AdminProducts() {
       setProducts(data.content);
       setTotalPages(data.totalPages);
       setSessionCache(cacheKey, { content: data.content, totalPages: data.totalPages });
+      setSyncStatus("synced");
     } catch (error) {
       console.error("Failed to fetch products:", error);
+      setSyncStatus("idle");
     } finally {
       setIsLoading(false);
-      setIsSyncing(false);
     }
   };
 
@@ -71,26 +81,62 @@ export default function AdminProducts() {
     fetchProducts(true);
   };
 
+  const handleDeleteProduct = async () => {
+    if (!productToDelete) return;
+    if (deleteConfirmText.trim().toLowerCase() !== "confirm") {
+      setDeleteError("Please type 'confirm' to confirm deletion.");
+      return;
+    }
+
+    setIsDeleting(true);
+    setDeleteError("");
+
+    try {
+      await adminDeleteProduct(productToDelete.id);
+      clearSessionCacheByPrefix(CACHE_KEYS.ADMIN_PRODUCTS);
+      clearSessionCacheByPrefix(CACHE_KEYS.STORE_PRODUCTS);
+      
+      showToast(`Product "${productToDelete.name}" deleted successfully.`, "success");
+
+      setProductToDelete(null);
+      setDeleteConfirmText("");
+      await fetchProducts(true);
+    } catch (err: any) {
+      setDeleteError(err.message || "Failed to delete product. Please try again.");
+      showToast(err.message || "Failed to delete product. Please try again.", "error");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Floating toasts handle delete feedback now */}
+
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-light text-bharati-black tracking-wide">Products</h1>
-          {isSyncing && (
-            <span className="text-xs text-bharati-ash flex items-center gap-1.5 animate-pulse">
-              <span className="w-1.5 h-1.5 rounded-full bg-bharati-mint"></span>
+          {syncStatus === "syncing" && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200/60 animate-pulse">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
               Syncing...
+            </span>
+          )}
+          {syncStatus === "synced" && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60 transition-all duration-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Synced
             </span>
           )}
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => fetchProducts(true)}
-            disabled={isSyncing}
+            disabled={syncStatus === "syncing"}
             className="flex items-center gap-2 px-3.5 py-2.5 rounded-md border border-bharati-mist text-bharati-charcoal hover:bg-bharati-cream transition-colors text-sm font-medium disabled:opacity-50"
             title="Refresh products list"
           >
-            <RefreshCw size={16} className={isSyncing ? "animate-spin text-bharati-mint-dark" : "text-bharati-charcoal"} />
+            <RefreshCw size={16} className={syncStatus === "syncing" ? "animate-spin text-bharati-mint-dark" : "text-bharati-charcoal"} />
             <span className="hidden sm:inline">Refresh</span>
           </button>
           <Link href="/admin/products/new" className="btn-primary flex items-center gap-2">
@@ -209,12 +255,26 @@ export default function AdminProducts() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Link 
-                        href={`/admin/products/${product.id}/edit`}
-                        className="inline-flex items-center gap-1 text-bharati-ash hover:text-bharati-black transition-colors p-2"
-                      >
-                        <Edit2 size={16} />
-                      </Link>
+                      <div className="inline-flex items-center gap-1">
+                        <Link 
+                          href={`/admin/products/${product.id}/edit`}
+                          className="inline-flex items-center text-bharati-ash hover:text-bharati-black transition-colors p-2 rounded hover:bg-bharati-cream"
+                          title="Edit product"
+                        >
+                          <Edit2 size={16} />
+                        </Link>
+                        <button
+                          onClick={() => {
+                            setProductToDelete(product);
+                            setDeleteConfirmText("");
+                            setDeleteError("");
+                          }}
+                          className="inline-flex items-center text-bharati-ash hover:text-red-600 transition-colors p-2 rounded hover:bg-red-50"
+                          title="Delete product"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                   );
@@ -249,6 +309,104 @@ export default function AdminProducts() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {productToDelete && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 border border-bharati-mist space-y-4">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-red-50 border border-red-100 flex items-center justify-center text-red-600 shrink-0">
+                  <AlertTriangle size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-bharati-black">Delete Product</h3>
+                  <p className="text-xs text-bharati-ash">Permanent Database Action</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setProductToDelete(null);
+                  setDeleteConfirmText("");
+                  setDeleteError("");
+                }}
+                disabled={isDeleting}
+                className="text-bharati-ash hover:text-bharati-black p-1 rounded-md"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="bg-bharati-cream/60 p-3 rounded-lg border border-bharati-mist/60 text-sm space-y-1">
+              <div className="font-semibold text-bharati-black">{productToDelete.name}</div>
+              <div className="text-xs text-bharati-ash font-mono">Slug: {productToDelete.slug}</div>
+              {productToDelete.variants && (
+                <div className="text-xs text-bharati-ash">
+                  Contains {productToDelete.variants.length} variant(s)
+                </div>
+              )}
+            </div>
+
+            <p className="text-sm text-bharati-charcoal leading-relaxed">
+              This will permanently delete this product and all associated variants, specifications, media galleries, reviews, and active cart items safely from the database.
+            </p>
+
+            <div className="space-y-2 pt-1">
+              <label className="block text-xs font-semibold text-bharati-charcoal uppercase tracking-wider">
+                Type <span className="font-bold text-red-600 font-mono">confirm</span> to execute:
+              </label>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => {
+                  setDeleteConfirmText(e.target.value);
+                  setDeleteError("");
+                }}
+                placeholder="confirm"
+                disabled={isDeleting}
+                className="w-full px-3 py-2 border border-bharati-mist rounded-md font-mono text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-200 transition-colors"
+                autoFocus
+              />
+            </div>
+
+            {deleteError && (
+              <div className="text-xs text-red-600 bg-red-50 p-2.5 rounded border border-red-100 font-medium">
+                {deleteError}
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setProductToDelete(null);
+                  setDeleteConfirmText("");
+                  setDeleteError("");
+                }}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm text-bharati-charcoal hover:bg-bharati-cream border border-bharati-mist rounded-md transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteProduct}
+                disabled={deleteConfirmText.trim().toLowerCase() !== "confirm" || isDeleting}
+                className="px-4 py-2 text-sm bg-red-600 hover:bg-red-700 text-white rounded-md font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <RefreshCw size={14} className="animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <span>Delete Product</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
