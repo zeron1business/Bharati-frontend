@@ -136,6 +136,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               src={productData.image}
               alt={productData.title}
               fill
+              unoptimized={Boolean(productData.image?.startsWith("http"))}
               className="object-contain p-6 lg:p-12"
               sizes="(max-width: 1024px) 100vw, 50vw"
               priority

@@ -8,14 +8,22 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { fetchProducts } from "@/app/lib/api";
 import { ProductCard } from "@/app/lib/types";
+import { getSessionCache, setSessionCache, CACHE_KEYS } from "@/app/lib/cache";
 import { AnimatedSection } from "@/app/components/ui/AnimatedSection";
 import { SectionLabel } from "@/app/components/ui/SectionLabel";
 
 export function ShopProducts() {
-  const [products, setProducts] = useState<ProductCard[]>([]);
+  const [products, setProducts] = useState<ProductCard[]>(() => {
+    return getSessionCache<ProductCard[]>(CACHE_KEYS.STORE_PRODUCTS) || [];
+  });
 
   useEffect(() => {
-    fetchProducts().then(setProducts);
+    fetchProducts().then((data) => {
+      if (data && data.length > 0) {
+        setProducts(data);
+        setSessionCache(CACHE_KEYS.STORE_PRODUCTS, data);
+      }
+    });
   }, []);
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
@@ -112,6 +120,7 @@ export function ShopProducts() {
                       src={product.primaryImageUrl || "/products/Cooker-front.jpg"}
                       alt={product.title || product.name || "Product"}
                       fill
+                      unoptimized={Boolean(product.primaryImageUrl?.startsWith("http"))}
                       className="object-contain p-6 md:p-10 transition-transform duration-700 ease-out group-hover:scale-105"
                       sizes="(max-width: 768px) 260px, (max-width: 1024px) 360px, 400px"
                     />

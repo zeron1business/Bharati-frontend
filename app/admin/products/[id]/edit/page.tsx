@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { adminFetchProduct, adminUpdateProduct, adminFetchCategories, adminFetchSubcategories, adminUploadImage } from "@/app/lib/admin-api";
+import { adminFetchProduct, adminUpdateProduct, adminFetchCategories, adminFetchSubcategories, adminUploadImage, adminUploadImages } from "@/app/lib/admin-api";
+import { getSessionCache, setSessionCache, clearSessionCacheByPrefix, CACHE_KEYS } from "@/app/lib/cache";
 import Link from "next/link";
-import { ArrowLeft, Save, Loader2, Upload, X, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Upload, X, Plus, Trash2, CheckCircle } from "lucide-react";
 import React from "react";
 
 export default function EditProduct({ params }: { params: { id: string } }) {
@@ -18,6 +19,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
   const [categories, setCategories] = useState<any[]>([]);
   const [subcategories, setSubcategories] = useState<any[]>([]);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -39,6 +41,11 @@ export default function EditProduct({ params }: { params: { id: string } }) {
   const [variants, setVariants] = useState<any[]>([]);
 
   useEffect(() => {
+    const cachedCategories = getSessionCache<any[]>(CACHE_KEYS.ADMIN_CATEGORIES);
+    if (cachedCategories && cachedCategories.length > 0) {
+      setCategories(cachedCategories);
+    }
+
     const fetchInitialData = async () => {
       try {
         const [categoriesRes, productRes] = await Promise.all([
@@ -47,6 +54,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
         ]);
         
         setCategories(categoriesRes.data);
+        setSessionCache(CACHE_KEYS.ADMIN_CATEGORIES, categoriesRes.data);
         
         const p = productRes.data;
         const mUrls = (p.media || []).sort((a: any, b: any) => a.sortOrder - b.sortOrder).map((m: any) => m.url);
@@ -112,6 +120,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
                       materialType: v.materialType || "",
                       inductionCompatible: v.inductionCompatible || false,
                       warrantyOverride: v.warrantyOverride || "",
+                      isActive: v.isActive !== undefined ? v.isActive : true,
                       specifications: v.specifications || []
                   })));
               } else {
@@ -124,6 +133,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
                       materialType: "",
                       inductionCompatible: false,
                       warrantyOverride: "",
+                      isActive: true,
                       specifications: []
                   }]);
               }
@@ -195,6 +205,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
       materialType: "",
       inductionCompatible: false,
       warrantyOverride: "",
+      isActive: true,
       specifications: []
     }]);
   };
@@ -226,17 +237,18 @@ export default function EditProduct({ params }: { params: { id: string } }) {
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
+    const files = Array.from(e.target.files);
     
     setIsUploading(true);
     setError("");
     try {
-        const url = await adminUploadImage(file);
-        setMediaUrls(prev => [...prev, url]);
+        const urls = await adminUploadImages(files);
+        setMediaUrls(prev => [...prev, ...urls]);
     } catch (err: any) {
-        setError(err.message || "Failed to upload image");
+        setError(err.message || "Failed to upload image(s)");
     } finally {
         setIsUploading(false);
+        e.target.value = "";
     }
   };
 
@@ -263,18 +275,25 @@ export default function EditProduct({ params }: { params: { id: string } }) {
         basePrice: parseFloat(v.basePrice) || 0,
         discountedPrice: parseFloat(v.discountedPrice) || 0,
         stockQuantity: parseInt(v.stockQuantity) || 0,
+        isActive: v.isActive !== undefined ? v.isActive : true,
         volumeLitres: v.volumeLitres ? parseFloat(v.volumeLitres) : null
       }));
 
       const payload = {
         ...formData,
+        subcategoryId: formData.subcategoryId || null,
         badges: parsedBadges,
         mediaUrls: mediaUrls,
         variants: formattedVariants
       };
 
       await adminUpdateProduct(id, payload);
-      router.push("/admin/products");
+      clearSessionCacheByPrefix(CACHE_KEYS.ADMIN_PRODUCTS);
+      clearSessionCacheByPrefix(CACHE_KEYS.STORE_PRODUCTS);
+      setSuccessMessage("Product updated successfully!");
+      setTimeout(() => {
+        router.push("/admin/products");
+      }, 1500);
     } catch (err: any) {
       setError(err.message || "Failed to update product");
     } finally {
@@ -305,6 +324,13 @@ export default function EditProduct({ params }: { params: { id: string } }) {
         </div>
       )}
 
+      {successMessage && (
+        <div className="bg-bharati-mint-muted border border-bharati-mint/30 text-bharati-charcoal p-4 rounded-md text-sm flex items-center gap-3 shadow-sm transition-all duration-300">
+          <CheckCircle size={20} className="text-bharati-mint-dark shrink-0" />
+          <span className="font-medium text-bharati-charcoal">{successMessage}</span>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-4">
           <div className="flex justify-between items-center border-b border-bharati-mist pb-2">
@@ -327,16 +353,20 @@ export default function EditProduct({ params }: { params: { id: string } }) {
               </div>
             ))}
 
-            <label className="flex flex-col items-center justify-center w-32 h-32 shrink-0 rounded-md border-2 border-dashed border-bharati-mist hover:border-bharati-charcoal hover:bg-gray-50 transition-colors cursor-pointer text-gray-400 hover:text-bharati-charcoal">
+            <label className="flex flex-col items-center justify-center w-32 h-32 shrink-0 rounded-md border-2 border-dashed border-bharati-mist hover:border-bharati-charcoal hover:bg-gray-50 transition-colors cursor-pointer text-gray-400 hover:text-bharati-charcoal text-center p-2">
                 {isUploading ? (
-                    <div className="w-6 h-6 border-2 border-bharati-charcoal border-t-transparent rounded-full animate-spin"></div>
+                    <>
+                      <div className="w-6 h-6 border-2 border-bharati-charcoal border-t-transparent rounded-full animate-spin mb-1"></div>
+                      <span className="text-[11px] text-bharati-charcoal">Uploading...</span>
+                    </>
                 ) : (
                     <>
-                        <Upload size={24} className="mb-2" />
-                        <span className="text-sm font-medium">Upload</span>
+                        <Upload size={22} className="mb-1 text-gray-400" />
+                        <span className="text-xs font-medium text-bharati-charcoal">Upload Images</span>
+                        <span className="text-[10px] text-gray-400">Select multiple</span>
                     </>
                 )}
-                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploading} />
+                <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} disabled={isUploading} />
             </label>
           </div>
         </div>
@@ -465,10 +495,14 @@ export default function EditProduct({ params }: { params: { id: string } }) {
                     <label className="block text-xs font-medium text-gray-500 mb-1">Material Type</label>
                     <input type="text" name="materialType" value={variant.materialType} onChange={(e) => handleVariantChange(index, e)} className="w-full p-2.5 border border-bharati-mist rounded-md focus:border-bharati-black text-sm bg-white" placeholder="e.g. Stainless Steel" />
                   </div>
-                  <div className="flex items-center pt-6">
+                  <div className="flex flex-wrap items-center gap-6 pt-6">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input type="checkbox" name="inductionCompatible" checked={variant.inductionCompatible} onChange={(e) => handleVariantChange(index, e)} className="w-4 h-4 accent-bharati-charcoal" />
                       <span className="text-sm text-gray-600">Induction Compatible</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" name="isActive" checked={variant.isActive !== false} onChange={(e) => handleVariantChange(index, e)} className="w-4 h-4 accent-bharati-charcoal" />
+                      <span className="text-sm text-gray-600">Available in Store</span>
                     </label>
                   </div>
                   <div className="col-span-1 md:col-span-3 mt-2">

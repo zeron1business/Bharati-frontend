@@ -36,10 +36,14 @@ async function fetchApi<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const isGet = !options.method || options.method === "GET";
+  const fetchOptions: RequestInit = {
     ...options,
     headers,
-  });
+    ...(isGet && !(options as any).next && !options.cache ? { next: { revalidate: 60 } } : {}),
+  };
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions);
 
   let json: ApiResponse<T> | null = null;
 

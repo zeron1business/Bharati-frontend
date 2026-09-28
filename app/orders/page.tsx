@@ -174,6 +174,7 @@ export default function OrdersHistoryPage() {
                             src={item.productImageUrl || "/products/cooker_cutout.png"}
                             alt={item.titleSnapshot}
                             fill
+                            unoptimized={Boolean(item.productImageUrl?.startsWith("http"))}
                             className="object-contain p-1.5"
                             sizes="56px"
                           />

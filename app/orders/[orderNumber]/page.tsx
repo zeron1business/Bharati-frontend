@@ -171,6 +171,7 @@ export default function OrderConfirmationPage() {
                           src={item.productImageUrl || "/products/cooker_cutout.png"}
                           alt={item.titleSnapshot}
                           fill
+                          unoptimized={Boolean(item.productImageUrl?.startsWith("http"))}
                           className="object-contain p-2"
                           sizes="64px"
                         />

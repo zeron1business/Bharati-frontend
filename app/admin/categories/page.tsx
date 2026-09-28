@@ -2,36 +2,76 @@
 
 import { useEffect, useState } from "react";
 import { adminFetchCategories } from "@/app/lib/admin-api";
+import { getSessionCache, setSessionCache, CACHE_KEYS } from "@/app/lib/cache";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, RefreshCw } from "lucide-react";
 import Image from "next/image";
 
 export default function AdminCategories() {
-  const [categories, setCategories] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [categories, setCategories] = useState<any[]>(() => {
+    return getSessionCache<any[]>(CACHE_KEYS.ADMIN_CATEGORIES) || [];
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    return !getSessionCache<any[]>(CACHE_KEYS.ADMIN_CATEGORIES);
+  });
+  const [isSyncing, setIsSyncing] = useState(false);
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      setIsLoading(true);
-      try {
-        const response = await adminFetchCategories();
-        setCategories(response.data);
-      } catch (error) {
-        console.error("Failed to fetch categories:", error);
-      } finally {
+  const fetchCategories = async (forceRefresh = false) => {
+    if (!forceRefresh && categories.length === 0) {
+      const cached = getSessionCache<any[]>(CACHE_KEYS.ADMIN_CATEGORIES);
+      if (cached) {
+        setCategories(cached);
         setIsLoading(false);
       }
-    };
+    }
+
+    setIsSyncing(true);
+    if (categories.length === 0 && !getSessionCache(CACHE_KEYS.ADMIN_CATEGORIES)) {
+      setIsLoading(true);
+    }
+
+    try {
+      const response = await adminFetchCategories();
+      setCategories(response.data);
+      setSessionCache(CACHE_KEYS.ADMIN_CATEGORIES, response.data);
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+    } finally {
+      setIsLoading(false);
+      setIsSyncing(false);
+    }
+  };
+
+  useEffect(() => {
     fetchCategories();
   }, []);
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-light text-bharati-black tracking-wide">Categories</h1>
-        <Link href="/admin/categories/new" className="btn-primary flex items-center gap-2">
-          <Plus size={18} /> Add Category
-        </Link>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-light text-bharati-black tracking-wide">Categories</h1>
+          {isSyncing && (
+            <span className="text-xs text-bharati-ash flex items-center gap-1.5 animate-pulse">
+              <span className="w-1.5 h-1.5 rounded-full bg-bharati-mint"></span>
+              Syncing...
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => fetchCategories(true)}
+            disabled={isSyncing}
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-md border border-bharati-mist text-bharati-charcoal hover:bg-bharati-cream transition-colors text-sm font-medium disabled:opacity-50"
+            title="Refresh categories list"
+          >
+            <RefreshCw size={16} className={isSyncing ? "animate-spin text-bharati-mint-dark" : "text-bharati-charcoal"} />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+          <Link href="/admin/categories/new" className="btn-primary flex items-center gap-2">
+            <Plus size={18} /> Add Category
+          </Link>
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-bharati-mist overflow-hidden">
@@ -69,6 +109,7 @@ export default function AdminCategories() {
                               src={category.imageUrl} 
                               alt={category.name} 
                               fill 
+                              unoptimized
                               className="object-cover" 
                             />
                           ) : (

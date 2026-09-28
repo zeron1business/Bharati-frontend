@@ -94,6 +94,7 @@ export default async function ProductsPage() {
                   src={product.image}
                   alt={product.name}
                   fill
+                  unoptimized={Boolean(product.image?.startsWith("http"))}
                   className="object-contain p-5 md:p-10 transition-transform duration-700 ease-out group-hover:scale-105"
                   sizes="(max-width: 768px) 50vw, (max-width: 1024px) 50vw, 33vw"
                 />

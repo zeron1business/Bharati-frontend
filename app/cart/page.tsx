@@ -85,6 +85,7 @@ export default function CartPage() {
                       src={item.imageUrl || "/products/cooker_cutout.png"}
                       alt={item.title}
                       fill
+                      unoptimized={Boolean(item.imageUrl?.startsWith("http"))}
                       className="object-contain p-2"
                       sizes="96px"
                     />

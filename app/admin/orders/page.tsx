@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   RefreshCw,
   ChevronDown,
@@ -11,6 +11,7 @@ import {
   adminFetchAllOrders,
   adminUpdateOrderStatus,
 } from "@/app/lib/admin-api";
+import { getSessionCache, setSessionCache, CACHE_KEYS } from "@/app/lib/cache";
 
 interface AdminOrder {
   id: string;
@@ -48,20 +49,44 @@ const statusColor: Record<string, string> = {
 };
 
 export default function AdminOrdersPage() {
-  const [orders, setOrders] = useState<AdminOrder[]>([]);
-  const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
-  const fetchOrders = async () => {
-    setLoading(true);
+  const getCacheKey = useCallback((status: string) => `${CACHE_KEYS.ADMIN_ORDERS}_${status || "all"}`, []);
+
+  const [orders, setOrders] = useState<AdminOrder[]>(() => {
+    return getSessionCache<AdminOrder[]>(`${CACHE_KEYS.ADMIN_ORDERS}_all`) || [];
+  });
+  const [loading, setLoading] = useState<boolean>(() => {
+    return !getSessionCache<AdminOrder[]>(`${CACHE_KEYS.ADMIN_ORDERS}_all`);
+  });
+
+  const fetchOrders = async (forceRefresh = false) => {
+    const cacheKey = getCacheKey(statusFilter);
+
+    if (!forceRefresh && orders.length === 0) {
+      const cached = getSessionCache<AdminOrder[]>(cacheKey);
+      if (cached) {
+        setOrders(cached);
+        setLoading(false);
+      }
+    }
+
+    setIsSyncing(true);
+    if (orders.length === 0 && !getSessionCache(cacheKey)) {
+      setLoading(true);
+    }
+
     try {
       const res = await adminFetchAllOrders(statusFilter || undefined);
       setOrders(res.data);
+      setSessionCache(cacheKey, res.data);
     } catch (error) {
       console.error("Failed to fetch orders:", error);
     } finally {
       setLoading(false);
+      setIsSyncing(false);
     }
   };
 
@@ -73,9 +98,11 @@ export default function AdminOrdersPage() {
     setUpdatingId(orderId);
     try {
       await adminUpdateOrderStatus(orderId, newStatus);
-      setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
-      );
+      setOrders((prev) => {
+        const updated = prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o));
+        setSessionCache(getCacheKey(statusFilter), updated);
+        return updated;
+      });
     } catch (error) {
       console.error("Failed to update order status:", error);
     } finally {
@@ -127,11 +154,12 @@ export default function AdminOrdersPage() {
           </div>
 
           <button
-            onClick={fetchOrders}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-bharati-ash hover:text-bharati-black border border-bharati-mist rounded-md hover:bg-bharati-cream transition-colors"
+            onClick={() => fetchOrders(true)}
+            disabled={isSyncing}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-bharati-ash hover:text-bharati-black border border-bharati-mist rounded-md hover:bg-bharati-cream transition-colors disabled:opacity-50"
           >
-            <RefreshCw size={16} />
-            Refresh
+            <RefreshCw size={16} className={isSyncing ? "animate-spin text-bharati-mint-dark" : ""} />
+            {isSyncing ? "Syncing..." : "Refresh"}
           </button>
         </div>
       </div>

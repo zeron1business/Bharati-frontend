@@ -61,7 +61,7 @@ export const adminCreateCategory = (data: any) =>
 export const adminUpdateCategory = (id: string, data: any) => 
   adminFetch(`/categories/${id}`, { method: "PUT", body: JSON.stringify(data) });
 
-export const adminUploadImage = async (file: File) => {
+export const adminUploadImage = async (file: File): Promise<string> => {
     const token = getAuthToken();
     const formData = new FormData();
     formData.append("file", file);
@@ -74,11 +74,33 @@ export const adminUploadImage = async (file: File) => {
         body: formData,
     });
 
+    const data = await response.json().catch(() => null);
     if (!response.ok) {
-        throw new Error("Failed to upload image");
+        throw new Error(data?.message || data?.error || "Failed to upload image");
     }
-    const data = await response.json();
     return data.data; // URL string
+};
+
+export const adminUploadImages = async (files: File[]): Promise<string[]> => {
+    const token = getAuthToken();
+    const formData = new FormData();
+    files.forEach((file) => {
+        formData.append("files", file);
+    });
+
+    const response = await fetch(`${ADMIN_API_BASE_URL}/media/upload-multiple`, {
+        method: "POST",
+        headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: formData,
+    });
+
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
+        throw new Error(data?.message || data?.error || "Failed to upload images");
+    }
+    return data.data; // Array of URL strings
 };
 
 // Dashboard & Orders

@@ -8,14 +8,22 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { fetchCategories } from "@/app/lib/api";
 import { Category } from "@/app/lib/types";
+import { getSessionCache, setSessionCache, CACHE_KEYS } from "@/app/lib/cache";
 import { AnimatedSection } from "@/app/components/ui/AnimatedSection";
 import { SectionLabel } from "@/app/components/ui/SectionLabel";
 
 export function ShopCategory() {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[]>(() => {
+    return getSessionCache<Category[]>(CACHE_KEYS.STORE_CATEGORIES) || [];
+  });
 
   useEffect(() => {
-    fetchCategories().then(setCategories);
+    fetchCategories().then((data) => {
+      if (data && data.length > 0) {
+        setCategories(data);
+        setSessionCache(CACHE_KEYS.STORE_CATEGORIES, data);
+      }
+    });
   }, []);
 
   const [emblaRef, emblaApi] = useEmblaCarousel(

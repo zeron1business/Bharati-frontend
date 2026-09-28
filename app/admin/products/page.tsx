@@ -1,30 +1,63 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { adminFetchProducts } from "@/app/lib/admin-api";
+import { getSessionCache, setSessionCache, CACHE_KEYS } from "@/app/lib/cache";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Plus, Edit2 } from "lucide-react";
-
-// We'll map it out from the API response
+import { Search, Plus, Edit2, RefreshCw } from "lucide-react";
 
 export default function AdminProducts() {
-  const [products, setProducts] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+  const [isSyncing, setIsSyncing] = useState(false);
 
-  const fetchProducts = async () => {
-    setIsLoading(true);
+  const getCacheKey = useCallback((p: number, s: string) => `${CACHE_KEYS.ADMIN_PRODUCTS}_p${p}_s${s}`, []);
+
+  // Initialize from session cache immediately for 0ms loading
+  const [products, setProducts] = useState<any[]>(() => {
+    const cached = getSessionCache<{ content: any[]; totalPages: number }>(`${CACHE_KEYS.ADMIN_PRODUCTS}_p0_s`);
+    return cached?.content || [];
+  });
+  const [totalPages, setTotalPages] = useState<number>(() => {
+    const cached = getSessionCache<{ content: any[]; totalPages: number }>(`${CACHE_KEYS.ADMIN_PRODUCTS}_p0_s`);
+    return cached?.totalPages || 0;
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    const cached = getSessionCache<{ content: any[]; totalPages: number }>(`${CACHE_KEYS.ADMIN_PRODUCTS}_p0_s`);
+    return !cached;
+  });
+
+  const fetchProducts = async (forceRefresh = false) => {
+    const cacheKey = getCacheKey(page, search);
+
+    // If we don't have data in memory yet, check session cache first
+    if (!forceRefresh && products.length === 0) {
+      const cached = getSessionCache<{ content: any[]; totalPages: number }>(cacheKey);
+      if (cached) {
+        setProducts(cached.content);
+        setTotalPages(cached.totalPages);
+        setIsLoading(false);
+      }
+    }
+
+    // Indicate background syncing without blocking the existing table
+    setIsSyncing(true);
+    if (products.length === 0 && !getSessionCache(cacheKey)) {
+      setIsLoading(true);
+    }
+
     try {
       const response = await adminFetchProducts(page, search);
-      setProducts(response.data.content);
-      setTotalPages(response.data.totalPages);
+      const data = response.data;
+      setProducts(data.content);
+      setTotalPages(data.totalPages);
+      setSessionCache(cacheKey, { content: data.content, totalPages: data.totalPages });
     } catch (error) {
       console.error("Failed to fetch products:", error);
     } finally {
       setIsLoading(false);
+      setIsSyncing(false);
     }
   };
 
@@ -35,16 +68,35 @@ export default function AdminProducts() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(0);
-    fetchProducts();
+    fetchProducts(true);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-light text-bharati-black tracking-wide">Products</h1>
-        <Link href="/admin/products/new" className="btn-primary flex items-center gap-2">
-          <Plus size={18} /> Add Product
-        </Link>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-light text-bharati-black tracking-wide">Products</h1>
+          {isSyncing && (
+            <span className="text-xs text-bharati-ash flex items-center gap-1.5 animate-pulse">
+              <span className="w-1.5 h-1.5 rounded-full bg-bharati-mint"></span>
+              Syncing...
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => fetchProducts(true)}
+            disabled={isSyncing}
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-md border border-bharati-mist text-bharati-charcoal hover:bg-bharati-cream transition-colors text-sm font-medium disabled:opacity-50"
+            title="Refresh products list"
+          >
+            <RefreshCw size={16} className={isSyncing ? "animate-spin text-bharati-mint-dark" : "text-bharati-charcoal"} />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+          <Link href="/admin/products/new" className="btn-primary flex items-center gap-2">
+            <Plus size={18} /> Add Product
+          </Link>
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-bharati-mist overflow-hidden">
@@ -109,6 +161,7 @@ export default function AdminProducts() {
                               src={product.media.find((m: any) => m.isPrimary)?.url || product.media[0].url} 
                               alt={product.name} 
                               fill 
+                              unoptimized
                               className="object-cover" 
                             />
                           ) : (

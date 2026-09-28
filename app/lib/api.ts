@@ -6,12 +6,15 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/a
 async function retryFetch(
   url: string,
   options: RequestInit = {},
-  retries = 3,
-  delayMs = 2000
+  retries = 2,
+  delayMs = 1500
 ): Promise<Response> {
+  const isServer = typeof window === 'undefined';
+  const fetchOptions: RequestInit = isServer ? options : { ...options, next: undefined };
+
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const res = await fetch(url, options);
+      const res = await fetch(url, fetchOptions);
       return res;
     } catch (err) {
       if (attempt === retries) throw err;
@@ -28,7 +31,7 @@ export async function fetchCategories(): Promise<Category[]> {
     const json: ApiResponse<Category[]> = await res.json();
     return json.data;
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.warn('Could not fetch categories from API (backend starting up or offline):', error);
     return [];
   }
 }
@@ -46,7 +49,7 @@ export async function fetchProducts(categorySlug?: string): Promise<ProductCard[
     const json: ApiResponse<PagedResponse<ProductCard>> = await res.json();
     return json.data.content;
   } catch (error) {
-    console.error('Error fetching products:', error);
+    console.warn('Could not fetch products from API (backend starting up or offline):', error);
     return [];
   }
 }
