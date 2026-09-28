@@ -16,7 +16,7 @@ export function Header() {
   const isHomePage = pathname === "/";
   const { scrollY } = useScroll();
   const { itemCount, isHydrated } = useCart();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, openAuthModal } = useAuth();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     if (latest > 50) {
@@ -88,20 +88,31 @@ export function Header() {
             />
           </Link>
 
-          <Link
-            href={isLoggedIn ? "/account" : "/checkout"}
-            className={`p-2.5 rounded-full transition-colors duration-300 hidden md:flex ${
-              isHeroMode
-                ? "hover:bg-white/15 text-white"
-                : "hover:bg-bharati-black/5 text-bharati-charcoal"
-            }`}
-            aria-label={isLoggedIn ? "Account" : "Sign In"}
-          >
-            <User
-              size={19}
-              strokeWidth={1.5}
-            />
-          </Link>
+          {isLoggedIn ? (
+            <Link
+              href="/account"
+              className={`p-2.5 rounded-full transition-colors duration-300 hidden md:flex ${
+                isHeroMode
+                  ? "hover:bg-white/15 text-white"
+                  : "hover:bg-bharati-black/5 text-bharati-charcoal"
+              }`}
+              aria-label="Account"
+            >
+              <User size={19} strokeWidth={1.5} />
+            </Link>
+          ) : (
+            <button
+              onClick={openAuthModal}
+              className={`p-2.5 rounded-full transition-colors duration-300 hidden md:flex ${
+                isHeroMode
+                  ? "hover:bg-white/15 text-white"
+                  : "hover:bg-bharati-black/5 text-bharati-charcoal"
+              }`}
+              aria-label="Sign In"
+            >
+              <User size={19} strokeWidth={1.5} />
+            </button>
+          )}
 
           <Link
             href="/cart"

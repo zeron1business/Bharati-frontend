@@ -8,6 +8,7 @@ import Image from "next/image";
 import { navLinks } from "@/app/data/products";
 import { fetchCategories } from "@/app/lib/api";
 import { Category } from "@/app/lib/types";
+import { useAuth } from "@/context/AuthContext";
 
 const ease = [0.25, 0.1, 0.25, 1] as [number, number, number, number];
 const easeOutExpo = [0.16, 1, 0.3, 1] as [number, number, number, number];
@@ -54,6 +55,7 @@ export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
   const [productsExpanded, setProductsExpanded] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const { isLoggedIn, logout, openAuthModal } = useAuth();
 
   useEffect(() => {
     fetchCategories().then(setCategories);
@@ -257,7 +259,7 @@ export function MobileNav() {
                   ))}
                 </div>
 
-                {/* Login */}
+                {/* Login / Account */}
                 <motion.div
                   variants={itemVariants}
                   initial="hidden"
@@ -265,13 +267,37 @@ export function MobileNav() {
                   custom={9}
                   className="mb-12"
                 >
-                  <Link
-                    href="/login"
-                    onClick={closeMenu}
-                    className="btn-secondary inline-flex"
-                  >
-                    Login / Sign Up
-                  </Link>
+                  {isLoggedIn ? (
+                    <div className="flex flex-col gap-4">
+                      <Link
+                        href="/account"
+                        onClick={closeMenu}
+                        className="text-[1.15rem] font-light text-bharati-charcoal hover:text-bharati-black transition-colors duration-300 link-underline w-fit"
+                      >
+                        My Account
+                      </Link>
+                      <Link
+                        href="/orders"
+                        onClick={closeMenu}
+                        className="text-[1.15rem] font-light text-bharati-charcoal hover:text-bharati-black transition-colors duration-300 link-underline w-fit"
+                      >
+                        My Orders
+                      </Link>
+                      <button
+                        onClick={() => { logout(); closeMenu(); }}
+                        className="text-[1.15rem] font-light text-red-500 hover:text-red-700 transition-colors duration-300 link-underline w-fit text-left"
+                      >
+                        Log Out
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { openAuthModal(); closeMenu(); }}
+                      className="btn-secondary inline-flex"
+                    >
+                      Login / Sign Up
+                    </button>
+                  )}
                 </motion.div>
               </div>
 

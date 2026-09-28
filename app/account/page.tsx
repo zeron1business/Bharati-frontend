@@ -187,17 +187,22 @@ export default function AccountPage() {
                 <span className="text-xs text-bharati-silver uppercase tracking-wider block font-light">
                   Email Address
                 </span>
-                <p className="font-medium text-bharati-charcoal">
-                  {customer.email || "No email registered yet"}
-                </p>
-              </div>
-              <div className="space-y-1">
-                <span className="text-xs text-bharati-silver uppercase tracking-wider block font-light">
-                  Account Type
-                </span>
-                <p className="font-medium text-bharati-charcoal">
-                  {customer.type || "Standard Customer"}
-                </p>
+                <div className="font-medium text-bharati-charcoal flex items-center gap-2">
+                  {customer.email ? (
+                    <>
+                      {customer.email}
+                      {customer.emailVerified ? (
+                        <CheckCircle2 size={16} className="text-bharati-mint-dark" strokeWidth={2.5} title="Email Verified" />
+                      ) : (
+                        <button className="text-[10px] uppercase font-bold text-bharati-mint-dark bg-bharati-mint/10 px-2 py-0.5 rounded-full hover:bg-bharati-mint/20 transition-colors">
+                          Verify
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    "No email registered yet"
+                  )}
+                </div>
               </div>
             </div>
           </div>
