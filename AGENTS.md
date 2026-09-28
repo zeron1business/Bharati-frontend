@@ -1,3 +1,5 @@
+Read `../PROJECT_CONTEXT.md` first and keep it updated after every feature.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know

@@ -82,7 +82,7 @@ export default function OrdersHistoryPage() {
             <span className="text-label text-bharati-mint-dark mb-1 block font-medium">
               Order History
             </span>
-            <h1 className="text-headline text-bharati-black">
+            <h1 className="text-subtitle md:text-headline text-bharati-black">
               Your Orders ({orders.length})
             </h1>
           </div>

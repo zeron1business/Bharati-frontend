@@ -52,9 +52,9 @@ export function BuiltDifferent() {
             </AnimatedSection>
 
             <AnimatedSection delay={0.3}>
-              <div className="flex gap-12">
+              <div className="flex gap-8 lg:gap-12">
                 <div>
-                  <span className="text-[2.5rem] font-light text-bharati-mint-dark leading-none">
+                  <span className="text-[2rem] md:text-[2.5rem] font-light text-bharati-mint-dark leading-none">
                     25+
                   </span>
                   <span className="text-label text-bharati-silver block mt-2">
@@ -62,7 +62,7 @@ export function BuiltDifferent() {
                   </span>
                 </div>
                 <div>
-                  <span className="text-[2.5rem] font-light text-bharati-mint-dark leading-none">
+                  <span className="text-[2rem] md:text-[2.5rem] font-light text-bharati-mint-dark leading-none">
                     10L+
                   </span>
                   <span className="text-label text-bharati-silver block mt-2">

@@ -19,6 +19,9 @@ interface AuthContextType {
   refreshProfile: () => Promise<CustomerProfile | null>;
   updateProfile: (payload: { name: string; email?: string }) => Promise<CustomerProfile>;
   logout: () => void;
+  isAuthModalOpen: boolean;
+  openAuthModal: () => void;
+  closeAuthModal: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const refreshProfile = useCallback(async (): Promise<CustomerProfile | null> => {
     try {
@@ -77,6 +81,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const isLoggedIn = !!token && !!customer;
+  
+  const openAuthModal = useCallback(() => setIsAuthModalOpen(true), []);
+  const closeAuthModal = useCallback(() => setIsAuthModalOpen(false), []);
 
   return (
     <AuthContext.Provider
@@ -90,6 +97,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         refreshProfile,
         updateProfile,
         logout,
+        isAuthModalOpen,
+        openAuthModal,
+        closeAuthModal,
       }}
     >
       {children}

@@ -137,10 +137,10 @@ export default function AccountPage() {
         )}
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-bharati-mist/60 pb-3">
+        <div className="flex w-full items-center gap-2 border-b border-bharati-mist/60 pb-3">
           <button
             onClick={() => setActiveTab("PROFILE")}
-            className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors ${
+            className={`flex-1 sm:flex-none px-2 sm:px-4 py-3 sm:py-2 text-[10px] sm:text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors ${
               activeTab === "PROFILE"
                 ? "bg-bharati-mint-dark text-white"
                 : "text-bharati-ash hover:text-bharati-charcoal"
@@ -150,7 +150,7 @@ export default function AccountPage() {
           </button>
           <button
             onClick={() => setActiveTab("ADDRESSES")}
-            className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors ${
+            className={`flex-1 sm:flex-none px-2 sm:px-4 py-3 sm:py-2 text-[10px] sm:text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors ${
               activeTab === "ADDRESSES"
                 ? "bg-bharati-mint-dark text-white"
                 : "text-bharati-ash hover:text-bharati-charcoal"
@@ -187,17 +187,24 @@ export default function AccountPage() {
                 <span className="text-xs text-bharati-silver uppercase tracking-wider block font-light">
                   Email Address
                 </span>
-                <p className="font-medium text-bharati-charcoal">
-                  {customer.email || "No email registered yet"}
-                </p>
-              </div>
-              <div className="space-y-1">
-                <span className="text-xs text-bharati-silver uppercase tracking-wider block font-light">
-                  Account Type
-                </span>
-                <p className="font-medium text-bharati-charcoal">
-                  {customer.type || "Standard Customer"}
-                </p>
+                <div className="font-medium text-bharati-charcoal flex items-center gap-2">
+                  {customer.email ? (
+                    <>
+                      {customer.email}
+                      {customer.emailVerified ? (
+                        <span title="Email Verified" className="inline-flex items-center">
+                          <CheckCircle2 size={16} className="text-bharati-mint-dark" strokeWidth={2.5} />
+                        </span>
+                      ) : (
+                        <button className="text-[10px] uppercase font-bold text-bharati-mint-dark bg-bharati-mint/10 px-2 py-0.5 rounded-full hover:bg-bharati-mint/20 transition-colors">
+                          Verify
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    "No email registered yet"
+                  )}
+                </div>
               </div>
             </div>
           </div>

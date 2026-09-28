@@ -21,7 +21,7 @@ export function Footer() {
         </div>
 
         {/* Links Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-16 mb-16 md:mb-20">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-16 mb-16 md:mb-20">
           {/* Shop */}
           <div>
             <span className="text-label text-bharati-ash mb-5 block">Shop</span>

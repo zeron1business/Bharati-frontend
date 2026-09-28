@@ -16,7 +16,7 @@ export function Header() {
   const isHomePage = pathname === "/";
   const { scrollY } = useScroll();
   const { itemCount, isHydrated } = useCart();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, openAuthModal } = useAuth();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     if (latest > 50) {
@@ -72,10 +72,10 @@ export function Header() {
         </Link>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-1 md:gap-2">
+        <div className="flex items-center gap-2 md:gap-3">
           <Link
             href="/products"
-            className={`p-2.5 rounded-full transition-colors duration-300 ${
+            className={`p-3 sm:p-2.5 rounded-full transition-colors duration-300 ${
               isHeroMode
                 ? "hover:bg-white/15 text-white"
                 : "hover:bg-bharati-black/5 text-bharati-charcoal"
@@ -88,24 +88,35 @@ export function Header() {
             />
           </Link>
 
-          <Link
-            href={isLoggedIn ? "/account" : "/checkout"}
-            className={`p-2.5 rounded-full transition-colors duration-300 hidden md:flex ${
-              isHeroMode
-                ? "hover:bg-white/15 text-white"
-                : "hover:bg-bharati-black/5 text-bharati-charcoal"
-            }`}
-            aria-label={isLoggedIn ? "Account" : "Sign In"}
-          >
-            <User
-              size={19}
-              strokeWidth={1.5}
-            />
-          </Link>
+          {isLoggedIn ? (
+            <Link
+              href="/account"
+              className={`p-3 sm:p-2.5 rounded-full transition-colors duration-300 flex ${
+                isHeroMode
+                  ? "hover:bg-white/15 text-white"
+                  : "hover:bg-bharati-black/5 text-bharati-charcoal"
+              }`}
+              aria-label="Account"
+            >
+              <User size={19} strokeWidth={1.5} />
+            </Link>
+          ) : (
+            <button
+              onClick={openAuthModal}
+              className={`p-3 sm:p-2.5 rounded-full transition-colors duration-300 flex ${
+                isHeroMode
+                  ? "hover:bg-white/15 text-white"
+                  : "hover:bg-bharati-black/5 text-bharati-charcoal"
+              }`}
+              aria-label="Sign In"
+            >
+              <User size={19} strokeWidth={1.5} />
+            </button>
+          )}
 
           <Link
             href="/cart"
-            className={`relative p-2.5 rounded-full transition-colors duration-300 ${
+            className={`relative p-3 sm:p-2.5 rounded-full transition-colors duration-300 ${
               isHeroMode
                 ? "hover:bg-white/15 text-white"
                 : "hover:bg-bharati-black/5 text-bharati-charcoal"
@@ -125,7 +136,7 @@ export function Header() {
 
           <button
             onClick={toggleMenu}
-            className={`p-2.5 rounded-full transition-colors duration-300 ml-1 ${
+            className={`p-3 sm:p-2.5 rounded-full transition-colors duration-300 ml-1 sm:ml-2 ${
               isHeroMode
                 ? "hover:bg-white/15 text-white"
                 : "hover:bg-bharati-black/5 text-bharati-charcoal"

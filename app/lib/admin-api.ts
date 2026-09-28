@@ -80,3 +80,22 @@ export const adminUploadImage = async (file: File) => {
     const data = await response.json();
     return data.data; // URL string
 };
+
+// Dashboard & Orders
+export const adminFetchDashboardStats = () => adminFetch("/dashboard/stats");
+
+export const adminFetchRecentOrders = (limit: number = 10) => 
+  adminFetch(`/dashboard/recent-orders?limit=${limit}`);
+
+export const adminFetchAllOrders = (status?: string) => {
+  let url = "/dashboard/orders";
+  if (status) url += `?status=${status}`;
+  return adminFetch(url);
+};
+
+export const adminUpdateOrderStatus = (orderId: string, status: string) =>
+  adminFetch(`/dashboard/orders/${orderId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+

@@ -15,7 +15,7 @@ export function BrandCTA() {
       {/* Atmospheric teal radial glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-bharati-mint/15 blur-[120px] rounded-full pointer-events-none" />
 
-      <div className="relative section-container py-24 md:py-36 text-center">
+      <div className="relative section-container py-16 md:py-36 text-center">
         <AnimatedSection>
           <h2 className="text-headline text-bharati-white mb-6">
             Everyday cooking.

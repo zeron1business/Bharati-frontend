@@ -30,7 +30,7 @@ export default function ContactPage() {
               </label>
               <input
                 type="text"
-                className="w-full px-4 py-3 bg-bharati-ivory border border-bharati-mist text-bharati-charcoal text-[0.95rem] focus:outline-none focus:border-bharati-mint focus:ring-1 focus:ring-bharati-mint transition-colors duration-300"
+                className="w-full px-4 py-3 rounded-xl bg-bharati-ivory border border-bharati-mist text-bharati-charcoal text-[0.95rem] focus:outline-none focus:border-bharati-mint focus:ring-1 focus:ring-bharati-mint transition-colors duration-300"
                 placeholder="Your name"
               />
             </div>
@@ -40,7 +40,7 @@ export default function ContactPage() {
               </label>
               <input
                 type="email"
-                className="w-full px-4 py-3 bg-bharati-ivory border border-bharati-mist text-bharati-charcoal text-[0.95rem] focus:outline-none focus:border-bharati-mint focus:ring-1 focus:ring-bharati-mint transition-colors duration-300"
+                className="w-full px-4 py-3 rounded-xl bg-bharati-ivory border border-bharati-mist text-bharati-charcoal text-[0.95rem] focus:outline-none focus:border-bharati-mint focus:ring-1 focus:ring-bharati-mint transition-colors duration-300"
                 placeholder="you@example.com"
               />
             </div>
@@ -50,7 +50,7 @@ export default function ContactPage() {
               </label>
               <textarea
                 rows={5}
-                className="w-full px-4 py-3 bg-bharati-ivory border border-bharati-mist text-bharati-charcoal text-[0.95rem] focus:outline-none focus:border-bharati-mint focus:ring-1 focus:ring-bharati-mint transition-colors duration-300 resize-none"
+                className="w-full px-4 py-3 rounded-xl bg-bharati-ivory border border-bharati-mist text-bharati-charcoal text-[0.95rem] focus:outline-none focus:border-bharati-mint focus:ring-1 focus:ring-bharati-mint transition-colors duration-300 resize-none"
                 placeholder="Your message..."
               />
             </div>

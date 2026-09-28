@@ -48,7 +48,7 @@ export default function CartPage() {
             <span className="text-label text-bharati-mint-dark mb-1 block font-medium">
               Checkout Bag
             </span>
-            <h1 className="text-headline text-bharati-black">
+            <h1 className="text-subtitle md:text-headline text-bharati-black">
               Shopping Cart ({itemCount} {itemCount === 1 ? "item" : "items"})
             </h1>
           </div>

@@ -113,6 +113,7 @@ export interface CustomerProfile {
   id: string;
   name: string;
   email?: string | null;
+  emailVerified?: boolean;
   phone: string;
   phoneVerified: boolean;
   type: string;

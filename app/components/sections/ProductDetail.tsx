@@ -13,7 +13,7 @@ export function ProductDetail() {
     >
       <div className="section-container">
         {/* Header */}
-        <AnimatedSection className="text-center mb-16 md:mb-24">
+        <AnimatedSection className="text-center mb-10 md:mb-24">
           <SectionLabel color="black" className="mb-4 block">
             Engineered for Everyday
           </SectionLabel>
@@ -27,7 +27,7 @@ export function ProductDetail() {
         {/* Product + Features layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-4 items-center">
           {/* Left features */}
-          <div className="lg:col-span-3 flex flex-col gap-10 order-2 lg:order-1">
+          <div className="lg:col-span-3 flex flex-col gap-6 lg:gap-10 order-2 lg:order-1">
             {cookerFeatures.slice(0, 2).map((feature, i) => (
               <AnimatedSection
                 key={feature.number}
@@ -67,7 +67,7 @@ export function ProductDetail() {
           </AnimatedSection>
 
           {/* Right features */}
-          <div className="lg:col-span-3 flex flex-col gap-10 order-3">
+          <div className="lg:col-span-3 flex flex-col gap-6 lg:gap-10 order-3">
             {cookerFeatures.slice(2, 4).map((feature, i) => (
               <AnimatedSection
                 key={feature.number}

@@ -42,9 +42,9 @@ export function LifestyleSection() {
               <div
                 className={`group relative ${meal.color} overflow-hidden transition-all duration-500 hover:shadow-sm ${
                   i === 0 || i === 3
-                    ? "aspect-[3/4]"
+                    ? "aspect-square md:aspect-[3/4]"
                     : i === 2 || i === 5
-                    ? "aspect-[3/4]"
+                    ? "aspect-square md:aspect-[3/4]"
                     : "aspect-square"
                 }`}
               >

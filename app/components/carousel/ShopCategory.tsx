@@ -94,16 +94,16 @@ export function ShopCategory() {
             {categories.map((cat) => (
               <div
                 key={cat.id}
-                className="flex-shrink-0 w-[280px] md:w-[340px] lg:w-[380px]"
+                className="flex-shrink-0 w-[240px] md:w-[340px] lg:w-[380px]"
               >
                 <Link href={`/products?category=${cat.slug}`} className="group block">
-                  <div className="relative aspect-[3/4] bg-bharati-ivory overflow-hidden mb-4 border border-transparent group-hover:border-bharati-mint/30 transition-all duration-500">
+                  <div className="relative aspect-[4/5] md:aspect-[3/4] bg-bharati-ivory overflow-hidden mb-4 border border-transparent group-hover:border-bharati-mint/30 transition-all duration-500">
                     <Image
                       src={cat.imageUrl || "/products/Cooker-front.jpg"}
                       alt={cat.name}
                       fill
-                      className="object-contain p-8 transition-transform duration-700 ease-out group-hover:scale-105"
-                      sizes="(max-width: 768px) 280px, (max-width: 1024px) 340px, 380px"
+                      className="object-contain p-6 md:p-8 transition-transform duration-700 ease-out group-hover:scale-105"
+                      sizes="(max-width: 768px) 240px, (max-width: 1024px) 340px, 380px"
                     />
                     {/* Subtle bottom gradient */}
                     <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-bharati-ivory/90 to-transparent" />
