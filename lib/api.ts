@@ -41,16 +41,30 @@ async function fetchApi<T>(
     headers,
   });
 
-  const json: ApiResponse<T> = await response.json().catch(() => {
-    throw new Error(`Failed to parse response from ${endpoint}`);
-  });
+  let json: ApiResponse<T> | null = null;
 
-  if (!response.ok || !json.success) {
-    const errorMsg = json.message || `Request failed with status ${response.status}`;
+  try {
+    const text = await response.text();
+    if (text) {
+      json = JSON.parse(text);
+    }
+  } catch {
+    // Non-JSON response (e.g. HTML error page from Spring Security)
+  }
+
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      throw new Error("UNAUTHORIZED");
+    }
+    const errorMsg = json?.message || `Request failed with status ${response.status}`;
     throw new Error(errorMsg);
   }
 
-  return json.data;
+  if (json && !json.success) {
+    throw new Error(json.message || "Operation failed");
+  }
+
+  return json?.data as T;
 }
 
 // ==========================================

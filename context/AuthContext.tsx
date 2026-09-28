@@ -41,6 +41,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return profile;
     } catch (e) {
       console.error("Failed to load customer profile", e);
+      if (e instanceof Error && e.message === "UNAUTHORIZED") {
+        setToken(null);
+        setCustomer(null);
+        localStorage.removeItem(TOKEN_KEY);
+      }
       return null;
     }
   }, []);

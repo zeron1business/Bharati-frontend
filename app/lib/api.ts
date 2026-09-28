@@ -2,9 +2,28 @@ import { ApiResponse, PagedResponse, ProductCard, ProductDetail, Category } from
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api/v1';
 
+// Retry wrapper for fetch — handles backend startup delay
+async function retryFetch(
+  url: string,
+  options: RequestInit = {},
+  retries = 3,
+  delayMs = 2000
+): Promise<Response> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url, options);
+      return res;
+    } catch (err) {
+      if (attempt === retries) throw err;
+      await new Promise((r) => setTimeout(r, delayMs));
+    }
+  }
+  throw new Error('Max retries reached');
+}
+
 export async function fetchCategories(): Promise<Category[]> {
   try {
-    const res = await fetch(`${API_BASE_URL}/categories`, { next: { revalidate: 3600 } });
+    const res = await retryFetch(`${API_BASE_URL}/categories`, { next: { revalidate: 3600 } });
     if (!res.ok) throw new Error('Failed to fetch categories');
     const json: ApiResponse<Category[]> = await res.json();
     return json.data;
@@ -22,7 +41,7 @@ export async function fetchProducts(categorySlug?: string): Promise<ProductCard[
       url.searchParams.append('categorySlug', categorySlug);
     }
     
-    const res = await fetch(url.toString(), { next: { revalidate: 60 } });
+    const res = await retryFetch(url.toString(), { next: { revalidate: 60 } });
     if (!res.ok) throw new Error('Failed to fetch products');
     const json: ApiResponse<PagedResponse<ProductCard>> = await res.json();
     return json.data.content;
@@ -34,7 +53,7 @@ export async function fetchProducts(categorySlug?: string): Promise<ProductCard[
 
 export async function fetchProductBySlug(slug: string): Promise<ProductDetail | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/products/${slug}`, { next: { revalidate: 60 } });
+    const res = await retryFetch(`${API_BASE_URL}/products/${slug}`, { next: { revalidate: 60 } });
     if (res.status === 404) return null;
     if (!res.ok) throw new Error(`Failed to fetch product: ${slug}`);
     const json: ApiResponse<ProductDetail> = await res.json();
