@@ -96,11 +96,11 @@ export function ShopProducts() {
           ref={emblaRef}
           className="overflow-hidden cursor-grab active:cursor-grabbing pl-[var(--spacing-container)]"
         >
-          <div className="flex gap-6">
+          <div className="flex gap-4 md:gap-6">
             {products.map((product) => (
               <div
                 key={product.id}
-                className="flex-shrink-0 w-[300px] md:w-[360px] lg:w-[400px]"
+                className="flex-shrink-0 w-[260px] md:w-[360px] lg:w-[400px]"
               >
                 <Link
                   href={`/products/${product.slug}`}
@@ -112,8 +112,8 @@ export function ShopProducts() {
                       src={product.primaryImageUrl || "/products/Cooker-front.jpg"}
                       alt={product.title || product.name || "Product"}
                       fill
-                      className="object-contain p-10 transition-transform duration-700 ease-out group-hover:scale-105"
-                      sizes="(max-width: 768px) 300px, (max-width: 1024px) 360px, 400px"
+                      className="object-contain p-6 md:p-10 transition-transform duration-700 ease-out group-hover:scale-105"
+                      sizes="(max-width: 768px) 260px, (max-width: 1024px) 360px, 400px"
                     />
                   </div>
 

@@ -36,8 +36,8 @@
   --font-size-caption: clamp(0.7rem, 0.8vw, 0.75rem);
 
   /* Spacing */
-  --spacing-section: clamp(5rem, 12vh, 10rem);
-  --spacing-container: clamp(1.5rem, 5vw, 6rem);
+  --spacing-section: clamp(3.5rem, 12vh, 10rem);
+  --spacing-container: clamp(1rem, 5vw, 6rem);
 
   /* Transitions */
   --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
@@ -50,7 +50,7 @@
   --duration-slower: 1000ms;
 
   /* Layout */
-  --header-height: 72px;
+  --header-height: clamp(64px, 6vw, 72px);
   --container-max: 1440px;
 
   /* Fonts */

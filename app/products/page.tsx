@@ -74,7 +74,7 @@ export default async function ProductsPage() {
     <div className="min-h-screen pt-[var(--header-height)]">
       <div className="section-container section-spacing">
         {/* Header */}
-        <div className="mb-16">
+        <div className="mb-8 md:mb-16">
           <span className="text-label text-bharati-mint-dark mb-4 block font-medium">
             All Products
           </span>
@@ -82,7 +82,7 @@ export default async function ProductsPage() {
         </div>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
           {displayProducts.map((product) => (
             <Link
               key={product.id}
@@ -94,8 +94,8 @@ export default async function ProductsPage() {
                   src={product.image}
                   alt={product.name}
                   fill
-                  className="object-contain p-10 transition-transform duration-700 ease-out group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-contain p-5 md:p-10 transition-transform duration-700 ease-out group-hover:scale-105"
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 50vw, 33vw"
                 />
               </div>
               <div className="space-y-2">

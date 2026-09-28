@@ -207,7 +207,7 @@ export default function CheckoutPage() {
                     }`}
                   />
                   <span
-                    className={`text-[11px] font-medium tracking-wider uppercase block ${
+                    className={`text-[10px] md:text-[11px] font-medium tracking-wider uppercase block ${
                       isCurrent
                         ? "text-bharati-charcoal font-bold"
                         : isCompleted

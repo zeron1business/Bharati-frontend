@@ -50,7 +50,7 @@ export function DetailsSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {details.map((detail, i) => (
             <AnimatedSection key={detail.label} delay={i * 0.1}>
-              <div className="group relative bg-bharati-ivory overflow-hidden aspect-[4/3]">
+              <div className="group relative bg-bharati-ivory overflow-hidden aspect-[16/10] md:aspect-[4/3]">
                 <Image
                   src={detail.image}
                   alt={detail.label}

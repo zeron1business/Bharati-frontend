@@ -137,10 +137,10 @@ export default function AccountPage() {
         )}
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-bharati-mist/60 pb-3">
+        <div className="flex w-full items-center gap-2 border-b border-bharati-mist/60 pb-3">
           <button
             onClick={() => setActiveTab("PROFILE")}
-            className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors ${
+            className={`flex-1 sm:flex-none px-2 sm:px-4 py-3 sm:py-2 text-[10px] sm:text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors ${
               activeTab === "PROFILE"
                 ? "bg-bharati-mint-dark text-white"
                 : "text-bharati-ash hover:text-bharati-charcoal"
@@ -150,7 +150,7 @@ export default function AccountPage() {
           </button>
           <button
             onClick={() => setActiveTab("ADDRESSES")}
-            className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors ${
+            className={`flex-1 sm:flex-none px-2 sm:px-4 py-3 sm:py-2 text-[10px] sm:text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors ${
               activeTab === "ADDRESSES"
                 ? "bg-bharati-mint-dark text-white"
                 : "text-bharati-ash hover:text-bharati-charcoal"

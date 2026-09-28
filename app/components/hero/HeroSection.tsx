@@ -20,7 +20,7 @@ export function HeroSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative h-screen min-h-[600px] max-h-[1200px] overflow-hidden bg-bharati-dark"
+      className="relative h-screen min-h-[500px] max-h-[1200px] overflow-hidden bg-bharati-dark"
       aria-label="Hero"
     >
       {/* Background — Video Placeholder */}
@@ -49,7 +49,7 @@ export function HeroSection() {
 
       {/* Content */}
       <motion.div
-        className="relative z-10 h-full flex flex-col items-center justify-end pb-16 md:pb-20 px-6 text-center"
+        className="relative z-10 h-full flex flex-col items-center justify-end pb-12 md:pb-20 px-6 text-center"
         style={{
           opacity: contentOpacity,
           y: contentY,
