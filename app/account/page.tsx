@@ -192,7 +192,9 @@ export default function AccountPage() {
                     <>
                       {customer.email}
                       {customer.emailVerified ? (
-                        <CheckCircle2 size={16} className="text-bharati-mint-dark" strokeWidth={2.5} title="Email Verified" />
+                        <span title="Email Verified" className="inline-flex items-center">
+                          <CheckCircle2 size={16} className="text-bharati-mint-dark" strokeWidth={2.5} />
+                        </span>
                       ) : (
                         <button className="text-[10px] uppercase font-bold text-bharati-mint-dark bg-bharati-mint/10 px-2 py-0.5 rounded-full hover:bg-bharati-mint/20 transition-colors">
                           Verify
