@@ -74,6 +74,8 @@ export const adminFetchCategories = () => adminFetch("/categories");
 
 export const adminFetchSubcategories = (categoryId: string) => adminFetch(`/categories/${categoryId}/subcategories`);
 
+export const adminFetchCategory = (id: string) => adminFetch(`/categories/${id}`);
+
 export const adminCreateCategory = (data: any) => 
   adminFetch("/categories", { method: "POST", body: JSON.stringify(data) });
 

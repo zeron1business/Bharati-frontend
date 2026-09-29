@@ -1,24 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { adminCreateCategory } from "@/app/lib/admin-api";
+import { adminFetchCategory, adminUpdateCategory } from "@/app/lib/admin-api";
 import Link from "next/link";
-import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Plus, Trash2, Loader2 } from "lucide-react";
 import { useToast, setFlashToast } from "@/app/admin/ToastContext";
+import React from "react";
 
 interface SubcategoryForm {
-  tempId: string;
+  id?: string;         // set for existing subcategories from DB
+  tempId: string;      // always set, used as React key
   name: string;
   slug: string;
   sortOrder: string;
   isActive: boolean;
 }
 
-export default function NewCategory() {
+export default function EditCategory({ params }: { params: { id: string } }) {
+  const unwrappedParams = React.use(params as any) as any;
+  const id = unwrappedParams.id;
   const router = useRouter();
   const { showToast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
@@ -31,6 +36,42 @@ export default function NewCategory() {
   });
 
   const [subcategories, setSubcategories] = useState<SubcategoryForm[]>([]);
+
+  // Load category and its subcategories
+  useEffect(() => {
+    const loadCategory = async () => {
+      try {
+        const response = await adminFetchCategory(id);
+        const cat = response.data;
+        setFormData({
+          name: cat.name || "",
+          slug: cat.slug || "",
+          description: cat.description || "",
+          imageUrl: cat.imageUrl || "",
+          sortOrder: String(cat.sortOrder ?? 0),
+          isActive: cat.isActive !== false,
+        });
+
+        if (cat.subcategories && cat.subcategories.length > 0) {
+          setSubcategories(cat.subcategories.map((sub: any) => ({
+            id: sub.id,
+            tempId: sub.id,  // use DB id as temp key for existing ones
+            name: sub.name || "",
+            slug: sub.slug || "",
+            sortOrder: String(sub.sortOrder ?? 0),
+            isActive: sub.isActive !== false,
+          })));
+        }
+      } catch (err: any) {
+        setError(err.message || "Failed to load category");
+        showToast(err.message || "Failed to load category", "error");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (id) loadCategory();
+  }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -84,13 +125,14 @@ export default function NewCategory() {
       }
     }
 
-    setIsLoading(true);
+    setIsSaving(true);
 
     try {
       const payload = {
         ...formData,
         sortOrder: parseInt(formData.sortOrder) || 0,
         subcategories: subcategories.map(sub => ({
+          id: sub.id || null,  // null for new subcategories
           name: sub.name,
           slug: sub.slug,
           sortOrder: parseInt(sub.sortOrder) || 0,
@@ -98,16 +140,24 @@ export default function NewCategory() {
         })),
       };
 
-      await adminCreateCategory(payload);
-      setFlashToast("Category created successfully!", "success");
+      await adminUpdateCategory(id, payload);
+      setFlashToast("Category updated successfully!", "success");
       router.push("/admin/categories");
     } catch (err: any) {
-      setError(err.message || "Failed to create category");
-      showToast(err.message || "Failed to create category", "error");
+      setError(err.message || "Failed to update category");
+      showToast(err.message || "Failed to update category", "error");
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 size={32} className="animate-spin text-bharati-charcoal" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-20">
@@ -115,16 +165,14 @@ export default function NewCategory() {
         <Link href="/admin/categories" className="p-2 hover:bg-bharati-cream rounded-full transition-colors">
           <ArrowLeft size={20} className="text-bharati-charcoal" />
         </Link>
-        <h1 className="text-2xl font-light text-bharati-black tracking-wide">Add New Category</h1>
+        <h1 className="text-2xl font-light text-bharati-black tracking-wide">Edit Category</h1>
       </div>
-
-      {/* Floating toasts handle error/success feedback */}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Category Fields */}
         <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
           <h2 className="text-lg font-medium text-bharati-black border-b border-bharati-mist pb-2">Category Details</h2>
-        
+
           <div>
             <label className="block text-sm font-medium text-bharati-charcoal mb-2">Name *</label>
             <input type="text" name="name" value={formData.name} onChange={handleChange} required className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors" />
@@ -168,21 +216,29 @@ export default function NewCategory() {
           </div>
 
           {subcategories.length === 0 ? (
-            <p className="text-sm text-bharati-ash italic">No subcategories added yet. Click &quot;+ Add Subcategory&quot; to add one.</p>
+            <p className="text-sm text-bharati-ash italic">No subcategories. Click &quot;+ Add Subcategory&quot; to add one.</p>
           ) : (
             <div className="space-y-4">
               {subcategories.map((sub, index) => (
-                <div key={sub.tempId} className="p-4 border border-bharati-mist rounded-md bg-gray-50/50 relative">
+                <div key={sub.tempId} className={`p-4 border rounded-md relative ${sub.isActive ? 'border-bharati-mist bg-gray-50/50' : 'border-orange-200 bg-orange-50/30'}`}>
                   <button 
                     type="button" 
                     onClick={() => removeSubcategory(sub.tempId)} 
                     className="absolute top-3 right-3 text-red-400 hover:text-red-600 transition-colors p-1.5 rounded hover:bg-red-50"
-                    title="Remove subcategory"
+                    title={sub.id ? "Remove subcategory (will be deactivated)" : "Remove subcategory"}
                   >
                     <Trash2 size={16} />
                   </button>
 
-                  <h3 className="text-sm font-medium text-bharati-charcoal mb-3">Subcategory {index + 1}</h3>
+                  <div className="flex items-center gap-2 mb-3">
+                    <h3 className="text-sm font-medium text-bharati-charcoal">Subcategory {index + 1}</h3>
+                    {sub.id && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-bharati-cream text-bharati-ash font-mono">Existing</span>
+                    )}
+                    {!sub.isActive && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-orange-100 text-orange-700 font-medium">Inactive</span>
+                    )}
+                  </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -237,8 +293,8 @@ export default function NewCategory() {
           <Link href="/admin/categories" className="px-6 py-3 border border-bharati-mist rounded-md text-bharati-charcoal hover:bg-bharati-cream transition-colors">
             Cancel
           </Link>
-          <button type="submit" disabled={isLoading} className="btn-primary flex items-center gap-2">
-            <Save size={18} /> {isLoading ? "Saving..." : "Save Category"}
+          <button type="submit" disabled={isSaving} className="btn-primary flex items-center gap-2">
+            <Save size={18} /> {isSaving ? "Saving..." : "Update Category"}
           </button>
         </div>
       </form>

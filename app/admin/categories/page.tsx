@@ -90,24 +90,25 @@ export default function AdminCategories() {
                 <th className="px-6 py-4">Slug</th>
                 <th className="px-6 py-4">Description</th>
                 <th className="px-6 py-4">Sort Order</th>
+                <th className="px-6 py-4">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-bharati-mist">
               {isLoading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-bharati-ash">
+                  <td colSpan={5} className="px-6 py-12 text-center text-bharati-ash">
                     Loading categories...
                   </td>
                 </tr>
               ) : categories.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-bharati-ash">
+                  <td colSpan={5} className="px-6 py-12 text-center text-bharati-ash">
                     No categories found.
                   </td>
                 </tr>
               ) : (
                 categories.map((category) => (
-                  <tr key={category.id} className="hover:bg-bharati-cream/50 transition-colors">
+                  <tr key={category.id} className="hover:bg-bharati-cream/50 transition-colors cursor-pointer" onClick={() => window.location.href = `/admin/categories/${category.id}/edit`}>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 bg-bharati-cream rounded overflow-hidden relative shrink-0">
@@ -129,6 +130,19 @@ export default function AdminCategories() {
                     <td className="px-6 py-4 text-bharati-charcoal">{category.slug}</td>
                     <td className="px-6 py-4 text-bharati-charcoal max-w-xs truncate">{category.description}</td>
                     <td className="px-6 py-4 text-bharati-charcoal">{category.sortOrder}</td>
+                    <td className="px-6 py-4">
+                      {category.isActive !== false ? (
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                          Active
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200/60">
+                          <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                          Inactive
+                        </span>
+                      )}
+                    </td>
                   </tr>
                 ))
               )}
