@@ -24,6 +24,14 @@ async function retryFetch(
   throw new Error('Max retries reached');
 }
 
+/** Returns a short error label instead of a full stack trace for connection errors */
+function startupErrMsg(err: unknown): string {
+  if (err instanceof TypeError && err.message.includes('fetch')) {
+    return 'Backend offline or still starting up';
+  }
+  return String(err);
+}
+
 export async function fetchCategories(): Promise<Category[]> {
   try {
     const res = await retryFetch(`${API_BASE_URL}/categories`, { next: { revalidate: 3600 } });
@@ -31,7 +39,7 @@ export async function fetchCategories(): Promise<Category[]> {
     const json: ApiResponse<Category[]> = await res.json();
     return json.data;
   } catch (error) {
-    console.warn('Could not fetch categories from API (backend starting up or offline):', error);
+    console.warn(`[api] fetchCategories: ${startupErrMsg(error)}`);
     return [];
   }
 }
@@ -49,7 +57,7 @@ export async function fetchProducts(categorySlug?: string): Promise<ProductCard[
     const json: ApiResponse<PagedResponse<ProductCard>> = await res.json();
     return json.data.content;
   } catch (error) {
-    console.warn('Could not fetch products from API (backend starting up or offline):', error);
+    console.warn(`[api] fetchProducts: ${startupErrMsg(error)}`);
     return [];
   }
 }
