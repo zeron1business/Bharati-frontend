@@ -54,6 +54,9 @@ export const adminUpdateProduct = (id: string, data: any) =>
 export const adminDeleteProduct = (id: string) => 
   adminFetch(`/products/${id}`, { method: "DELETE" });
 
+export const adminUpdateProductSortOrder = (id: string, sortOrder: number) =>
+  adminFetch(`/products/${id}/sort-order?sortOrder=${sortOrder}`, { method: "PATCH" });
+
 export const adminCheckSlug = async (slug: string, excludeId?: string): Promise<boolean> => {
   if (!slug || !slug.trim()) return false;
   let url = `/products/check-slug?slug=${encodeURIComponent(slug.trim())}`;

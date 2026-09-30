@@ -42,6 +42,7 @@ export interface ProductCard {
   name?: string;
   minPrice?: number;
   maxPrice?: number;
+  sortOrder?: number;
 }
 
 export interface ProductDetail {
@@ -60,6 +61,7 @@ export interface ProductDetail {
   variants: ProductVariant[];
   warrantyDuration?: string;
   warrantyDetails?: string;
+  sortOrder?: number;
 }
 
 export interface PagedResponse<T> {

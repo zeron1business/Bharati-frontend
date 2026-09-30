@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { adminFetchProducts, adminDeleteProduct } from "@/app/lib/admin-api";
+import { adminFetchProducts, adminDeleteProduct, adminUpdateProductSortOrder } from "@/app/lib/admin-api";
 import { getSessionCache, setSessionCache, clearSessionCacheByPrefix, CACHE_KEYS } from "@/app/lib/cache";
 import Link from "next/link";
 import Image from "next/image";
@@ -109,6 +109,23 @@ export default function AdminProducts() {
     }
   };
 
+  const handleSortOrderChange = (productId: string, newOrder: number) => {
+    setProducts((prev) =>
+      prev.map((p) => (p.id === productId ? { ...p, sortOrder: newOrder } : p))
+    );
+  };
+
+  const handleSortOrderBlur = async (productId: string, newOrder: number) => {
+    try {
+      await adminUpdateProductSortOrder(productId, newOrder);
+      clearSessionCacheByPrefix(CACHE_KEYS.ADMIN_PRODUCTS);
+      clearSessionCacheByPrefix(CACHE_KEYS.STORE_PRODUCTS);
+      showToast("Sort order updated", "success");
+    } catch (err: any) {
+      showToast(err.message || "Failed to update sort order", "error");
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Floating toasts handle delete feedback now */}
@@ -173,19 +190,20 @@ export default function AdminProducts() {
                 <th className="px-6 py-4">Price</th>
                 <th className="px-6 py-4">Stock</th>
                 <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4">Sort Order</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-bharati-mist">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-bharati-ash">
+                  <td colSpan={7} className="px-6 py-12 text-center text-bharati-ash">
                     Loading products...
                   </td>
                 </tr>
               ) : products.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-bharati-ash">
+                  <td colSpan={7} className="px-6 py-12 text-center text-bharati-ash">
                     No products found.
                   </td>
                 </tr>
@@ -253,6 +271,16 @@ export default function AdminProducts() {
                       }`}>
                         {product.isActive ? 'Active' : 'Inactive'}
                       </span>
+                    </td>
+                    <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="number"
+                        value={product.sortOrder ?? 0}
+                        onChange={(e) => handleSortOrderChange(product.id, parseInt(e.target.value) || 0)}
+                        onBlur={() => handleSortOrderBlur(product.id, product.sortOrder ?? 0)}
+                        className="w-16 px-2.5 py-1 text-xs border border-bharati-mist rounded-md text-center focus:border-bharati-mint-dark focus:ring-1 focus:ring-bharati-mint-dark font-mono bg-bharati-cream/40 hover:bg-white transition-colors"
+                        title="Click to edit, click away to save"
+                      />
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="inline-flex items-center gap-1">

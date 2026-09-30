@@ -55,6 +55,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
     badges: "[]",
     isActive: true,
     isFeatured: false,
+    sortOrder: "0",
     warrantyDuration: "",
     warrantyDetails: "",
   });
@@ -118,6 +119,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
                   badges: p.badges ? JSON.stringify(p.badges) : "[]",
                   isActive: p.isActive,
                   isFeatured: p.isFeatured,
+                  sortOrder: String(p.sortOrder ?? 0),
                   warrantyDuration: p.warrantyDuration || "",
                   warrantyDetails: p.warrantyDetails || "",
               });
@@ -418,6 +420,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
 
       const payload = {
         ...formData,
+        sortOrder: parseInt(formData.sortOrder) || 0,
         subcategoryId: formData.subcategoryId || null,
         badges: parsedBadges,
         mediaUrls: mediaUrls,
@@ -781,6 +784,18 @@ export default function EditProduct({ params }: { params: { id: string } }) {
           <div>
             <label className="block text-sm font-medium text-bharati-charcoal mb-2">Badges (JSON array of strings)</label>
             <input type="text" name="badges" value={formData.badges} onChange={handleChange} placeholder='e.g. ["ISI Certified", "Make in India"]' className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors font-mono text-sm" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-bharati-charcoal mb-1">Sort Order</label>
+            <p className="text-xs text-bharati-ash mb-2">Lower numbers appear first (e.g. 10, 20, 30). Controls sequence in collection scroller and catalog.</p>
+            <input 
+              type="number" 
+              name="sortOrder" 
+              value={formData.sortOrder} 
+              onChange={handleChange} 
+              className="w-32 p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors" 
+            />
           </div>
 
           <div className="flex gap-8 pt-2">

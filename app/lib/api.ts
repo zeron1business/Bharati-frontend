@@ -52,7 +52,7 @@ export async function fetchProducts(categorySlug?: string): Promise<ProductCard[
       url.searchParams.append('categorySlug', categorySlug);
     }
     
-    const res = await retryFetch(url.toString(), { next: { revalidate: 60 } });
+    const res = await retryFetch(url.toString(), { cache: 'no-store' });
     if (!res.ok) throw new Error('Failed to fetch products');
     const json: ApiResponse<PagedResponse<ProductCard>> = await res.json();
     return json.data.content;

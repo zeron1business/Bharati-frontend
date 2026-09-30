@@ -49,6 +49,7 @@ export default function NewProduct() {
     badges: "[]",
     isActive: true,
     isFeatured: false,
+    sortOrder: "0",
     warrantyDuration: "",
     warrantyDetails: "",
   });
@@ -340,6 +341,7 @@ export default function NewProduct() {
 
       const payload = {
         ...formData,
+        sortOrder: parseInt(formData.sortOrder) || 0,
         subcategoryId: formData.subcategoryId || null,
         badges: parsedBadges,
         mediaUrls: mediaUrls,
@@ -685,6 +687,18 @@ export default function NewProduct() {
           <div>
             <label className="block text-sm font-medium text-bharati-charcoal mb-2">Badges (JSON array of strings)</label>
             <input type="text" name="badges" value={formData.badges} onChange={handleChange} placeholder='e.g. ["ISI Certified", "Make in India"]' className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors font-mono text-sm" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-bharati-charcoal mb-1">Sort Order</label>
+            <p className="text-xs text-bharati-ash mb-2">Lower numbers appear first (e.g. 10, 20, 30). Used for catalog and collection scroller ordering.</p>
+            <input 
+              type="number" 
+              name="sortOrder" 
+              value={formData.sortOrder} 
+              onChange={handleChange} 
+              className="w-32 p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors" 
+            />
           </div>
 
           <div className="flex gap-8 pt-2">

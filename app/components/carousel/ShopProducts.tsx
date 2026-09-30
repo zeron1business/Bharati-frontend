@@ -13,15 +13,18 @@ import { AnimatedSection } from "@/app/components/ui/AnimatedSection";
 import { SectionLabel } from "@/app/components/ui/SectionLabel";
 
 export function ShopProducts() {
-  const [products, setProducts] = useState<ProductCard[]>(() => {
-    return getSessionCache<ProductCard[]>(CACHE_KEYS.STORE_PRODUCTS) || [];
-  });
+  const [products, setProducts] = useState<ProductCard[]>([]);
 
   useEffect(() => {
+    const cached = getSessionCache<ProductCard[]>(CACHE_KEYS.STORE_PRODUCTS);
+    if (cached && cached.length > 0) {
+      setProducts(cached);
+    }
     fetchProducts().then((data) => {
       if (data && data.length > 0) {
-        setProducts(data);
-        setSessionCache(CACHE_KEYS.STORE_PRODUCTS, data);
+        const sorted = [...data].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+        setProducts(sorted);
+        setSessionCache(CACHE_KEYS.STORE_PRODUCTS, sorted);
       }
     });
   }, []);
@@ -60,6 +63,10 @@ export function ShopProducts() {
       emblaApi.off("reInit", onSelect);
     };
   }, [emblaApi, onSelect]);
+
+  useEffect(() => {
+    if (emblaApi) emblaApi.reInit();
+  }, [emblaApi, products]);
 
   return (
     <section

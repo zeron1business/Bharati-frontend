@@ -13,11 +13,13 @@ import { AnimatedSection } from "@/app/components/ui/AnimatedSection";
 import { SectionLabel } from "@/app/components/ui/SectionLabel";
 
 export function ShopCategory() {
-  const [categories, setCategories] = useState<Category[]>(() => {
-    return getSessionCache<Category[]>(CACHE_KEYS.STORE_CATEGORIES) || [];
-  });
+  const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
+    const cached = getSessionCache<Category[]>(CACHE_KEYS.STORE_CATEGORIES);
+    if (cached && cached.length > 0) {
+      setCategories(cached);
+    }
     fetchCategories().then((data) => {
       if (data && data.length > 0) {
         setCategories(data);
@@ -60,6 +62,10 @@ export function ShopCategory() {
       emblaApi.off("reInit", onSelect);
     };
   }, [emblaApi, onSelect]);
+
+  useEffect(() => {
+    if (emblaApi) emblaApi.reInit();
+  }, [emblaApi, categories]);
 
   return (
     <section className="section-spacing bg-bharati-cream" aria-label="Shop by Category">
