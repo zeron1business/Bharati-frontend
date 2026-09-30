@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { adminFetchCategories } from "@/app/lib/admin-api";
-import { getSessionCache, setSessionCache, CACHE_KEYS } from "@/app/lib/cache";
+import { useRouter } from "next/navigation";
+import { adminFetchCategories, adminDeleteCategory, adminReactivateCategory } from "@/app/lib/admin-api";
+import { getSessionCache, setSessionCache, clearSessionCacheByPrefix, CACHE_KEYS } from "@/app/lib/cache";
 import Link from "next/link";
-import { Plus, RefreshCw } from "lucide-react";
+import { Plus, RefreshCw, Edit2, Trash2, AlertTriangle, X, RotateCcw } from "lucide-react";
 import Image from "next/image";
+import { useToast } from "@/app/admin/ToastContext";
 
 export default function AdminCategories() {
+  const { showToast } = useToast();
+  const router = useRouter();
   const [categories, setCategories] = useState<any[]>(() => {
     return getSessionCache<any[]>(CACHE_KEYS.ADMIN_CATEGORIES) || [];
   });
@@ -15,6 +19,17 @@ export default function AdminCategories() {
     return !getSessionCache<any[]>(CACHE_KEYS.ADMIN_CATEGORIES);
   });
   const [syncStatus, setSyncStatus] = useState<"syncing" | "synced" | "idle">("syncing");
+
+  // Delete modal states — same pattern as Products page
+  const [categoryToDelete, setCategoryToDelete] = useState<any | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
+  // Reactivate modal states
+  const [categoryToReactivate, setCategoryToReactivate] = useState<any | null>(null);
+  const [isReactivating, setIsReactivating] = useState(false);
+  const [reactivateError, setReactivateError] = useState("");
 
   const fetchCategories = async (forceRefresh = false) => {
     if (!forceRefresh && categories.length === 0) {
@@ -46,6 +61,57 @@ export default function AdminCategories() {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  const handleDeleteCategory = async () => {
+    if (!categoryToDelete) return;
+    if (deleteConfirmText.trim().toLowerCase() !== "confirm") {
+      setDeleteError("Please type 'confirm' to confirm deletion.");
+      return;
+    }
+
+    setIsDeleting(true);
+    setDeleteError("");
+
+    try {
+      await adminDeleteCategory(categoryToDelete.id);
+      clearSessionCacheByPrefix(CACHE_KEYS.ADMIN_CATEGORIES);
+      clearSessionCacheByPrefix(CACHE_KEYS.STORE_CATEGORIES);
+
+      showToast(`Category "${categoryToDelete.name}" deactivated successfully.`, "success");
+
+      setCategoryToDelete(null);
+      setDeleteConfirmText("");
+      await fetchCategories(true);
+    } catch (err: any) {
+      setDeleteError(err.message || "Failed to deactivate category. Please try again.");
+      showToast(err.message || "Failed to deactivate category. Please try again.", "error");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleReactivateCategory = async () => {
+    if (!categoryToReactivate) return;
+
+    setIsReactivating(true);
+    setReactivateError("");
+
+    try {
+      await adminReactivateCategory(categoryToReactivate.id);
+      clearSessionCacheByPrefix(CACHE_KEYS.ADMIN_CATEGORIES);
+      clearSessionCacheByPrefix(CACHE_KEYS.STORE_CATEGORIES);
+
+      showToast(`Category "${categoryToReactivate.name}" reactivated. Review subcategory states if needed.`, "success");
+
+      setCategoryToReactivate(null);
+      await fetchCategories(true);
+    } catch (err: any) {
+      setReactivateError(err.message || "Failed to reactivate category. Please try again.");
+      showToast(err.message || "Failed to reactivate category. Please try again.", "error");
+    } finally {
+      setIsReactivating(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -91,24 +157,25 @@ export default function AdminCategories() {
                 <th className="px-6 py-4">Description</th>
                 <th className="px-6 py-4">Sort Order</th>
                 <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-bharati-mist">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-bharati-ash">
+                  <td colSpan={6} className="px-6 py-12 text-center text-bharati-ash">
                     Loading categories...
                   </td>
                 </tr>
               ) : categories.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-bharati-ash">
+                  <td colSpan={6} className="px-6 py-12 text-center text-bharati-ash">
                     No categories found.
                   </td>
                 </tr>
               ) : (
                 categories.map((category) => (
-                  <tr key={category.id} className="hover:bg-bharati-cream/50 transition-colors cursor-pointer" onClick={() => window.location.href = `/admin/categories/${category.id}/edit`}>
+                  <tr key={category.id} className="hover:bg-bharati-cream/50 transition-colors cursor-pointer" onClick={() => router.push(`/admin/categories/${category.id}`)}>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 bg-bharati-cream rounded overflow-hidden relative shrink-0">
@@ -143,6 +210,45 @@ export default function AdminCategories() {
                         </span>
                       )}
                     </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="inline-flex items-center gap-1">
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <Link
+                            href={`/admin/categories/${category.id}/edit`}
+                            className="inline-flex items-center text-bharati-ash hover:text-bharati-black transition-colors p-2 rounded hover:bg-bharati-cream"
+                            title="Edit category"
+                          >
+                            <Edit2 size={16} />
+                          </Link>
+                        </div>
+                        {category.isActive !== false ? (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCategoryToDelete(category);
+                              setDeleteConfirmText("");
+                              setDeleteError("");
+                            }}
+                            className="inline-flex items-center text-bharati-ash hover:text-red-600 transition-colors p-2 rounded hover:bg-red-50"
+                            title="Deactivate category"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCategoryToReactivate(category);
+                              setReactivateError("");
+                            }}
+                            className="inline-flex items-center text-bharati-ash hover:text-emerald-600 transition-colors p-2 rounded hover:bg-emerald-50"
+                            title="Reactivate category"
+                          >
+                            <RotateCcw size={16} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
                   </tr>
                 ))
               )}
@@ -150,6 +256,172 @@ export default function AdminCategories() {
           </table>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal — reuses exact same pattern as Product Delete modal */}
+      {categoryToDelete && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 border border-bharati-mist space-y-4">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-red-50 border border-red-100 flex items-center justify-center text-red-600 shrink-0">
+                  <AlertTriangle size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-bharati-black">Deactivate Category</h3>
+                  <p className="text-xs text-bharati-ash">Soft Delete — Catalog Action</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setCategoryToDelete(null);
+                  setDeleteConfirmText("");
+                  setDeleteError("");
+                }}
+                disabled={isDeleting}
+                className="text-bharati-ash hover:text-bharati-black p-1 rounded-md"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="bg-bharati-cream/60 p-3 rounded-lg border border-bharati-mist/60 text-sm space-y-1">
+              <div className="font-semibold text-bharati-black">{categoryToDelete.name}</div>
+              <div className="text-xs text-bharati-ash font-mono">Slug: {categoryToDelete.slug}</div>
+            </div>
+
+            <p className="text-sm text-bharati-charcoal leading-relaxed">
+              This will remove the category and its subcategories from active catalog listings. Existing products, orders, and historical data will remain intact and unaffected.
+            </p>
+
+            <div className="space-y-2 pt-1">
+              <label className="block text-xs font-semibold text-bharati-charcoal uppercase tracking-wider">
+                Type <span className="font-bold text-red-600 font-mono">confirm</span> to execute:
+              </label>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => {
+                  setDeleteConfirmText(e.target.value);
+                  setDeleteError("");
+                }}
+                placeholder="confirm"
+                disabled={isDeleting}
+                className="w-full px-3 py-2 border border-bharati-mist rounded-md font-mono text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-200 transition-colors"
+                autoFocus
+              />
+            </div>
+
+            {deleteError && (
+              <div className="text-xs text-red-600 bg-red-50 p-2.5 rounded border border-red-100 font-medium">
+                {deleteError}
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setCategoryToDelete(null);
+                  setDeleteConfirmText("");
+                  setDeleteError("");
+                }}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm text-bharati-charcoal hover:bg-bharati-cream border border-bharati-mist rounded-md transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteCategory}
+                disabled={deleteConfirmText.trim().toLowerCase() !== "confirm" || isDeleting}
+                className="px-4 py-2 text-sm bg-red-600 hover:bg-red-700 text-white rounded-md font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <RefreshCw size={14} className="animate-spin" />
+                    <span>Deactivating...</span>
+                  </>
+                ) : (
+                  <span>Deactivate Category</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reactivate Confirmation Modal */}
+      {categoryToReactivate && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 border border-bharati-mist space-y-4">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+                  <RotateCcw size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-bharati-black">Reactivate Category</h3>
+                  <p className="text-xs text-bharati-ash">Restore — Catalog Action</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setCategoryToReactivate(null);
+                  setReactivateError("");
+                }}
+                disabled={isReactivating}
+                className="text-bharati-ash hover:text-bharati-black p-1 rounded-md"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="bg-bharati-cream/60 p-3 rounded-lg border border-bharati-mist/60 text-sm space-y-1">
+              <div className="font-semibold text-bharati-black">{categoryToReactivate.name}</div>
+              <div className="text-xs text-bharati-ash font-mono">Slug: {categoryToReactivate.slug}</div>
+            </div>
+
+            <p className="text-sm text-bharati-charcoal leading-relaxed">
+              This will restore the category to active catalog listings. Subcategories will not be automatically reactivated — review their states in Edit Category if needed.
+            </p>
+
+            {reactivateError && (
+              <div className="text-xs text-red-600 bg-red-50 p-2.5 rounded border border-red-100 font-medium">
+                {reactivateError}
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setCategoryToReactivate(null);
+                  setReactivateError("");
+                }}
+                disabled={isReactivating}
+                className="px-4 py-2 text-sm text-bharati-charcoal hover:bg-bharati-cream border border-bharati-mist rounded-md transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleReactivateCategory}
+                disabled={isReactivating}
+                className="px-4 py-2 text-sm bg-emerald-600 hover:bg-emerald-700 text-white rounded-md font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isReactivating ? (
+                  <>
+                    <RefreshCw size={14} className="animate-spin" />
+                    <span>Reactivating...</span>
+                  </>
+                ) : (
+                  <span>Reactivate Category</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

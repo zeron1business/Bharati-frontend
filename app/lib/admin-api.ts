@@ -82,6 +82,14 @@ export const adminCreateCategory = (data: any) =>
 export const adminUpdateCategory = (id: string, data: any) => 
   adminFetch(`/categories/${id}`, { method: "PUT", body: JSON.stringify(data) });
 
+export const adminDeleteCategory = (id: string) => 
+  adminFetch(`/categories/${id}`, { method: "DELETE" });
+
+export const adminReactivateCategory = (id: string) => 
+  adminFetch(`/categories/${id}/reactivate`, { method: "POST" });
+
+export const adminFetchCategoryDetails = (id: string) => adminFetch(`/categories/${id}/details`);
+
 export const adminUploadImage = async (file: File): Promise<string> => {
     const token = getAuthToken();
     const formData = new FormData();
@@ -141,4 +149,7 @@ export const adminUpdateOrderStatus = (orderId: string, status: string) =>
     method: "PATCH",
     body: JSON.stringify({ status }),
   });
+
+export const adminFetchOrderDetails = (orderId: string) =>
+  adminFetch(`/dashboard/orders/${orderId}`);
 

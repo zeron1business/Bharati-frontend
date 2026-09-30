@@ -5,6 +5,7 @@ import {
   RefreshCw,
   ChevronDown,
   ArrowLeft,
+  Eye,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -232,9 +233,13 @@ export default function AdminOrdersPage() {
                     className="hover:bg-bharati-cream/50 transition-colors"
                   >
                     <td className="px-6 py-4">
-                      <span className="font-medium text-bharati-black">
+                      <Link
+                        href={`/admin/orders/${order.id}`}
+                        className="font-medium text-bharati-black hover:text-bharati-gold transition-colors hover:underline inline-flex items-center gap-1.5"
+                        title="View order details"
+                      >
                         {order.orderNumber}
-                      </span>
+                      </Link>
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-bharati-charcoal block">
@@ -283,25 +288,37 @@ export default function AdminOrdersPage() {
                         : "—"}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="relative inline-block">
-                        <select
-                          value={order.status}
-                          onChange={(e) =>
-                            handleStatusChange(order.id, e.target.value)
-                          }
-                          disabled={updatingId === order.id}
-                          className="appearance-none pl-3 pr-8 py-1.5 text-xs border border-bharati-mist rounded-md bg-white text-bharati-charcoal focus:outline-none focus:border-bharati-black transition-colors cursor-pointer disabled:opacity-50"
+                      <div className="flex items-center justify-end gap-2">
+                        <Link
+                          href={`/admin/orders/${order.id}`}
+                          className="p-1.5 text-bharati-ash hover:text-bharati-black hover:bg-bharati-cream rounded transition-colors"
+                          title="View order details"
                         >
-                          {ORDER_STATUSES.map((s) => (
-                            <option key={s} value={s}>
-                              {s.replace(/_/g, " ")}
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown
-                          size={12}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-bharati-ash pointer-events-none"
-                        />
+                          <Eye size={16} />
+                        </Link>
+                        <div
+                          className="relative inline-block"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <select
+                            value={order.status}
+                            onChange={(e) =>
+                              handleStatusChange(order.id, e.target.value)
+                            }
+                            disabled={updatingId === order.id}
+                            className="appearance-none pl-3 pr-8 py-1.5 text-xs border border-bharati-mist rounded-md bg-white text-bharati-charcoal focus:outline-none focus:border-bharati-black transition-colors cursor-pointer disabled:opacity-50"
+                          >
+                            {ORDER_STATUSES.map((s) => (
+                              <option key={s} value={s}>
+                                {s.replace(/_/g, " ")}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown
+                            size={12}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-bharati-ash pointer-events-none"
+                          />
+                        </div>
                       </div>
                     </td>
                   </tr>
