@@ -116,6 +116,7 @@ export function ShopCategory() {
                       src={cat.imageUrl || "/products/Cooker-front.jpg"}
                       alt={cat.name}
                       fill
+                      unoptimized={Boolean(cat.imageUrl?.startsWith("http"))}
                       className="object-contain p-6 md:p-8 transition-transform duration-700 ease-out group-hover:scale-105"
                       sizes="(max-width: 768px) 240px, (max-width: 1024px) 340px, 380px"
                     />

@@ -15,6 +15,9 @@ import {
   AlertTriangle,
   X,
   Info,
+  Image as ImageIcon,
+  ExternalLink,
+  Check,
 } from "lucide-react";
 import {
   adminFetchCategoryDetails,
@@ -314,9 +317,9 @@ export default function AdminCategoryDetailsPage({
             </div>
 
             <div className="p-5 space-y-4">
-              <div className="flex items-start gap-5">
-                {/* Category Image */}
-                <div className="relative w-20 h-20 rounded-lg bg-bharati-ivory border border-bharati-mist overflow-hidden shrink-0">
+              <div className="flex flex-col sm:flex-row items-start gap-5">
+                {/* Category Image - Prominent preview */}
+                <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-lg bg-bharati-ivory border border-bharati-mist overflow-hidden shrink-0 shadow-2xs flex items-center justify-center">
                   {category.imageUrl ? (
                     <Image
                       src={category.imageUrl}
@@ -325,15 +328,16 @@ export default function AdminCategoryDetailsPage({
                       unoptimized={Boolean(
                         category.imageUrl?.startsWith("http")
                       )}
-                      className="object-cover"
-                      sizes="80px"
+                      className="object-contain p-2 hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 640px) 112px, 144px"
                     />
                   ) : (
-                    <div className="w-full h-full bg-bharati-mist flex items-center justify-center">
-                      <Layers
-                        size={24}
-                        className="text-bharati-ash/40"
+                    <div className="w-full h-full bg-bharati-mist/40 flex flex-col items-center justify-center p-2 text-center text-bharati-ash">
+                      <ImageIcon
+                        size={28}
+                        className="text-bharati-ash/40 mb-1"
                       />
+                      <span className="text-[10px] uppercase tracking-wider font-medium">No Picture</span>
                     </div>
                   )}
                 </div>
@@ -486,6 +490,83 @@ export default function AdminCategoryDetailsPage({
 
         {/* Right Column (4 cols) */}
         <div className="lg:col-span-4 space-y-6">
+          {/* Category Picture Showcase Card */}
+          <div className="bg-white rounded-lg p-5 border border-bharati-mist shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-bharati-mist/60 text-bharati-charcoal">
+              <div className="flex items-center gap-2">
+                <ImageIcon size={17} className="text-bharati-mint-dark" />
+                <h2 className="text-sm font-semibold uppercase tracking-wider">
+                  Category Picture
+                </h2>
+              </div>
+              {category.imageUrl ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  <Check size={11} /> Configured
+                </span>
+              ) : (
+                <span className="text-[11px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                  None
+                </span>
+              )}
+            </div>
+
+            {category.imageUrl ? (
+              <div className="space-y-3">
+                <div className="relative w-full aspect-[4/3] rounded-lg bg-bharati-ivory border border-bharati-mist overflow-hidden flex items-center justify-center group shadow-2xs">
+                  <Image
+                    src={category.imageUrl}
+                    alt={category.name}
+                    fill
+                    unoptimized={Boolean(category.imageUrl.startsWith("http"))}
+                    className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 1024px) 100vw, 360px"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-3 flex justify-between items-end opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-[11px] text-white/90 truncate max-w-[200px] font-mono">
+                      {category.imageUrl}
+                    </span>
+                    {category.imageUrl.startsWith("http") && (
+                      <a
+                        href={category.imageUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-white hover:text-bharati-mint p-1"
+                        title="Open full size"
+                      >
+                        <ExternalLink size={14} />
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-1">
+                  <Link
+                    href={`/admin/categories/${category.id}/edit`}
+                    className="w-full inline-flex items-center justify-center gap-2 py-2 px-3 text-xs font-medium text-bharati-charcoal bg-bharati-cream/60 hover:bg-bharati-cream border border-bharati-mist rounded-md transition-colors"
+                  >
+                    <Edit2 size={13} />
+                    <span>Edit / Replace Picture</span>
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 text-center rounded-lg border-2 border-dashed border-bharati-mist bg-bharati-cream/20 space-y-3">
+                <ImageIcon size={32} className="mx-auto text-bharati-ash/40" />
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-bharati-charcoal">No picture configured</p>
+                  <p className="text-[11px] text-bharati-ash">Upload a picture so shoppers recognize this category.</p>
+                </div>
+                <Link
+                  href={`/admin/categories/${category.id}/edit`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-bharati-black text-white rounded-md hover:bg-bharati-charcoal transition-colors"
+                >
+                  <Edit2 size={12} />
+                  <span>Upload Picture</span>
+                </Link>
+              </div>
+            )}
+          </div>
+
           {/* Product Statistics Card */}
           <div className="bg-white rounded-lg p-5 border border-bharati-mist shadow-xs space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-bharati-mist/60 text-bharati-charcoal">

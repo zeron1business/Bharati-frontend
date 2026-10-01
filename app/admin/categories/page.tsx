@@ -59,7 +59,7 @@ export default function AdminCategories() {
   };
 
   useEffect(() => {
-    fetchCategories();
+    fetchCategories(true);
   }, []);
 
   const handleDeleteCategory = async () => {

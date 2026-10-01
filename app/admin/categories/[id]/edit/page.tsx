@@ -6,6 +6,8 @@ import { adminFetchCategory, adminUpdateCategory } from "@/app/lib/admin-api";
 import Link from "next/link";
 import { ArrowLeft, Save, Plus, Trash2, Loader2 } from "lucide-react";
 import { useToast, setFlashToast } from "@/app/admin/ToastContext";
+import { clearSessionCacheByPrefix, CACHE_KEYS } from "@/app/lib/cache";
+import { CategoryImageUploader } from "../../components/CategoryImageUploader";
 import React from "react";
 
 interface SubcategoryForm {
@@ -141,6 +143,8 @@ export default function EditCategory({ params }: { params: { id: string } }) {
       };
 
       await adminUpdateCategory(id, payload);
+      clearSessionCacheByPrefix(CACHE_KEYS.ADMIN_CATEGORIES);
+      clearSessionCacheByPrefix(CACHE_KEYS.STORE_CATEGORIES);
       setFlashToast("Category updated successfully!", "success");
       router.push("/admin/categories");
     } catch (err: any) {
@@ -188,10 +192,11 @@ export default function EditCategory({ params }: { params: { id: string } }) {
             <textarea name="description" value={formData.description} onChange={handleChange} rows={3} className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors resize-none" />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-bharati-charcoal mb-2">Image URL</label>
-            <input type="text" name="imageUrl" value={formData.imageUrl} onChange={handleChange} placeholder="/products/Cooker-front.jpg" className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors" />
-          </div>
+          <CategoryImageUploader
+            value={formData.imageUrl}
+            onChange={(url) => setFormData((prev) => ({ ...prev, imageUrl: url }))}
+            disabled={isSaving}
+          />
 
           <div>
             <label className="block text-sm font-medium text-bharati-charcoal mb-2">Sort Order</label>
