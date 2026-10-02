@@ -25,6 +25,9 @@
   --color-bharati-mint-dark: #5a8f83;
   --color-bharati-mint-muted: #6fa89b18;
 
+  /* Gold Accent */
+  --color-bharati-gold: #cfaa70;
+
   /* Typography Scale */
   --font-size-display: clamp(3.5rem, 8vw, 8rem);
   --font-size-h1: clamp(2.5rem, 5vw, 5rem);
@@ -51,6 +54,7 @@
 
   /* Layout */
   --header-height: clamp(64px, 6vw, 72px);
+  --banner-height: 36px;
   --container-max: 1440px;
 
   /* Fonts */
@@ -410,5 +414,23 @@ body {
 
 .animate-slideInRight {
   animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ============================================
+   Marquee Animation
+   ============================================ */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-6.6666666667%); } /* Since we duplicated it 15 times, scroll by 1/15 */
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
 

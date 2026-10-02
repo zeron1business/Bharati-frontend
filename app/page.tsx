@@ -7,10 +7,14 @@ import { DetailsSection } from "./components/sections/DetailsSection";
 import { LifestyleSection } from "./components/sections/LifestyleSection";
 import { BrandCTA } from "./components/sections/BrandCTA";
 
-export default function HomePage() {
+import { fetchHeroPromos } from "./lib/api";
+
+export default async function HomePage() {
+  const heroPromos = await fetchHeroPromos();
+
   return (
     <>
-      <HeroSection />
+      <HeroSection promos={heroPromos} />
       <ShopCategory />
       <ShopProducts />
       <BuiltDifferent />

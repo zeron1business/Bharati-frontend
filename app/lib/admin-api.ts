@@ -157,3 +157,19 @@ export const adminUpdateOrderStatus = (orderId: string, status: string) =>
 export const adminFetchOrderDetails = (orderId: string) =>
   adminFetch(`/dashboard/orders/${orderId}`);
 
+// ==========================================
+// PROMO CODES
+// ==========================================
+
+export const adminFetchPromos = () => adminFetch("/promos");
+
+export const adminFetchPromo = (id: string) => adminFetch(`/promos/${id}`);
+
+export const adminCreatePromo = (data: any) =>
+  adminFetch("/promos", { method: "POST", body: JSON.stringify(data) });
+
+export const adminUpdatePromo = (id: string, data: any) =>
+  adminFetch(`/promos/${id}`, { method: "PUT", body: JSON.stringify(data) });
+
+export const adminDeletePromo = (id: string) =>
+  adminFetch(`/promos/${id}`, { method: "DELETE" });

@@ -9,7 +9,11 @@ import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 
-export function Header() {
+interface HeaderProps {
+  hasBanner?: boolean;
+}
+
+export function Header({ hasBanner = false }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
@@ -46,11 +50,14 @@ export function Header() {
 
   return (
     <motion.header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-400 ${
+      className={`fixed left-0 right-0 z-50 transition-all duration-400 ${
         isHeroMode
           ? "bg-transparent border-b border-transparent"
           : "bg-bharati-cream/85 backdrop-blur-xl border-b border-bharati-mist/60 shadow-xs"
       }`}
+      style={{
+        top: hasBanner ? 'var(--banner-height)' : '0'
+      }}
     >
       <div className="flex items-center justify-between h-[var(--header-height)] px-6 md:px-10 max-w-[var(--container-max)] mx-auto">
         {/* Logo */}

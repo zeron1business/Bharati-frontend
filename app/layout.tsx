@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { ConditionalLayout } from "./components/layout/ConditionalLayout";
+import { fetchHeroPromos } from "./lib/api";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -31,16 +32,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const promos = await fetchHeroPromos();
+
   return (
     <html lang="en" className={inter.variable}>
       <body className={inter.className}>
         <Providers>
-          <ConditionalLayout>{children}</ConditionalLayout>
+          <ConditionalLayout promos={promos}>{children}</ConditionalLayout>
         </Providers>
       </body>
     </html>
