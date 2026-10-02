@@ -47,11 +47,10 @@ export async function fetchCategories(): Promise<Category[]> {
 export async function fetchProducts(categorySlug?: string): Promise<ProductCard[]> {
   try {
     const url = new URL(`${API_BASE_URL}/products`);
-    url.searchParams.append('size', '100'); // Fetch all for now
+    url.searchParams.append('size', '100');
     if (categorySlug) {
       url.searchParams.append('categorySlug', categorySlug);
     }
-    
     const res = await retryFetch(url.toString(), { cache: 'no-store' });
     if (!res.ok) throw new Error('Failed to fetch products');
     const json: ApiResponse<PagedResponse<ProductCard>> = await res.json();
@@ -61,7 +60,6 @@ export async function fetchProducts(categorySlug?: string): Promise<ProductCard[
     return [];
   }
 }
-
 export async function fetchProductBySlug(slug: string): Promise<ProductDetail | null> {
   try {
     const res = await retryFetch(`${API_BASE_URL}/products/${slug}`, { next: { revalidate: 60 } });

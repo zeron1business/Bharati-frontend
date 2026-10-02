@@ -559,3 +559,41 @@ body {
   background: transparent;
 }
 
+/* ============================================
+   Shop by Category — Carousel
+   ============================================ */
+
+/* Hide scrollbar in the carousel track */
+.category-carousel-track {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  cursor: grab;
+}
+
+.category-carousel-track:active {
+  cursor: grabbing;
+}
+
+.category-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Each card occupies exactly 1/5 of the track width (gap = 28px) */
+.category-card-item {
+  width: calc((100% - 4 * 28px) / 5);
+  min-width: 130px;
+}
+
+/* Responsive circle size */
+.category-circle {
+  width: clamp(130px, 11vw, 165px);
+  height: clamp(130px, 11vw, 165px);
+}
+
+/* Responsive label */
+.category-card-label {
+  font-size: clamp(0.72rem, 0.95vw, 0.82rem);
+  max-width: clamp(130px, 11vw, 165px);
+  display: block;
+}
+

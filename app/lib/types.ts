@@ -34,6 +34,9 @@ export interface ProductCard {
   tagline: string;
   description: string;
   categorySlug: string;
+  categoryName?: string;
+  subcategorySlug?: string;
+  subcategoryName?: string;
   basePrice: number;
   discountedPrice: number;
   primaryImageUrl: string;

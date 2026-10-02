@@ -7,15 +7,18 @@ import { RecipesBanner } from "./components/sections/RecipesBanner";
 import { CustomerReviews } from "./components/sections/CustomerReviews";
 import { FinalBanner } from "./components/sections/FinalBanner";
 
-import { fetchHeroPromos } from "./lib/api";
+import { fetchHeroPromos, fetchProducts } from "./lib/api";
 
 export default async function HomePage() {
-  const heroPromos = await fetchHeroPromos();
+  const [heroPromos, products] = await Promise.all([
+    fetchHeroPromos(),
+    fetchProducts(),
+  ]);
 
   return (
     <>
       <HeroSection promos={heroPromos} />
-      <ShopByCategory />
+      <ShopByCategory products={products} />
       <BrandStory />
       <MasonryCollage />
       <BenefitsStrip />
