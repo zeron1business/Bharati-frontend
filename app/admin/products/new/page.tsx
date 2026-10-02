@@ -26,7 +26,7 @@ export default function NewProduct() {
   const [subcategories, setSubcategories] = useState<any[]>([]);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const [coverImageUrl, setCoverImageUrl] = useState<string>("");
   
   // Real-time validation states
   const [slugError, setSlugError] = useState<string | null>(null);
@@ -257,25 +257,19 @@ export default function NewProduct() {
     setVariants(newVariants);
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    const files = Array.from(e.target.files);
-    
     setIsUploading(true);
     setError("");
     try {
-        const urls = await adminUploadImages(files);
-        setMediaUrls(prev => [...prev, ...urls]);
+        const url = await adminUploadImage(e.target.files[0]);
+        setCoverImageUrl(url);
     } catch (err: any) {
-        setError(err.message || "Failed to upload image(s)");
+        setError(err.message || "Failed to upload image");
     } finally {
         setIsUploading(false);
         e.target.value = "";
     }
-  };
-
-  const removeImage = (index: number) => {
-      setMediaUrls(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleVariantImageUpload = async (variantIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -344,7 +338,7 @@ export default function NewProduct() {
         sortOrder: parseInt(formData.sortOrder) || 0,
         subcategoryId: formData.subcategoryId || null,
         badges: parsedBadges,
-        mediaUrls: mediaUrls,
+        mediaUrls: coverImageUrl ? [coverImageUrl] : [],
         variants: formattedVariants
       };
 
@@ -429,7 +423,7 @@ export default function NewProduct() {
               <label className="block text-sm font-medium text-bharati-charcoal mb-2">Category *</label>
               <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} required className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors bg-white">
                 <option value="" disabled>Select a category</option>
-                {categories.map((c) => (
+                {categories.filter((c: any) => c.isActive !== false).map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
@@ -477,36 +471,46 @@ export default function NewProduct() {
         </div>
         
         <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
-            <h2 className="text-lg font-medium text-bharati-black border-b border-bharati-mist pb-2">Images</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {mediaUrls.map((url, index) => (
-                <div key={index} className="relative aspect-square rounded-md overflow-hidden border border-bharati-mist group">
-                  <img src={url} alt={`Product ${index + 1}`} className="w-full h-full object-cover" />
-                  <button type="button" onClick={() => removeImage(index)} className="absolute top-2 right-2 bg-white/90 p-1.5 rounded-full text-red-500 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
-                    <X size={16} />
+            <h2 className="text-lg font-medium text-bharati-black border-b border-bharati-mist pb-2">Product Cover Image</h2>
+            <div className="flex items-start gap-6">
+              {coverImageUrl ? (
+                <div className="relative w-40 h-40 rounded-lg border border-bharati-mist overflow-hidden group">
+                  <img src={coverImageUrl} alt="Product cover" className="w-full h-full object-cover" />
+                  <button type="button" onClick={() => setCoverImageUrl("")}
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1
+                               opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+                    <X size={14} />
                   </button>
-                  {index === 0 && (
-                      <span className="absolute bottom-0 left-0 right-0 bg-bharati-charcoal text-white text-xs text-center py-1 bg-opacity-90">Primary</span>
-                  )}
                 </div>
-              ))}
-              <label className="flex flex-col items-center justify-center aspect-square border-2 border-dashed border-bharati-mist rounded-md cursor-pointer hover:bg-gray-50 transition-colors">
-                <div className="flex flex-col items-center space-y-2 p-2 text-center">
+              ) : (
+                <label className="flex flex-col items-center justify-center w-40 h-40 rounded-lg
+                                   border-2 border-dashed border-bharati-mist hover:border-bharati-charcoal
+                                   cursor-pointer transition-colors">
                   {isUploading ? (
-                      <>
-                        <div className="w-6 h-6 border-2 border-bharati-charcoal border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-xs text-bharati-charcoal">Uploading...</span>
-                      </>
+                    <>
+                      <div className="w-6 h-6 border-2 border-bharati-charcoal border-t-transparent
+                                      rounded-full animate-spin mb-1" />
+                      <span className="text-xs text-bharati-charcoal">Uploading…</span>
+                    </>
                   ) : (
-                      <>
-                        <Upload size={24} className="text-gray-400" />
-                        <span className="text-sm font-medium text-bharati-charcoal">Upload Images</span>
-                        <span className="text-[11px] text-gray-400">Select one or multiple</span>
-                      </>
+                    <>
+                      <Upload size={24} className="text-gray-400 mb-1" />
+                      <span className="text-sm font-medium text-bharati-charcoal">Upload Cover</span>
+                      <span className="text-[10px] text-gray-400">Single image</span>
+                    </>
                   )}
-                </div>
-                <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" disabled={isUploading} />
-              </label>
+                  <input type="file" accept="image/*" className="hidden"
+                         onChange={handleCoverImageUpload} disabled={isUploading} />
+                </label>
+              )}
+              {coverImageUrl && (
+                <label className="text-sm text-bharati-gold hover:text-bharati-charcoal
+                                  cursor-pointer font-medium transition-colors mt-2">
+                  Replace image
+                  <input type="file" accept="image/*" className="hidden"
+                         onChange={handleCoverImageUpload} disabled={isUploading} />
+                </label>
+              )}
             </div>
         </div>
 

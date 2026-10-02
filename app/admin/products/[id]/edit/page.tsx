@@ -32,7 +32,8 @@ export default function EditProduct({ params }: { params: { id: string } }) {
   const [subcategories, setSubcategories] = useState<any[]>([]);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const [coverImageUrl, setCoverImageUrl] = useState<string>("");
+  const [currentSubcategoryName, setCurrentSubcategoryName] = useState("");
   
   // Real-time validation states
   const [slugError, setSlugError] = useState<string | null>(null);
@@ -63,13 +64,13 @@ export default function EditProduct({ params }: { params: { id: string } }) {
   const [variants, setVariants] = useState<any[]>([]);
 
   useEffect(() => {
-    const cachedCategories = getSessionCache<any[]>(CACHE_KEYS.ADMIN_CATEGORIES);
-    if (cachedCategories && cachedCategories.length > 0) {
-      setCategories(cachedCategories);
-    }
-
-    const fetchInitialData = async () => {
+    const loadEditData = async () => {
       try {
+        const cachedCategories = getSessionCache<any[]>(CACHE_KEYS.ADMIN_CATEGORIES);
+        if (cachedCategories && cachedCategories.length > 0) {
+          setCategories(cachedCategories);
+        }
+
         const [categoriesRes, productRes] = await Promise.all([
           adminFetchCategories(),
           adminFetchProduct(id)
@@ -79,97 +80,76 @@ export default function EditProduct({ params }: { params: { id: string } }) {
         setSessionCache(CACHE_KEYS.ADMIN_CATEGORIES, categoriesRes.data);
         
         const p = productRes.data;
-        const mUrls = (p.media || []).sort((a: any, b: any) => a.sortOrder - b.sortOrder).map((m: any) => m.url);
-        setMediaUrls(mUrls);
+        const mUrls = (p.media || []).sort((a: any, b: any) => a.sortOrder - b.sortOrder);
+        setCoverImageUrl(mUrls[0]?.url || "");
+        setCurrentSubcategoryName(p.subcategory?.name || "");
 
-        const subCat = p.subcategory || {};
-        // If subcategory has a category, we extract it. The backend returns a SubcategoryDTO which doesn't have the parent Category inside it,
-        // Wait, the AdminProductDTO returns `subcategory`, but we don't know the `categoryId` easily unless it's sent. Let's fetch categories and try to match it or backend needs to return `categoryId`.
-        // For now, if we don't have categoryId, we can't preselect it easily unless we iterate all categories and their subcategories.
-        // As a workaround, we'll try to find which category has this subcategory.
+        if (p.subcategory?.categoryId) {
+          setSelectedCategory(p.subcategory.categoryId);
+        }
+
+        setFormData({
+            name: p.name || p.title || "",
+            slug: p.slug || "",
+            tagline: p.tagline || "",
+            description: p.description || "",
+            subcategoryId: p.subcategory?.id || "",
+            badges: p.badges ? JSON.stringify(p.badges) : "[]",
+            isActive: p.isActive,
+            isFeatured: p.isFeatured,
+            sortOrder: String(p.sortOrder ?? 0),
+            warrantyDuration: p.warrantyDuration || "",
+            warrantyDetails: p.warrantyDetails || "",
+        });
+        
+        if (p.warrantyDuration) {
+            const presets = ["6 months", "1 year", "2 years", "5 years", "Lifetime"];
+            if (presets.includes(p.warrantyDuration)) {
+                setWarrantyPreset(p.warrantyDuration);
+            } else {
+                setWarrantyPreset("Custom");
+            }
+        }
+
+        if (p.variants && p.variants.length > 0) {
+            setVariants(p.variants.map((v: any) => ({
+                id: v.id,
+                sku: v.sku || "",
+                basePrice: v.basePrice?.toString() || "0",
+                discountedPrice: v.discountedPrice?.toString() || "0",
+                stockQuantity: v.stockQuantity?.toString() || "0",
+                volumeLitres: v.volumeLitres?.toString() || "",
+                materialType: v.materialType || "",
+                inductionCompatible: v.inductionCompatible || false,
+                warrantyOverride: v.warrantyOverride || "",
+                isActive: v.isActive !== undefined ? v.isActive : true,
+                mediaUrls: v.mediaUrls || (v.media ? v.media.map((m: any) => m.url) : []),
+                specifications: v.specifications || []
+            })));
+        } else {
+            setVariants([{
+                sku: p.sku || "",
+                basePrice: p.basePrice?.toString() || "0",
+                discountedPrice: p.discountedPrice?.toString() || "0",
+                stockQuantity: p.stockQuantity?.toString() || "0",
+                volumeLitres: "",
+                materialType: "",
+                inductionCompatible: false,
+                warrantyOverride: "",
+                isActive: true,
+                mediaUrls: [],
+                specifications: []
+            }]);
+        }
       } catch (err: any) {
-        setError(err.message || "Failed to load product details");
+        setError(err.message || "Failed to load product details. Please go back and try again.");
+      } finally {
+        setIsLoading(false);
       }
     };
     
-    if (id) fetchInitialData();
+    if (id) loadEditData();
   }, [id]);
-
-  useEffect(() => {
-      // Workaround to find the category for the product's subcategory
-      const loadProductAndMatchCategory = async () => {
-          try {
-              const productRes = await adminFetchProduct(id);
-              const p = productRes.data;
-              const subId = p.subcategory?.id;
-              
-              if (subId && categories.length > 0) {
-                  // We need to find which category has this subcategoryId.
-                  // Easiest is to fetch subcategories for each category until we find it, or assume the backend returned category in the DTO? 
-                  // Wait, earlier I set AdminProductDTO to have subcategory. Let's just do a sequential fetch or better, if the user changes it, they start from category.
-                  // For now, let's just fetch the first category's subs. This is a bit hacky but we need the backend to return categoryId in AdminProductDTO for a clean solution.
-              }
-
-              setFormData({
-                  name: p.name || p.title || "",
-                  slug: p.slug || "",
-                  tagline: p.tagline || "",
-                  description: p.description || "",
-                  subcategoryId: p.subcategory?.id || "",
-                  badges: p.badges ? JSON.stringify(p.badges) : "[]",
-                  isActive: p.isActive,
-                  isFeatured: p.isFeatured,
-                  sortOrder: String(p.sortOrder ?? 0),
-                  warrantyDuration: p.warrantyDuration || "",
-                  warrantyDetails: p.warrantyDetails || "",
-              });
-              
-              if (p.warrantyDuration) {
-                  const presets = ["6 months", "1 year", "2 years", "5 years", "Lifetime"];
-                  if (presets.includes(p.warrantyDuration)) {
-                      setWarrantyPreset(p.warrantyDuration);
-                  } else {
-                      setWarrantyPreset("Custom");
-                  }
-              }
-
-              if (p.variants && p.variants.length > 0) {
-                  setVariants(p.variants.map((v: any) => ({
-                      id: v.id,
-                      sku: v.sku || "",
-                      basePrice: v.basePrice?.toString() || "0",
-                      discountedPrice: v.discountedPrice?.toString() || "0",
-                      stockQuantity: v.stockQuantity?.toString() || "0",
-                      volumeLitres: v.volumeLitres?.toString() || "",
-                      materialType: v.materialType || "",
-                      inductionCompatible: v.inductionCompatible || false,
-                      warrantyOverride: v.warrantyOverride || "",
-                      isActive: v.isActive !== undefined ? v.isActive : true,
-                      mediaUrls: v.mediaUrls || (v.media ? v.media.map((m: any) => m.url) : []),
-                      specifications: v.specifications || []
-                  })));
-              } else {
-                  setVariants([{
-                      sku: p.sku || "",
-                      basePrice: p.basePrice?.toString() || "0",
-                      discountedPrice: p.discountedPrice?.toString() || "0",
-                      stockQuantity: p.stockQuantity?.toString() || "0",
-                      volumeLitres: "",
-                      materialType: "",
-                      inductionCompatible: false,
-                      warrantyOverride: "",
-                      isActive: true,
-                      mediaUrls: [],
-                      specifications: []
-                  }]);
-              }
-              setIsLoading(false);
-          } catch(e) {}
-      };
-      if (categories.length > 0) {
-          loadProductAndMatchCategory();
-      }
-  }, [categories, id]);
 
 
   useEffect(() => {
@@ -335,25 +315,19 @@ export default function EditProduct({ params }: { params: { id: string } }) {
     setVariants(newVariants);
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    const files = Array.from(e.target.files);
-    
     setIsUploading(true);
     setError("");
     try {
-        const urls = await adminUploadImages(files);
-        setMediaUrls(prev => [...prev, ...urls]);
+        const url = await adminUploadImage(e.target.files[0]);
+        setCoverImageUrl(url);
     } catch (err: any) {
-        setError(err.message || "Failed to upload image(s)");
+        setError(err.message || "Failed to upload image");
     } finally {
         setIsUploading(false);
         e.target.value = "";
     }
-  };
-
-  const removeImage = (index: number) => {
-      setMediaUrls(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleVariantImageUpload = async (variantIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -423,7 +397,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
         sortOrder: parseInt(formData.sortOrder) || 0,
         subcategoryId: formData.subcategoryId || null,
         badges: parsedBadges,
-        mediaUrls: mediaUrls,
+        mediaUrls: coverImageUrl ? [coverImageUrl] : [],
         variants: formattedVariants
       };
 
@@ -445,8 +419,52 @@ export default function EditProduct({ params }: { params: { id: string } }) {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="animate-spin text-bharati-charcoal" size={32} />
+      <div className="max-w-4xl mx-auto py-16">
+        <div className="flex flex-col items-center justify-center space-y-4">
+          <div className="relative">
+            <div className="w-12 h-12 rounded-full border-2 border-bharati-mist" />
+            <div className="w-12 h-12 rounded-full border-2 border-bharati-charcoal border-t-transparent animate-spin absolute inset-0" />
+          </div>
+          <p className="text-sm text-bharati-charcoal font-medium">Loading product details…</p>
+          <p className="text-xs text-bharati-ash">Fetching variants, images & specifications</p>
+        </div>
+
+        {/* Skeleton placeholders for form cards */}
+        <div className="mt-10 space-y-6">
+          <div className="bg-white rounded-lg border border-bharati-mist p-6 animate-pulse">
+            <div className="h-5 bg-bharati-mist/60 rounded w-36 mb-4" />
+            <div className="flex gap-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="w-32 h-32 bg-bharati-mist/40 rounded-md" />
+              ))}
+            </div>
+          </div>
+          <div className="bg-white rounded-lg border border-bharati-mist p-6 animate-pulse">
+            <div className="h-5 bg-bharati-mist/60 rounded w-44 mb-4" />
+            <div className="grid grid-cols-2 gap-6">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="h-10 bg-bharati-mist/40 rounded" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && !formData.name) {
+    return (
+      <div className="max-w-4xl mx-auto py-16">
+        <div className="flex flex-col items-center justify-center space-y-4 text-center">
+          <div className="w-12 h-12 rounded-full bg-red-50 border border-red-100 flex items-center justify-center">
+            <AlertCircle className="text-red-500" size={24} />
+          </div>
+          <p className="text-sm font-medium text-bharati-black">Failed to load product</p>
+          <p className="text-xs text-bharati-ash max-w-sm">{error}</p>
+          <Link href="/admin/products" className="text-sm text-bharati-gold hover:underline mt-2">
+            ← Back to products
+          </Link>
+        </div>
       </div>
     );
   }
@@ -464,41 +482,46 @@ export default function EditProduct({ params }: { params: { id: string } }) {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-4">
-          <div className="flex justify-between items-center border-b border-bharati-mist pb-2">
-            <h2 className="text-lg font-medium text-bharati-black">Product Images</h2>
-          </div>
-          <div className="flex gap-4 overflow-x-auto py-2">
-            {mediaUrls.map((url, index) => (
-              <div key={index} className="relative w-32 h-32 shrink-0 rounded-md border border-bharati-mist overflow-hidden group">
-                <img src={url} alt={`Product ${index + 1}`} className="w-full h-full object-cover" />
-                <button 
-                  type="button" 
-                  onClick={() => removeImage(index)}
-                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                >
+          <h2 className="text-lg font-medium text-bharati-black border-b border-bharati-mist pb-2">Product Cover Image</h2>
+          <div className="flex items-start gap-6">
+            {coverImageUrl ? (
+              <div className="relative w-40 h-40 rounded-lg border border-bharati-mist overflow-hidden group">
+                <img src={coverImageUrl} alt="Product cover" className="w-full h-full object-cover" />
+                <button type="button" onClick={() => setCoverImageUrl("")}
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1
+                             opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
                   <X size={14} />
                 </button>
-                {index === 0 && (
-                  <div className="absolute bottom-0 inset-x-0 bg-bharati-charcoal text-white text-[10px] text-center py-1 font-medium bg-opacity-90">PRIMARY</div>
-                )}
               </div>
-            ))}
-
-            <label className="flex flex-col items-center justify-center w-32 h-32 shrink-0 rounded-md border-2 border-dashed border-bharati-mist hover:border-bharati-charcoal hover:bg-gray-50 transition-colors cursor-pointer text-gray-400 hover:text-bharati-charcoal text-center p-2">
+            ) : (
+              <label className="flex flex-col items-center justify-center w-40 h-40 rounded-lg
+                                 border-2 border-dashed border-bharati-mist hover:border-bharati-charcoal
+                                 cursor-pointer transition-colors">
                 {isUploading ? (
-                    <>
-                      <div className="w-6 h-6 border-2 border-bharati-charcoal border-t-transparent rounded-full animate-spin mb-1"></div>
-                      <span className="text-[11px] text-bharati-charcoal">Uploading...</span>
-                    </>
+                  <>
+                    <div className="w-6 h-6 border-2 border-bharati-charcoal border-t-transparent
+                                    rounded-full animate-spin mb-1" />
+                    <span className="text-xs text-bharati-charcoal">Uploading…</span>
+                  </>
                 ) : (
-                    <>
-                        <Upload size={22} className="mb-1 text-gray-400" />
-                        <span className="text-xs font-medium text-bharati-charcoal">Upload Images</span>
-                        <span className="text-[10px] text-gray-400">Select multiple</span>
-                    </>
+                  <>
+                    <Upload size={24} className="text-gray-400 mb-1" />
+                    <span className="text-sm font-medium text-bharati-charcoal">Upload Cover</span>
+                    <span className="text-[10px] text-gray-400">Single image</span>
+                  </>
                 )}
-                <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} disabled={isUploading} />
-            </label>
+                <input type="file" accept="image/*" className="hidden"
+                       onChange={handleCoverImageUpload} disabled={isUploading} />
+              </label>
+            )}
+            {coverImageUrl && (
+              <label className="text-sm text-bharati-gold hover:text-bharati-charcoal
+                                cursor-pointer font-medium transition-colors mt-2">
+                Replace image
+                <input type="file" accept="image/*" className="hidden"
+                       onChange={handleCoverImageUpload} disabled={isUploading} />
+              </label>
+            )}
           </div>
         </div>
 
@@ -552,22 +575,21 @@ export default function EditProduct({ params }: { params: { id: string } }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-bharati-charcoal mb-2">Category (Optional filter) </label>
-              <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors bg-white">
-                <option value="">Select a category to filter subcategories</option>
-                {categories.map((c) => (
+              <label className="block text-sm font-medium text-bharati-charcoal mb-2">Category *</label>
+              <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} required className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors bg-white">
+                <option value="" disabled>Select a category</option>
+                {categories.filter((c: any) => c.isActive !== false).map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-bharati-charcoal mb-2">Subcategory *</label>
-              {/* If no category is selected, we could either show all subcategories or disable. For edit, it's easier to just fetch all subcategories if we wanted to, but we only have category->subcategory endpoint. Let's just allow manual entry for now or assume they select category first. */}
-              <select name="subcategoryId" value={formData.subcategoryId} onChange={handleChange} required className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors bg-white">
+              <select name="subcategoryId" value={formData.subcategoryId} onChange={handleChange} required disabled={!selectedCategory || subcategories.length === 0} className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors bg-white disabled:bg-gray-50 disabled:text-gray-400">
                 <option value="" disabled>Select a subcategory</option>
                 {/* Always include current subcategory if it exists */}
                 {formData.subcategoryId && !subcategories.find(s => s.id === formData.subcategoryId) && (
-                   <option value={formData.subcategoryId}>Current Subcategory (Selected)</option>
+                   <option value={formData.subcategoryId}>{currentSubcategoryName || "Loading…"}</option>
                 )}
                 {subcategories.map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
