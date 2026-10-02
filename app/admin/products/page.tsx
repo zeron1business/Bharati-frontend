@@ -7,8 +7,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { Search, Plus, Edit2, Trash2, RefreshCw, AlertTriangle, CheckCircle2, X } from "lucide-react";
 import { useToast } from "@/app/admin/ToastContext";
+import { useRouter } from "next/navigation";
 
 export default function AdminProducts() {
+  const router = useRouter();
   const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
@@ -216,7 +218,11 @@ export default function AdminProducts() {
                   const displayBasePrice = firstVariant ? firstVariant.basePrice : null;
                   
                   return (
-                  <tr key={product.id} className="hover:bg-bharati-cream/50 transition-colors">
+                  <tr 
+                    key={product.id} 
+                    onClick={() => router.push(`/admin/products/${product.id}`)}
+                    className="hover:bg-bharati-cream/50 transition-colors cursor-pointer"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-bharati-cream rounded overflow-hidden relative shrink-0">
@@ -282,17 +288,19 @@ export default function AdminProducts() {
                         title="Click to edit, click away to save"
                       />
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="inline-flex items-center gap-1">
                         <Link 
                           href={`/admin/products/${product.id}/edit`}
+                          onClick={(e) => e.stopPropagation()}
                           className="inline-flex items-center text-bharati-ash hover:text-bharati-black transition-colors p-2 rounded hover:bg-bharati-cream"
                           title="Edit product"
                         >
                           <Edit2 size={16} />
                         </Link>
                         <button
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setProductToDelete(product);
                             setDeleteConfirmText("");
                             setDeleteError("");
