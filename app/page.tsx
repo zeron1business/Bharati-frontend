@@ -1,11 +1,11 @@
 import { HeroSection } from "./components/hero/HeroSection";
-import { ShopCategory } from "./components/carousel/ShopCategory";
-import { ShopProducts } from "./components/carousel/ShopProducts";
-import { BuiltDifferent } from "./components/sections/BuiltDifferent";
-import { ProductDetail } from "./components/sections/ProductDetail";
-import { DetailsSection } from "./components/sections/DetailsSection";
-import { LifestyleSection } from "./components/sections/LifestyleSection";
-import { BrandCTA } from "./components/sections/BrandCTA";
+import { ShopByCategory } from "./components/sections/ShopByCategory";
+import { BrandStory } from "./components/sections/BrandStory";
+import { MasonryCollage } from "./components/sections/MasonryCollage";
+import { BenefitsStrip } from "./components/sections/BenefitsStrip";
+import { RecipesBanner } from "./components/sections/RecipesBanner";
+import { CustomerReviews } from "./components/sections/CustomerReviews";
+import { FinalBanner } from "./components/sections/FinalBanner";
 
 import { fetchHeroPromos } from "./lib/api";
 
@@ -15,13 +15,13 @@ export default async function HomePage() {
   return (
     <>
       <HeroSection promos={heroPromos} />
-      <ShopCategory />
-      <ShopProducts />
-      <BuiltDifferent />
-      <ProductDetail />
-      <DetailsSection />
-      <LifestyleSection />
-      <BrandCTA />
+      <ShopByCategory />
+      <BrandStory />
+      <MasonryCollage />
+      <BenefitsStrip />
+      <RecipesBanner />
+      <CustomerReviews />
+      <FinalBanner />
     </>
   );
 }
