@@ -4,8 +4,13 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
 import Link from "next/link";
+import { Tag } from "lucide-react";
 
-export function HeroSection() {
+interface HeroSectionProps {
+  promos?: any[];
+}
+
+export function HeroSection({ promos = [] }: HeroSectionProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,

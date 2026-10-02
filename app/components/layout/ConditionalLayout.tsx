@@ -4,8 +4,14 @@ import { usePathname } from "next/navigation";
 import { Header } from "../navigation/Header";
 import { MobileNav } from "../navigation/MobileNav";
 import { Footer } from "../footer/Footer";
+import { PromoBanner } from "../banner/PromoBanner";
 
-export function ConditionalLayout({ children }: { children: React.ReactNode }) {
+interface ConditionalLayoutProps {
+  children: React.ReactNode;
+  promos?: any[];
+}
+
+export function ConditionalLayout({ children, promos = [] }: ConditionalLayoutProps) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
 
@@ -13,11 +19,16 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
     return <main>{children}</main>;
   }
 
+  const hasBanner = promos.length > 0;
+
   return (
     <>
-      <Header />
-      <MobileNav />
-      <main>{children}</main>
+      <PromoBanner promos={promos} />
+      <Header hasBanner={hasBanner} />
+      <MobileNav hasBanner={hasBanner} />
+      <main className={hasBanner ? "pt-[var(--banner-height)]" : ""}>
+        {children}
+      </main>
       <Footer />
     </>
   );

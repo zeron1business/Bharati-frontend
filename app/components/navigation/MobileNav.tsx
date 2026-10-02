@@ -51,7 +51,11 @@ const itemVariants = {
   }),
 };
 
-export function MobileNav() {
+interface MobileNavProps {
+  hasBanner?: boolean;
+}
+
+export function MobileNav({ hasBanner = false }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [productsExpanded, setProductsExpanded] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -100,6 +104,7 @@ export function MobileNav() {
             exit="exit"
             className="fixed inset-0 z-[60] bg-bharati-black/40"
             onClick={closeMenu}
+            style={{ top: hasBanner ? 'var(--banner-height)' : 0 }}
           />
 
           {/* Panel */}
@@ -108,8 +113,9 @@ export function MobileNav() {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="fixed top-0 right-0 bottom-0 z-[70] w-full md:w-[520px] bg-bharati-cream overflow-y-auto"
+            className="fixed right-0 bottom-0 z-[70] w-full md:w-[520px] bg-bharati-cream overflow-y-auto"
             aria-label="Main navigation"
+            style={{ top: hasBanner ? 'var(--banner-height)' : 0 }}
           >
             <div className="flex flex-col min-h-full">
               {/* Header */}

@@ -74,3 +74,15 @@ export async function fetchProductBySlug(slug: string): Promise<ProductDetail | 
     return null;
   }
 }
+
+export async function fetchHeroPromos(): Promise<any[]> {
+  try {
+    const res = await retryFetch(`${API_BASE_URL}/promos/hero`, { next: { revalidate: 0 } });
+    if (!res.ok) throw new Error('Failed to fetch hero promos');
+    const json: ApiResponse<any[]> = await res.json();
+    return json.data || [];
+  } catch (error) {
+    console.error('Error fetching hero promos:', error);
+    return [];
+  }
+}
