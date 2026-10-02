@@ -11,10 +11,8 @@ const SCROLL_STEP = 0.45; // Slow, serene luxury drift
 interface BentoItem {
   id: string;
   name: string;
-  tagline: string;
   image: string;
   href: string;
-  badge?: string;
 }
 
 interface BentoBlock {
@@ -31,32 +29,26 @@ const BLOCK_SET_1: BentoBlock = {
   box1: {
     id: "saucepan",
     name: "Tri-ply Saucepan",
-    tagline: "Everyday meals, perfected.",
     image: "/masonry/SaucePan_550_550.jpeg",
     href: "/products/triply-saucepan",
   },
   box2: {
     id: "handi-pot",
     name: "Tri-ply Handi Pot",
-    tagline: "Uniform heat for slow cooking.",
     image: "/masonry/HandiPot_550_550.jpeg",
     href: "/products/triply-handi-pot",
   },
   box3: {
     id: "handi-cooker",
     name: "Handi Pressure Cooker",
-    tagline: "Traditional handi contour with modern safety.",
     image: "/masonry/HandiCooker_700_450.jpeg",
     href: "/products/bharati-handi-pressure-cooker",
-    badge: "Heritage",
   },
   box4: {
     id: "regular-cooker",
     name: "Regular Pressure Cooker",
-    tagline: "Safe. Strong. Timeless Indian cooking.",
     image: "/masonry/RegularCooker_600_800.jpeg",
     href: "/products/bharati-regular-pressure-cooker",
-    badge: "Bestseller",
   },
 };
 
@@ -66,29 +58,24 @@ const BLOCK_SET_2: BentoBlock = {
   box1: {
     id: "kadai",
     name: "Tri-ply Kadai",
-    tagline: "Deep cooking for richer gravies.",
     image: "/masonry/Kadai_500_650.jpeg",
     href: "/products/triply-kadhai",
   },
   box2: {
     id: "belly-cooker",
     name: "Belly Cooking Pot",
-    tagline: "Spacious design for celebrations.",
     image: "/masonry/BellyCooker_500_650.jpeg",
     href: "/products/bharati-belly-pressure-cooker",
   },
   box3: {
     id: "casserole",
     name: "Tri-ply Casserole",
-    tagline: "Built for slow simmering and elegant serving.",
     image: "/masonry/Casserole_700_450.jpeg",
     href: "/products/triply-casserole",
-    badge: "Tri-ply",
   },
   box4: {
     id: "frypan",
     name: "Tri-ply Frypan",
-    tagline: "Even heat distribution for effortless searing.",
     image: "/masonry/FryPan_600_800.jpeg",
     href: "/products/triply-frypan",
   },
@@ -118,21 +105,12 @@ function BentoCard({
       />
 
       {/* Dark gradient overlay for text legibility */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none" />
 
-      {/* Badge (if any) */}
-      {item.badge && (
-        <div className="absolute top-4 left-4 z-10">
-          <span className="inline-block bg-bharati-mint/90 backdrop-blur-md text-white px-2.5 py-0.5 text-[0.65rem] font-semibold tracking-wider uppercase rounded-full shadow-sm">
-            {item.badge}
-          </span>
-        </div>
-      )}
-
-      {/* Bottom info */}
+      {/* Bottom info: Only Product Name and Explore Now */}
       <div className="absolute inset-x-0 bottom-0 p-4 md:p-5 lg:p-6 z-10 flex flex-col justify-end">
         <h3
-          className={`font-serif text-white tracking-tight leading-tight mb-1 group-hover:text-bharati-mint-light transition-colors duration-300 ${
+          className={`font-serif text-white tracking-tight leading-tight mb-2 md:mb-2.5 group-hover:text-bharati-mint-light transition-colors duration-300 ${
             isTall
               ? "text-xl md:text-2xl lg:text-[1.65rem]"
               : isWide
@@ -142,12 +120,9 @@ function BentoCard({
         >
           {item.name}
         </h3>
-        <p className="text-[0.72rem] md:text-xs text-white/75 font-normal line-clamp-1 mb-2.5">
-          {item.tagline}
-        </p>
 
         <div className="inline-flex items-center gap-1.5 text-[0.68rem] md:text-xs font-semibold uppercase tracking-wider text-white group-hover:text-bharati-mint-light transition-colors duration-300">
-          <span>Explore</span>
+          <span>Explore Now</span>
           <div className="w-5 h-5 rounded-full bg-white/20 group-hover:bg-bharati-mint-light group-hover:text-bharati-charcoal flex items-center justify-center transition-all duration-300">
             <ArrowRight size={10} strokeWidth={2.2} />
           </div>
