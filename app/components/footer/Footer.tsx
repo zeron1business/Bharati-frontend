@@ -26,16 +26,22 @@ export function Footer() {
           <div>
             <span className="text-label text-bharati-ash mb-5 block">Shop</span>
             <ul className="flex flex-col gap-3">
-              {navLinks.categories.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
+              <li>
+                <Link
+                  href="/products?category=pressure-cookers"
+                  className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+                >
+                  Pressure Cookers
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/products?category=tri-ply-products"
+                  className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+                >
+                  Tri-ply Products
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -45,16 +51,46 @@ export function Footer() {
               Products
             </span>
             <ul className="flex flex-col gap-3">
-              {navLinks.products.slice(0, 6).map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
+              <li>
+                <Link
+                  href="/products/bharati-regular-pressure-cooker"
+                  className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+                >
+                  Regular Cooker
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/products/triply-saucepan"
+                  className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+                >
+                  Saucepan
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/products/triply-kadhai"
+                  className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+                >
+                  Kadai
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/products/triply-casserole"
+                  className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+                >
+                  Casserole
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/products"
+                  className="text-[0.9rem] text-bharati-mint hover:text-bharati-mint-light font-medium transition-colors duration-300"
+                >
+                  See more...
+                </Link>
+              </li>
             </ul>
           </div>
 

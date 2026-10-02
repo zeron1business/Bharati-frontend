@@ -12,6 +12,54 @@ export interface Product {
 
 export const products: Product[] = [
   {
+    id: "prod-regular-cooker",
+    name: "Regular Cooker",
+    slug: "bharati-regular-pressure-cooker",
+    tagline: "Reliable Everyday Pressure Cooking",
+    description:
+      "Bharati Regular Pressure Cooker is designed for convenient and efficient everyday cooking. Built with durable aluminium construction.",
+    price: "₹ 1,999",
+    image: "/products/Cooker-front.jpg",
+    category: "pressure-cookers",
+    featured: true,
+  },
+  {
+    id: "prod-triply-saucepan",
+    name: "Saucepan",
+    slug: "triply-saucepan",
+    tagline: "Precise Heat for Everyday Cooking.",
+    description:
+      "A compact tri-ply stainless steel saucepan designed for boiling, heating, and everyday small-batch cooking.",
+    price: "₹ 1,849",
+    image: "/products/Cooker-right.jpg",
+    category: "tri-ply-products",
+    featured: true,
+  },
+  {
+    id: "prod-triply-kadai",
+    name: "Kadai",
+    slug: "triply-kadhai",
+    tagline: "Deep Cooking. Even Heat.",
+    description:
+      "A versatile tri-ply stainless steel kadhai designed for frying, sautéing, curries, and everyday Indian cooking.",
+    price: "₹ 2,249",
+    image: "/products/Cooker-slight-left.jpg",
+    category: "tri-ply-products",
+    featured: true,
+  },
+  {
+    id: "prod-triply-casserole",
+    name: "Casserole",
+    slug: "triply-casserole",
+    tagline: "Built for Slow, Even Cooking.",
+    description:
+      "A premium tri-ply stainless steel casserole designed for cooking, simmering, and serving everyday meals.",
+    price: "₹ 2,399",
+    image: "/products/Cooker-slightRight.jpg",
+    category: "tri-ply-products",
+    featured: true,
+  },
+  {
     id: "prod-1",
     name: "Pressure Cooker",
     slug: "pressure-cooker",
@@ -149,22 +197,14 @@ export const cookerFeatures: ProductFeature[] = [
 export const navLinks = {
   categories: [
     { name: "Pressure Cookers", href: "/products?category=pressure-cookers" },
-    { name: "Steel Utensils", href: "/products?category=steel-utensils" },
-    { name: "Kitchen Racks", href: "/products?category=kitchen-racks" },
-    { name: "Kitchen Essentials", href: "/products?category=kitchen-essentials" },
-    { name: "Cookware", href: "/products?category=cookware" },
-    { name: "Storage", href: "/products?category=storage" },
+    { name: "Tri-ply Products", href: "/products?category=tri-ply-products" },
   ],
   products: [
-    { name: "Pressure Cooker", href: "/products/pressure-cooker" },
-    { name: "Kadhai", href: "/products/kadhai" },
-    { name: "Saucepan", href: "/products/saucepan" },
-    { name: "Frypan", href: "/products/frypan" },
-    { name: "Biryani Pot", href: "/products/biryani-pot" },
-    { name: "Thali", href: "/products/thali" },
-    { name: "Vati", href: "/products/vati" },
-    { name: "Glasses", href: "/products/glasses" },
-    { name: "Racks & Baskets", href: "/products/racks-baskets" },
+    { name: "Regular Cooker", href: "/products/bharati-regular-pressure-cooker" },
+    { name: "Saucepan", href: "/products/triply-saucepan" },
+    { name: "Kadai", href: "/products/triply-kadhai" },
+    { name: "Casserole", href: "/products/triply-casserole" },
+    { name: "See more...", href: "/products" },
   ],
   support: [
     { name: "Track Order", href: "/track-order" },

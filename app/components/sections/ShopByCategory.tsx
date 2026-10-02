@@ -43,9 +43,8 @@ function ProductCircleCard({
             loading="lazy"
             unoptimized
             onLoad={() => setIsLoaded(true)}
-            className={`object-cover transition-all duration-500 group-hover:scale-105 z-10 ${
-              isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-95"
-            }`}
+            className={`object-cover transition-all duration-500 group-hover:scale-105 z-10 ${isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-95"
+              }`}
             sizes="165px"
           />
         </div>
@@ -309,7 +308,7 @@ export function ShopByCategory({ products = [] }: Props) {
             >
               Shop by Category
             </SectionLabel>
-            <h2 className="text-4xl md:text-5xl font-serif text-bharati-charcoal tracking-tight">
+            <h2 className="text-4xl md:text-5xl font-serif text-[#449188] tracking-tight">
               Find your essentials
             </h2>
           </div>
@@ -335,28 +334,25 @@ export function ShopByCategory({ products = [] }: Props) {
             }}
             aria-label="Scroll left"
             disabled={!canScrollLeft}
-            className={`absolute -left-3 md:-left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-11 md:h-11 rounded-full bg-bharati-white/95 hover:bg-bharati-white text-bharati-charcoal shadow-md hover:shadow-xl flex items-center justify-center transition-all duration-300 border border-bharati-mist/60 hover:border-bharati-mint/60 hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-sm ${
-              canScrollLeft
+            className={`absolute -left-3 md:-left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-11 md:h-11 rounded-full bg-bharati-white/95 hover:bg-bharati-white text-bharati-charcoal shadow-md hover:shadow-xl flex items-center justify-center transition-all duration-300 border border-bharati-mist/60 hover:border-bharati-mint/60 hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-sm ${canScrollLeft
                 ? "opacity-100 pointer-events-auto translate-x-0"
                 : "opacity-0 pointer-events-none -translate-x-2"
-            }`}
+              }`}
           >
             <ChevronLeft size={20} className="stroke-[2.2]" />
           </button>
 
           {/* Left fade overlay */}
           <div
-            className={`pointer-events-none absolute left-0 top-0 h-full w-12 md:w-16 z-10 transition-opacity duration-300 ${
-              canScrollLeft ? "opacity-100" : "opacity-0"
-            }`}
+            className={`pointer-events-none absolute left-0 top-0 h-full w-12 md:w-16 z-10 transition-opacity duration-300 ${canScrollLeft ? "opacity-100" : "opacity-0"
+              }`}
             style={{ background: "linear-gradient(to right, var(--color-bharati-cream), transparent)" }}
           />
 
           {/* Right fade overlay */}
           <div
-            className={`pointer-events-none absolute right-0 top-0 h-full w-12 md:w-16 z-10 transition-opacity duration-300 ${
-              canScrollRight ? "opacity-100" : "opacity-0"
-            }`}
+            className={`pointer-events-none absolute right-0 top-0 h-full w-12 md:w-16 z-10 transition-opacity duration-300 ${canScrollRight ? "opacity-100" : "opacity-0"
+              }`}
             style={{ background: "linear-gradient(to left, var(--color-bharati-cream), transparent)" }}
           />
 
@@ -369,11 +365,10 @@ export function ShopByCategory({ products = [] }: Props) {
             }}
             aria-label="Scroll right"
             disabled={!canScrollRight}
-            className={`absolute -right-3 md:-right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-11 md:h-11 rounded-full bg-bharati-white/95 hover:bg-bharati-white text-bharati-charcoal shadow-md hover:shadow-xl flex items-center justify-center transition-all duration-300 border border-bharati-mist/60 hover:border-bharati-mint/60 hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-sm ${
-              canScrollRight
+            className={`absolute -right-3 md:-right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-11 md:h-11 rounded-full bg-bharati-white/95 hover:bg-bharati-white text-bharati-charcoal shadow-md hover:shadow-xl flex items-center justify-center transition-all duration-300 border border-bharati-mist/60 hover:border-bharati-mint/60 hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-sm ${canScrollRight
                 ? "opacity-100 pointer-events-auto translate-x-0"
                 : "opacity-0 pointer-events-none translate-x-2"
-            }`}
+              }`}
           >
             <ChevronRight size={20} className="stroke-[2.2]" />
           </button>

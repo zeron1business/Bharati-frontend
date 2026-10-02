@@ -5,16 +5,48 @@ import { products as fallbackProducts } from "@/app/data/products";
 import { getProducts } from "@/lib/api";
 import { ArrowRight } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "All Products — BHARATI",
-  description:
-    "Explore the complete BHARATI collection. Premium cookware and kitchen essentials designed around the way India cooks.",
-};
+interface ProductsPageProps {
+  searchParams?: Promise<{
+    category?: string;
+    search?: string;
+  }>;
+}
+
+export async function generateMetadata(
+  props: ProductsPageProps
+): Promise<Metadata> {
+  const searchParams = props.searchParams ? await props.searchParams : undefined;
+  const category = searchParams?.category;
+
+  if (category === "pressure-cookers") {
+    return {
+      title: "Pressure Cookers — BHARATI",
+      description:
+        "Engineered for everyday Indian cooking. Explore our range of durable, precision-engineered pressure cookers.",
+    };
+  }
+  if (category === "tri-ply-products") {
+    return {
+      title: "Tri-ply Products — BHARATI",
+      description:
+        "Premium tri-ply stainless steel cookware built for even heat distribution and effortless Indian cooking.",
+    };
+  }
+  return {
+    title: "All Products — BHARATI",
+    description:
+      "Explore the complete BHARATI collection. Premium cookware and kitchen essentials designed around the way India cooks.",
+  };
+}
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
 
-export default async function ProductsPage() {
+export default async function ProductsPage(props: ProductsPageProps) {
+  const searchParams = props.searchParams ? await props.searchParams : undefined;
+  const categoryFilter = searchParams?.category;
+  const searchQuery = searchParams?.search;
+
   let displayProducts: Array<{
     id: string;
     slug: string;
@@ -26,7 +58,11 @@ export default async function ProductsPage() {
   }> = [];
 
   try {
-    const res = await getProducts({ size: 50 });
+    const res = await getProducts({
+      size: 50,
+      category: categoryFilter,
+      search: searchQuery,
+    });
     if (res && res.content && res.content.length > 0) {
       displayProducts = res.content.map((p) => {
         let formattedPrice = "₹ 3,499"; // Fallback
@@ -59,7 +95,16 @@ export default async function ProductsPage() {
 
   // Fallback to static catalog if API returned no items or backend is offline
   if (displayProducts.length === 0) {
-    displayProducts = fallbackProducts.map((p) => ({
+    let fallback = fallbackProducts;
+    if (categoryFilter) {
+      fallback = fallbackProducts.filter(
+        (p) =>
+          p.category.toLowerCase() === categoryFilter.toLowerCase() ||
+          p.category.toLowerCase().includes(categoryFilter.toLowerCase())
+      );
+      if (fallback.length === 0) fallback = fallbackProducts;
+    }
+    displayProducts = fallback.map((p) => ({
       id: p.id,
       slug: p.slug,
       name: p.name,
@@ -70,15 +115,64 @@ export default async function ProductsPage() {
     }));
   }
 
+  let headingText = "The Collection";
+  let eyebrowText = "All Products";
+
+  if (categoryFilter === "pressure-cookers") {
+    headingText = "Pressure Cookers";
+    eyebrowText = "Shop / Pressure Cookers";
+  } else if (categoryFilter === "tri-ply-products") {
+    headingText = "Tri-ply Products";
+    eyebrowText = "Shop / Tri-ply Products";
+  } else if (categoryFilter) {
+    const formatted = categoryFilter
+      .split("-")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+    headingText = formatted;
+    eyebrowText = `Shop / ${formatted}`;
+  }
+
+  const categoryTabs = [
+    { label: "All Products", href: "/products", active: !categoryFilter },
+    {
+      label: "Pressure Cookers",
+      href: "/products?category=pressure-cookers",
+      active: categoryFilter === "pressure-cookers",
+    },
+    {
+      label: "Tri-ply Products",
+      href: "/products?category=tri-ply-products",
+      active: categoryFilter === "tri-ply-products",
+    },
+  ];
+
   return (
     <div className="min-h-screen pt-[var(--header-height)]">
       <div className="section-container section-spacing">
         {/* Header */}
-        <div className="mb-8 md:mb-16">
+        <div className="mb-8 md:mb-12">
           <span className="text-label text-bharati-mint-dark mb-4 block font-medium">
-            All Products
+            {eyebrowText}
           </span>
-          <h1 className="text-headline text-bharati-black">The Collection</h1>
+          <h1 className="text-headline text-bharati-black">{headingText}</h1>
+        </div>
+
+        {/* Category Filter Pills */}
+        <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-10 pb-5 border-b border-bharati-mist/40">
+          {categoryTabs.map((cat) => (
+            <Link
+              key={cat.href}
+              href={cat.href}
+              className={`px-4 py-2 rounded-full text-xs md:text-sm font-medium tracking-wide transition-all duration-300 ${
+                cat.active
+                  ? "bg-bharati-mint text-white shadow-sm"
+                  : "bg-bharati-ivory text-bharati-charcoal/80 hover:bg-bharati-mist/60 hover:text-bharati-black"
+              }`}
+            >
+              {cat.label}
+            </Link>
+          ))}
         </div>
 
         {/* Product Grid */}

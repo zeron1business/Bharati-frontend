@@ -68,8 +68,8 @@ export function HeroSection({ promos = [] }: HeroSectionProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
         >
-          <span className="block">PRESSURE,</span>
-          <span className="block">REIMAGINED.</span>
+          <span className="block">PRESSURE</span>
+          <span className="block">REIMAGINED</span>
         </motion.h1>
 
         {/* Subline */}

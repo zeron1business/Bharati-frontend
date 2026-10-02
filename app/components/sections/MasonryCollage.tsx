@@ -63,7 +63,7 @@ const BLOCK_SET_2: BentoBlock = {
   },
   box2: {
     id: "belly-cooker",
-    name: "Belly Cooking Pot",
+    name: "Belly Pressure Cooker",
     image: "/masonry/BellyCooker_500_650.jpeg",
     href: "/products/bharati-belly-pressure-cooker",
   },
@@ -107,25 +107,14 @@ function BentoCard({
       {/* Dark gradient overlay for text legibility */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none" />
 
-      {/* Bottom info: Only Product Name and Explore Now */}
-      <div className="absolute inset-x-0 bottom-0 p-4 md:p-5 lg:p-6 z-10 flex flex-col justify-end">
-        <h3
-          className={`font-serif text-white tracking-tight leading-tight mb-2 md:mb-2.5 group-hover:text-bharati-mint-light transition-colors duration-300 ${
-            isTall
-              ? "text-xl md:text-2xl lg:text-[1.65rem]"
-              : isWide
-              ? "text-lg md:text-xl lg:text-2xl"
-              : "text-base md:text-lg"
-          }`}
-        >
+      {/* Bottom info: Product Name on Left, Arrow Icon on Right */}
+      <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 md:p-4.5 z-10 flex items-center justify-between gap-2.5">
+        <h3 className="font-sans font-normal text-white/80 text-[0.8rem] sm:text-[0.85rem] md:text-[0.92rem] tracking-wide leading-tight group-hover:text-white transition-colors duration-300">
           {item.name}
         </h3>
 
-        <div className="inline-flex items-center gap-1.5 text-[0.68rem] md:text-xs font-semibold uppercase tracking-wider text-white group-hover:text-bharati-mint-light transition-colors duration-300">
-          <span>Explore Now</span>
-          <div className="w-5 h-5 rounded-full bg-white/20 group-hover:bg-bharati-mint-light group-hover:text-bharati-charcoal flex items-center justify-center transition-all duration-300">
-            <ArrowRight size={10} strokeWidth={2.2} />
-          </div>
+        <div className="flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-white/30 bg-black/20 backdrop-blur-sm text-white/80 group-hover:border-white/60 group-hover:text-white group-hover:bg-black/35 flex items-center justify-center transition-all duration-300 shadow-sm">
+          <ArrowRight size={11} strokeWidth={1.6} className="transition-transform duration-300 group-hover:translate-x-0.5" />
         </div>
       </div>
     </Link>
@@ -228,7 +217,7 @@ export function MasonryCollage() {
             <span className="mb-2 block text-xs tracking-widest text-bharati-ash font-semibold uppercase">
               The Collection
             </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif text-bharati-charcoal tracking-tight">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif text-[#449188] tracking-tight">
               Cookware crafted for life
             </h2>
           </div>

@@ -87,7 +87,10 @@ export async function getProducts(params?: {
   const query = new URLSearchParams();
   if (params?.page !== undefined) query.set("page", params.page.toString());
   if (params?.size !== undefined) query.set("size", params.size.toString());
-  if (params?.category) query.set("category", params.category);
+  if (params?.category) {
+    query.set("category", params.category);
+    query.set("categorySlug", params.category);
+  }
   if (params?.search) query.set("search", params.search);
   if (params?.minPrice !== undefined) query.set("minPrice", params.minPrice.toString());
   if (params?.maxPrice !== undefined) query.set("maxPrice", params.maxPrice.toString());

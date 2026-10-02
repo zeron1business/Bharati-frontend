@@ -13,59 +13,62 @@ const benefits = [
   {
     icon: ShieldCheck,
     title: "ISI Certified",
-    description: "For your safety.",
+    description: "For absolute kitchen safety",
   },
   {
     icon: Award,
     title: "Premium Quality",
-    description: "Long-lasting performance.",
+    description: "Built for lifetime performance",
   },
   {
     icon: Flame,
     title: "Works on All Stoves",
-    description: "Gas, induction & more.",
+    description: "Gas, induction & ceramic",
   },
   {
     icon: Sparkles,
     title: "Easy to Clean",
-    description: "Hygienic & convenient.",
+    description: "Hygienic mirror-finish steel",
   },
   {
     icon: Flag,
     title: "Made in India",
-    description: "Proudly Indian.",
+    description: "Proudly engineered at home",
   },
 ];
 
 export function BenefitsStrip() {
   return (
     <section
-      className="benefits-strip-section bg-bharati-ivory border-y border-bharati-mist/60"
+      className="benefits-strip-section bg-bharati-cream relative z-10"
       aria-label="Product Benefits"
     >
-      <div className="section-container py-10 md:py-14">
+      <div className="max-w-[1440px] mx-auto px-6 sm:px-8 md:px-12 py-10 md:py-14">
         <AnimatedSection>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 md:gap-4">
-            {benefits.map((benefit, i) => {
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 sm:gap-8 md:gap-6">
+            {benefits.map((benefit) => {
               const Icon = benefit.icon;
               return (
                 <div
                   key={benefit.title}
-                  className={`flex flex-col items-center text-center px-4 ${
-                    i !== benefits.length - 1 ? "border-r border-bharati-mist/60" : ""
-                  }`}
+                  className="group flex flex-col items-center text-center p-3 rounded-2xl transition-all duration-300 hover:-translate-y-1"
                 >
-                  <div className="w-10 h-10 md:w-11 md:h-11 flex items-center justify-center rounded-full border border-bharati-mint/30 bg-bharati-mint/8 mb-3">
+                  {/* Luxury Floating Icon Pill */}
+                  <div className="w-12 h-12 md:w-13 md:h-13 rounded-2xl bg-white shadow-sm border border-bharati-mist/60 flex items-center justify-center mb-3.5 text-[#6fa89b] group-hover:scale-105 group-hover:shadow-md group-hover:border-[#6fa89b]/50 group-hover:bg-[#6fa89b] group-hover:text-white transition-all duration-300">
                     <Icon
-                      size={20}
-                      strokeWidth={1.3}
-                      className="text-bharati-mint-dark"
+                      size={22}
+                      strokeWidth={1.5}
+                      className="transition-colors duration-300"
                     />
                   </div>
-                  <h3 className="text-[0.8rem] md:text-[0.85rem] font-semibold text-bharati-charcoal tracking-[-0.01em] mb-0.5">
+
+                  {/* Title */}
+                  <h3 className="text-xs sm:text-[0.82rem] md:text-[0.88rem] font-semibold text-bharati-charcoal tracking-normal mb-1 group-hover:text-[#5a8f83] transition-colors duration-300">
                     {benefit.title}
                   </h3>
-                  <p className="text-[0.7rem] md:text-[0.75rem] text-bharati-silver font-light">
+
+                  {/* Description */}
+                  <p className="text-[0.68rem] sm:text-xs text-bharati-ash font-normal leading-relaxed max-w-[140px] sm:max-w-[160px]">
                     {benefit.description}
                   </p>
                 </div>

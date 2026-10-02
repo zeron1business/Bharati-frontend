@@ -76,7 +76,7 @@ export function BrandStory() {
           </AnimatedSection>
 
           <AnimatedSection delay={0.1}>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-serif text-bharati-charcoal tracking-tight leading-[1.1] mb-4 md:mb-5">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-serif text-[#449188] tracking-tight leading-[1.1] mb-4 md:mb-5">
               Built for
               <br />
               generations
@@ -93,7 +93,7 @@ export function BrandStory() {
           <AnimatedSection delay={0.3}>
             <Link
               href="/about"
-              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-md bg-[#234e45] hover:bg-[#1a3c35] text-white text-xs sm:text-sm font-medium tracking-wide shadow-sm hover:shadow-md transition-all duration-300 group"
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-md bg-[#6fa89b] hover:bg-[#5a8f83] text-white text-xs sm:text-sm font-medium tracking-wide shadow-sm hover:shadow-md transition-all duration-300 group"
             >
               Our Story
               <ArrowRight
