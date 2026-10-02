@@ -28,13 +28,13 @@ const BLOCK_SET_1: BentoBlock = {
   id: "block-1",
   box1: {
     id: "saucepan",
-    name: "Tri-ply Saucepan",
+    name: "Saucepan",
     image: "/masonry/SaucePan_550_550.jpeg",
     href: "/products/triply-saucepan",
   },
   box2: {
     id: "handi-pot",
-    name: "Tri-ply Handi Pot",
+    name: "Handi Pot",
     image: "/masonry/HandiPot_550_550.jpeg",
     href: "/products/triply-handi-pot",
   },
@@ -57,7 +57,7 @@ const BLOCK_SET_2: BentoBlock = {
   id: "block-2",
   box1: {
     id: "kadai",
-    name: "Tri-ply Kadai",
+    name: "Kadhai",
     image: "/masonry/Kadai_500_650.jpeg",
     href: "/products/triply-kadhai",
   },
@@ -69,13 +69,13 @@ const BLOCK_SET_2: BentoBlock = {
   },
   box3: {
     id: "casserole",
-    name: "Tri-ply Casserole",
+    name: "Casserole",
     image: "/masonry/Casserole_700_450.jpeg",
     href: "/products/triply-casserole",
   },
   box4: {
     id: "frypan",
-    name: "Tri-ply Frypan",
+    name: "Frypan",
     image: "/masonry/FryPan_600_800.jpeg",
     href: "/products/triply-frypan",
   },
