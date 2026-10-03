@@ -75,7 +75,17 @@ export async function fetchProductBySlug(slug: string): Promise<ProductDetail | 
 
 export async function fetchHeroPromos(): Promise<any[]> {
   try {
-    const res = await retryFetch(`${API_BASE_URL}/promos/hero`, { next: { revalidate: 0 } });
+    const res = await retryFetch(`${API_BASE_URL}/promos/top-banner`, { cache: 'no-store' });
+    if (res.ok) {
+      const json: ApiResponse<any[]> = await res.json();
+      return json.data || [];
+    }
+  } catch (error) {
+    // Try fallback endpoint /promos/hero
+  }
+
+  try {
+    const res = await retryFetch(`${API_BASE_URL}/promos/hero`, { cache: 'no-store' });
     if (!res.ok) throw new Error('Failed to fetch hero promos');
     const json: ApiResponse<any[]> = await res.json();
     return json.data || [];
@@ -84,3 +94,6 @@ export async function fetchHeroPromos(): Promise<any[]> {
     return [];
   }
 }
+
+export const fetchTopBannerPromos = fetchHeroPromos;
+

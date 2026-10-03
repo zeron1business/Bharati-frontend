@@ -13,8 +13,10 @@ export const CACHE_KEYS = {
   ADMIN_PRODUCTS: "bharati_admin_products",
   ADMIN_CATEGORIES: "bharati_admin_categories",
   ADMIN_ORDERS: "bharati_admin_orders",
+  ADMIN_PROMOS: "bharati_admin_promos",
   STORE_PRODUCTS: "bharati_store_products",
   STORE_CATEGORIES: "bharati_store_categories",
+  STORE_PROMOS: "bharati_store_promos",
 } as const;
 
 /**

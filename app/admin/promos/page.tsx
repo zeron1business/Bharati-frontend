@@ -1,20 +1,26 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { 
   adminFetchPromos, 
   adminCreatePromo, 
   adminUpdatePromo, 
   adminDeletePromo 
 } from "@/app/lib/admin-api";
+import { getSessionCache, setSessionCache, clearSessionCacheByPrefix, CACHE_KEYS } from "@/app/lib/cache";
 import { Ticket, Plus, Edit2, Trash2, CheckCircle2, XCircle, Search, RefreshCw, X, Copy } from "lucide-react";
 import { useToast } from "@/app/admin/ToastContext";
 
 export default function AdminPromosPage() {
   const { showToast } = useToast();
   
-  const [promos, setPromos] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [promos, setPromos] = useState<any[]>(() => {
+    return getSessionCache<any[]>(CACHE_KEYS.ADMIN_PROMOS) || [];
+  });
+  const [loading, setLoading] = useState<boolean>(() => {
+    return !getSessionCache<any[]>(CACHE_KEYS.ADMIN_PROMOS);
+  });
+  const [syncStatus, setSyncStatus] = useState<"syncing" | "synced" | "idle">("syncing");
   const [search, setSearch] = useState("");
   
   // Modal states
@@ -42,20 +48,36 @@ export default function AdminPromosPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
-  const loadPromos = async () => {
-    setLoading(true);
+  const loadPromos = async (forceRefresh = false) => {
+    if (!forceRefresh && promos.length === 0) {
+      const cached = getSessionCache<any[]>(CACHE_KEYS.ADMIN_PROMOS);
+      if (cached) {
+        setPromos(cached);
+        setLoading(false);
+      }
+    }
+
+    setSyncStatus("syncing");
+    if (promos.length === 0 && !getSessionCache(CACHE_KEYS.ADMIN_PROMOS)) {
+      setLoading(true);
+    }
+
     try {
       const res = await adminFetchPromos();
       setPromos(res.data);
+      setSessionCache(CACHE_KEYS.ADMIN_PROMOS, res.data);
+      setSyncStatus("synced");
     } catch (err: any) {
+      console.error("Failed to load promos:", err);
       showToast(err.message || "Failed to load promos", "error");
+      setSyncStatus("idle");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadPromos();
+    loadPromos(true);
   }, []);
 
   const handleOpenCreate = () => {
@@ -117,8 +139,10 @@ export default function AdminPromosPage() {
         await adminUpdatePromo(selectedPromo.id, payload);
         showToast("Promo code updated successfully", "success");
       }
+      clearSessionCacheByPrefix(CACHE_KEYS.ADMIN_PROMOS);
+      clearSessionCacheByPrefix(CACHE_KEYS.STORE_PROMOS);
       setShowModal(false);
-      loadPromos();
+      await loadPromos(true);
     } catch (err: any) {
       showToast(err.message || "Operation failed", "error");
     } finally {
@@ -128,23 +152,35 @@ export default function AdminPromosPage() {
 
   const handleToggleActive = async (id: string, currentStatus: boolean) => {
     try {
-      await adminUpdatePromo(id, { isActive: !currentStatus });
-      showToast(`Promo ${!currentStatus ? 'activated' : 'deactivated'}`, "success");
       // Optimistic update
-      setPromos(promos.map(p => p.id === id ? { ...p, isActive: !currentStatus } : p));
+      const updated = promos.map(p => p.id === id ? { ...p, isActive: !currentStatus } : p);
+      setPromos(updated);
+      setSessionCache(CACHE_KEYS.ADMIN_PROMOS, updated);
+
+      await adminUpdatePromo(id, { isActive: !currentStatus });
+      clearSessionCacheByPrefix(CACHE_KEYS.ADMIN_PROMOS);
+      clearSessionCacheByPrefix(CACHE_KEYS.STORE_PROMOS);
+      showToast(`Promo ${!currentStatus ? 'activated' : 'deactivated'}`, "success");
     } catch (err: any) {
       showToast(err.message || "Failed to toggle status", "error");
+      await loadPromos(true);
     }
   };
 
   const handleToggleHero = async (id: string, currentStatus: boolean) => {
     try {
-      await adminUpdatePromo(id, { displayInHero: !currentStatus });
-      showToast(`Top banner display ${!currentStatus ? 'enabled' : 'disabled'}`, "success");
       // Optimistic update
-      setPromos(promos.map(p => p.id === id ? { ...p, displayInHero: !currentStatus } : p));
+      const updated = promos.map(p => p.id === id ? { ...p, displayInHero: !currentStatus } : p);
+      setPromos(updated);
+      setSessionCache(CACHE_KEYS.ADMIN_PROMOS, updated);
+
+      await adminUpdatePromo(id, { displayInHero: !currentStatus });
+      clearSessionCacheByPrefix(CACHE_KEYS.ADMIN_PROMOS);
+      clearSessionCacheByPrefix(CACHE_KEYS.STORE_PROMOS);
+      showToast(`Top banner display ${!currentStatus ? 'enabled' : 'disabled'}`, "success");
     } catch (err: any) {
       showToast(err.message || "Failed to toggle top banner display", "error");
+      await loadPromos(true);
     }
   };
 
@@ -156,9 +192,11 @@ export default function AdminPromosPage() {
     setIsDeleting(true);
     try {
       await adminDeletePromo(selectedPromo.id);
+      clearSessionCacheByPrefix(CACHE_KEYS.ADMIN_PROMOS);
+      clearSessionCacheByPrefix(CACHE_KEYS.STORE_PROMOS);
       showToast("Promo code deleted", "success");
       setShowDeleteModal(false);
-      loadPromos();
+      await loadPromos(true);
     } catch (err: any) {
       showToast(err.message || "Failed to delete promo", "error");
     } finally {
@@ -172,22 +210,47 @@ export default function AdminPromosPage() {
   );
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-light text-bharati-black tracking-wide flex items-center gap-3">
-            <Ticket className="text-bharati-charcoal" />
-            Promo Codes
-          </h1>
-          <p className="text-bharati-ash text-sm mt-1">Manage discount vouchers and top scrolling promos.</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-2xl font-light text-bharati-black tracking-wide flex items-center gap-3">
+              <Ticket className="text-bharati-charcoal" />
+              Promo Codes
+            </h1>
+            <p className="text-bharati-ash text-sm mt-1">Manage discount vouchers and top scrolling promos.</p>
+          </div>
+          {syncStatus === "syncing" && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200/60 animate-pulse ml-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
+              Syncing...
+            </span>
+          )}
+          {syncStatus === "synced" && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60 transition-all duration-300 ml-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Synced
+            </span>
+          )}
         </div>
-        <button
-          onClick={handleOpenCreate}
-          className="px-4 py-2 bg-bharati-charcoal text-white rounded-md hover:bg-bharati-black transition-colors flex items-center gap-2"
-        >
-          <Plus size={18} /> Add Promo
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => loadPromos(true)}
+            disabled={syncStatus === "syncing"}
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-md border border-bharati-mist text-bharati-charcoal hover:bg-bharati-cream transition-colors text-sm font-medium disabled:opacity-50"
+            title="Refresh promos list"
+          >
+            <RefreshCw size={16} className={syncStatus === "syncing" ? "animate-spin text-bharati-mint-dark" : "text-bharati-charcoal"} />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+          <button
+            onClick={handleOpenCreate}
+            className="px-4 py-2.5 bg-bharati-charcoal text-white rounded-md hover:bg-bharati-black transition-colors flex items-center gap-2 text-sm font-medium"
+          >
+            <Plus size={18} /> Add Promo
+          </button>
+        </div>
       </div>
 
       {/* Toolbar */}
@@ -202,13 +265,6 @@ export default function AdminPromosPage() {
             className="w-full pl-10 pr-4 py-2 border border-bharati-mist rounded-md focus:outline-none focus:border-bharati-black transition-colors"
           />
         </div>
-        <button 
-          onClick={loadPromos} 
-          className="p-2 border border-bharati-mist rounded-md hover:bg-bharati-cream transition-colors text-bharati-charcoal"
-          title="Refresh List"
-        >
-          <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
-        </button>
       </div>
 
       {/* Table */}

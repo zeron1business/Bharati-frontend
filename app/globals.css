@@ -54,7 +54,7 @@
 
   /* Layout */
   --header-height: clamp(64px, 6vw, 72px);
-  --banner-height: 36px;
+  --banner-height: 38px;
   --container-max: 1440px;
 
   /* Fonts */
@@ -417,20 +417,27 @@ body {
 }
 
 /* ============================================
-   Marquee Animation
+/* ============================================
+   Never-Ending Continuous Marquee Animation
    ============================================ */
-@keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-6.6666666667%); } /* Since we duplicated it 15 times, scroll by 1/15 */
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
-.animate-marquee {
+.animate-marquee-track {
   display: flex;
-  width: max-content;
-  animation: marquee 30s linear infinite;
+  align-items: center;
+  flex-shrink: 0;
+  animation: marquee-scroll 35s linear infinite;
+  will-change: transform;
 }
 
-.animate-marquee:hover {
+.marquee-container:hover .animate-marquee-track {
   animation-play-state: paused;
 }
 
