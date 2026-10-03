@@ -32,13 +32,25 @@ export function HeroSection({ promos = [] }: HeroSectionProps) {
       <div className="absolute inset-0">
         {/* Hero Video */}
         <motion.div className="absolute inset-0" style={{ scale: imageScale }}>
+          {/* Desktop Video */}
           <video
             src="/hero/Hero_video.mp4"
             autoPlay
             loop
             muted
             playsInline
-            className="w-full h-full object-cover"
+            preload="auto"
+            className="hidden md:block w-full h-full object-cover"
+          />
+          {/* Mobile Video */}
+          <video
+            src="/hero/Hero_video_mobile1.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="block md:hidden w-full h-full object-cover"
           />
         </motion.div>
 
