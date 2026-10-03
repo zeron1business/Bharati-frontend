@@ -31,7 +31,7 @@ export function ConditionalLayout({ children, promos: initialPromos = [] }: Cond
   useEffect(() => {
     fetchTopBannerPromos()
       .then((data) => {
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           setPromos(data);
         }
       })
@@ -49,7 +49,10 @@ export function ConditionalLayout({ children, promos: initialPromos = [] }: Cond
       <PromoBanner promos={promos} />
       <Header hasBanner={hasBanner} />
       <MobileNav hasBanner={hasBanner} />
-      <main className={hasBanner ? "pt-[var(--banner-height)]" : ""}>
+      <main
+        className={hasBanner ? "pt-[var(--banner-height)]" : ""}
+        style={hasBanner ? { paddingTop: "var(--banner-height, 38px)" } : undefined}
+      >
         {children}
       </main>
       <Footer />

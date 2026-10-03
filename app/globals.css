@@ -61,6 +61,12 @@
   --font-sans: "Inter", "Geist", system-ui, -apple-system, sans-serif;
 }
 
+:root {
+  --header-height: clamp(64px, 6vw, 72px);
+  --banner-height: 38px;
+  --container-max: 1440px;
+}
+
 /* ============================================
    Base Styles
    ============================================ */

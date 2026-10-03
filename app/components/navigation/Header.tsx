@@ -56,7 +56,7 @@ export function Header({ hasBanner = false }: HeaderProps) {
           : "bg-bharati-cream/85 backdrop-blur-xl border-b border-bharati-mist/60 shadow-xs"
       }`}
       style={{
-        top: hasBanner ? 'var(--banner-height)' : '0'
+        top: hasBanner ? 'var(--banner-height, 38px)' : '0'
       }}
     >
       <div className="flex items-center justify-between h-[var(--header-height)] px-6 md:px-10 max-w-[var(--container-max)] mx-auto">

@@ -297,7 +297,8 @@ export function PromoBanner({ promos: initialPromos = [] }: PromoBannerProps) {
         handleMouseUpOrLeave();
         resumeAutoScroll();
       }}
-      className="fixed top-0 left-0 right-0 h-[var(--banner-height)] z-[60] bg-gradient-to-r from-[#24524c] via-[#2c615a] to-[#24524c] border-b border-[#1b3d39] text-white flex items-center overflow-hidden shadow-xs select-none"
+      className="fixed top-0 left-0 right-0 h-[var(--banner-height,38px)] min-h-[38px] z-[60] bg-gradient-to-r from-[#24524c] via-[#2c615a] to-[#24524c] border-b border-[#1b3d39] text-white flex items-center overflow-hidden shadow-xs select-none"
+      style={{ height: "var(--banner-height, 38px)" }}
     >
       <div
         ref={trackRef}

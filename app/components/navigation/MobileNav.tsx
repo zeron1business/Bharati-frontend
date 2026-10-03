@@ -104,7 +104,7 @@ export function MobileNav({ hasBanner = false }: MobileNavProps) {
             exit="exit"
             className="fixed inset-0 z-[60] bg-bharati-black/40"
             onClick={closeMenu}
-            style={{ top: hasBanner ? 'var(--banner-height)' : 0 }}
+            style={{ top: hasBanner ? 'var(--banner-height, 38px)' : 0 }}
           />
 
           {/* Panel */}
@@ -115,7 +115,7 @@ export function MobileNav({ hasBanner = false }: MobileNavProps) {
             exit="exit"
             className="fixed right-0 bottom-0 z-[70] w-full md:w-[520px] bg-bharati-cream overflow-y-auto"
             aria-label="Main navigation"
-            style={{ top: hasBanner ? 'var(--banner-height)' : 0 }}
+            style={{ top: hasBanner ? 'var(--banner-height, 38px)' : 0 }}
           >
             <div className="flex flex-col min-h-full">
               {/* Header */}
