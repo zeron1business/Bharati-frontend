@@ -45,22 +45,20 @@ export function BenefitsStrip() {
     >
       <div className="max-w-[1440px] mx-auto px-6 sm:px-8 md:px-12 py-10 md:py-14">
         <AnimatedSection>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 sm:gap-6 md:gap-6">
-            {benefits.map((benefit, idx) => {
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 sm:gap-8 md:gap-6">
+            {benefits.map((benefit) => {
               const Icon = benefit.icon;
-              const isLast = idx === benefits.length - 1;
+              const isEasyToClean = benefit.title === "Easy to Clean";
 
               return (
                 <div
                   key={benefit.title}
-                  className={`group transition-all duration-300 hover:-translate-y-0.5 ${
-                    isLast
-                      ? "col-span-2 md:col-span-1 flex flex-row md:flex-col items-center justify-center text-left md:text-center p-3.5 sm:p-4 md:p-3 rounded-2xl bg-white/75 md:bg-transparent border border-bharati-mist/70 md:border-transparent shadow-xs md:shadow-none gap-3.5 md:gap-0"
-                      : "flex flex-col items-center text-center p-3 rounded-2xl"
+                  className={`group flex-col items-center text-center p-3 rounded-2xl transition-all duration-300 hover:-translate-y-1 ${
+                    isEasyToClean ? "hidden md:flex" : "flex"
                   }`}
                 >
                   {/* Luxury Floating Icon Pill */}
-                  <div className="w-12 h-12 md:w-13 md:h-13 rounded-2xl bg-white shadow-sm border border-bharati-mist/60 flex items-center justify-center mb-0 md:mb-3.5 text-[#6fa89b] group-hover:scale-105 group-hover:shadow-md group-hover:border-[#6fa89b]/50 group-hover:bg-[#6fa89b] group-hover:text-white transition-all duration-300 flex-shrink-0">
+                  <div className="w-12 h-12 md:w-13 md:h-13 rounded-2xl bg-white shadow-sm border border-bharati-mist/60 flex items-center justify-center mb-3.5 text-[#6fa89b] group-hover:scale-105 group-hover:shadow-md group-hover:border-[#6fa89b]/50 group-hover:bg-[#6fa89b] group-hover:text-white transition-all duration-300">
                     <Icon
                       size={22}
                       strokeWidth={1.5}
@@ -68,18 +66,15 @@ export function BenefitsStrip() {
                     />
                   </div>
 
-                  {/* Text Container */}
-                  <div className={isLast ? "flex flex-col" : "flex flex-col items-center"}>
-                    {/* Title */}
-                    <h3 className="text-xs sm:text-[0.82rem] md:text-[0.88rem] font-semibold text-bharati-charcoal tracking-normal mb-0.5 md:mb-1 group-hover:text-[#5a8f83] transition-colors duration-300">
-                      {benefit.title}
-                    </h3>
+                  {/* Title */}
+                  <h3 className="text-xs sm:text-[0.82rem] md:text-[0.88rem] font-semibold text-bharati-charcoal tracking-normal mb-1 group-hover:text-[#5a8f83] transition-colors duration-300">
+                    {benefit.title}
+                  </h3>
 
-                    {/* Description */}
-                    <p className="text-[0.68rem] sm:text-xs text-bharati-ash font-normal leading-relaxed max-w-[160px] md:max-w-[140px]">
-                      {benefit.description}
-                    </p>
-                  </div>
+                  {/* Description */}
+                  <p className="text-[0.68rem] sm:text-xs text-bharati-ash font-normal leading-relaxed max-w-[140px] sm:max-w-[160px]">
+                    {benefit.description}
+                  </p>
                 </div>
               );
             })}
