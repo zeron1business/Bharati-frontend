@@ -236,7 +236,7 @@ export function MasonryCollage() {
         <div className="relative">
           {/* Subtle Left Fade */}
           <div
-            className="pointer-events-none absolute left-0 top-0 h-full w-10 md:w-16 z-20"
+            className="pointer-events-none absolute left-0 top-0 h-full w-2 sm:w-5 md:w-10 z-20 opacity-15 sm:opacity-30 md:opacity-50"
             style={{
               background:
                 "linear-gradient(to right, var(--color-bharati-cream), transparent)",
@@ -244,7 +244,7 @@ export function MasonryCollage() {
           />
           {/* Subtle Right Fade */}
           <div
-            className="pointer-events-none absolute right-0 top-0 h-full w-10 md:w-16 z-20"
+            className="pointer-events-none absolute right-0 top-0 h-full w-2 sm:w-5 md:w-10 z-20 opacity-15 sm:opacity-30 md:opacity-50"
             style={{
               background:
                 "linear-gradient(to left, var(--color-bharati-cream), transparent)",

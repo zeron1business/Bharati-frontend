@@ -405,10 +405,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
       clearSessionCacheByPrefix(CACHE_KEYS.ADMIN_PRODUCTS);
       clearSessionCacheByPrefix(CACHE_KEYS.STORE_PRODUCTS);
       setFlashToast("Product updated successfully!", "success");
-      showToast("Product updated successfully!", "success");
-      setTimeout(() => {
-        router.push("/admin/products");
-      }, 1000);
+      router.push("/admin/products");
     } catch (err: any) {
       setError(err.message || "Failed to update product");
       showToast(err.message || "Failed to update product", "error");

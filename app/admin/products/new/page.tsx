@@ -346,10 +346,7 @@ export default function NewProduct() {
       clearSessionCacheByPrefix(CACHE_KEYS.ADMIN_PRODUCTS);
       clearSessionCacheByPrefix(CACHE_KEYS.STORE_PRODUCTS);
       setFlashToast("Product added successfully!", "success");
-      showToast("Product added successfully!", "success");
-      setTimeout(() => {
-        router.push("/admin/products");
-      }, 1000);
+      router.push("/admin/products");
     } catch (err: any) {
       setError(err.message || "Failed to create product");
       showToast(err.message || "Failed to create product", "error");

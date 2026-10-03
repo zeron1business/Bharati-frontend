@@ -39,8 +39,8 @@ export async function generateMetadata(
   };
 }
 
-// Revalidate every 60 seconds
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function ProductsPage(props: ProductsPageProps) {
   const searchParams = props.searchParams ? await props.searchParams : undefined;

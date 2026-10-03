@@ -97,11 +97,11 @@ export async function getProducts(params?: {
   if (params?.sort) query.set("sort", params.sort);
 
   const qs = query.toString() ? `?${query.toString()}` : "";
-  return fetchApi<PagedResponse<ProductCard>>(`/products${qs}`);
+  return fetchApi<PagedResponse<ProductCard>>(`/products${qs}`, { cache: "no-store" });
 }
 
 export async function getProductBySlug(slug: string): Promise<ProductDetail> {
-  return fetchApi<ProductDetail>(`/products/${slug}`);
+  return fetchApi<ProductDetail>(`/products/${slug}`, { cache: "no-store" });
 }
 
 export async function getCategories(): Promise<ProductCategory[]> {
