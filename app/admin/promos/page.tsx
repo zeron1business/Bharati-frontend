@@ -404,14 +404,19 @@ export default function AdminPromosPage() {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-bharati-charcoal mb-1">Description (Optional)</label>
+                    <label className="block text-sm font-medium text-bharati-charcoal mb-1">
+                      Banner Announcement Text / Headline
+                    </label>
                     <textarea
                       value={formData.description}
                       onChange={(e) => setFormData({...formData, description: e.target.value})}
-                      placeholder="Admin notes about this promo..."
+                      placeholder="e.g. FLAT 25% OFF ON ALL PRESSURE COOKERS, or FLAT ₹200 OFF ON ORDERS ABOVE ₹1500"
                       rows={2}
                       className="w-full p-2.5 border border-bharati-mist rounded-md focus:border-bharati-black"
                     />
+                    <p className="text-xs text-bharati-ash mt-1">
+                      This headline text is displayed on the top scrolling announcement banner.
+                    </p>
                   </div>
 
                   <div>

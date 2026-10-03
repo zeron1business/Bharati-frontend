@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { Header } from "../navigation/Header";
 import { MobileNav } from "../navigation/MobileNav";
 import { Footer } from "../footer/Footer";
-import { PromoBanner } from "../banner/PromoBanner";
+import { PromoBanner, DEFAULT_PROMOS } from "../banner/PromoBanner";
 
 import { useEffect, useState } from "react";
 import { fetchTopBannerPromos } from "@/app/lib/api";
@@ -19,7 +19,7 @@ export function ConditionalLayout({ children, promos: initialPromos = [] }: Cond
   const isAdmin = pathname?.startsWith("/admin");
 
   const [promos, setPromos] = useState<any[]>(() => {
-    return initialPromos && initialPromos.length > 0 ? initialPromos : [{ id: "p1" }, { id: "p2" }];
+    return initialPromos && initialPromos.length > 0 ? initialPromos : DEFAULT_PROMOS;
   });
 
   useEffect(() => {

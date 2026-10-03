@@ -423,15 +423,14 @@ body {
 }
 
 /* ============================================
-/* ============================================
    Never-Ending Continuous Marquee Animation
    ============================================ */
 @keyframes marquee-scroll {
   0% {
-    transform: translateX(0%);
+    transform: translate3d(0%, 0, 0);
   }
   100% {
-    transform: translateX(-100%);
+    transform: translate3d(-100%, 0, 0);
   }
 }
 
@@ -439,7 +438,7 @@ body {
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  animation: marquee-scroll 35s linear infinite;
+  animation: marquee-scroll 32s linear infinite;
   will-change: transform;
 }
 

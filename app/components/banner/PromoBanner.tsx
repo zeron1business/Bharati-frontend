@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Check, Copy } from "lucide-react";
 import { fetchTopBannerPromos } from "@/app/lib/api";
 
@@ -17,11 +17,21 @@ export interface PromoCodeItem {
   displayInTopBanner?: boolean;
 }
 
-const DEFAULT_PROMOS: PromoCodeItem[] = [
+export const DEFAULT_PROMOS: PromoCodeItem[] = [
+  {
+    id: "diwali25",
+    code: "DIWALI25",
+    description: "Massive Diwali Sale! 25% off up to ₹2000",
+    discountType: "PERCENTAGE",
+    discountValue: 25,
+    minOrderValue: 2000,
+    isActive: true,
+    displayInHero: true,
+  },
   {
     id: "welcome10",
     code: "WELCOME10",
-    description: "10% off on your first order",
+    description: "10% off on your first order up to ₹500",
     discountType: "PERCENTAGE",
     discountValue: 10,
     minOrderValue: 1000,
@@ -44,22 +54,12 @@ interface PromoBannerProps {
   promos?: PromoCodeItem[];
 }
 
-const SCROLL_SPEED = 0.85; // Silky smooth 60fps velocity
-
 export function PromoBanner({ promos: initialPromos = [] }: PromoBannerProps) {
   const [promos, setPromos] = useState<PromoCodeItem[]>(() => {
     return initialPromos && initialPromos.length > 0 ? initialPromos : DEFAULT_PROMOS;
   });
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [isPaused, setIsPaused] = useState(false);
-
-  const bannerRef = useRef<HTMLElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const animFrameRef = useRef<number | null>(null);
-  const isPausedRef = useRef(false);
-  const isDraggingRef = useRef(false);
-  const dragStartXRef = useRef(0);
-  const scrollStartLeftRef = useRef(0);
 
   // Sync with initial promos if passed
   useEffect(() => {
@@ -86,130 +86,18 @@ export function PromoBanner({ promos: initialPromos = [] }: PromoBannerProps) {
     };
   }, []);
 
-  // ── Auto-scroll circular loop ─────────────────────────────────────────────
-  const scroll = useCallback(() => {
-    const el = trackRef.current;
-    if (!el || isPausedRef.current) return;
-
-    const halfWidth = el.scrollWidth / 2;
-    if (halfWidth > 0) {
-      if (el.scrollLeft >= halfWidth) {
-        el.scrollLeft -= halfWidth;
-      } else {
-        el.scrollLeft += SCROLL_SPEED;
-      }
-    }
-
-    animFrameRef.current = requestAnimationFrame(scroll);
-  }, []);
-
-  const startScroll = useCallback(() => {
-    if (animFrameRef.current) return;
-    animFrameRef.current = requestAnimationFrame(scroll);
-  }, [scroll]);
-
-  const stopScroll = useCallback(() => {
-    if (animFrameRef.current) {
-      cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = null;
-    }
-  }, []);
-
-  // ── Pause ONLY on manual user stopping (drag, click, touch, wheel) ─────────
-  const pauseAutoScroll = useCallback(() => {
-    setIsPaused(true);
-    isPausedRef.current = true;
-    stopScroll();
-  }, [stopScroll]);
-
-  // ── Resume auto-scroll ───────────────────────────────────────────────────
-  const resumeAutoScroll = useCallback(() => {
-    setIsPaused(false);
-    isPausedRef.current = false;
-    startScroll();
-  }, [startScroll]);
-
-  // Resume when mouse moves/clicks outside the banner
-  useEffect(() => {
-    const handleOutsideInteraction = (e: MouseEvent) => {
-      if (
-        isPausedRef.current &&
-        bannerRef.current &&
-        !bannerRef.current.contains(e.target as Node)
-      ) {
-        resumeAutoScroll();
-      }
-    };
-
-    window.addEventListener("mousemove", handleOutsideInteraction);
-    document.addEventListener("mousedown", handleOutsideInteraction);
-
-    return () => {
-      window.removeEventListener("mousemove", handleOutsideInteraction);
-      document.removeEventListener("mousedown", handleOutsideInteraction);
-    };
-  }, [resumeAutoScroll]);
-
-  // Resume on focus change, window focus, or visibility change
-  useEffect(() => {
-    const handleFocusChange = () => {
-      resumeAutoScroll();
-    };
-
-    window.addEventListener("focus", handleFocusChange);
-    window.addEventListener("blur", handleFocusChange);
-    document.addEventListener("visibilitychange", handleFocusChange);
-
-    return () => {
-      window.removeEventListener("focus", handleFocusChange);
-      window.removeEventListener("blur", handleFocusChange);
-      document.removeEventListener("visibilitychange", handleFocusChange);
-    };
-  }, [resumeAutoScroll]);
-
-  // Start scrolling on mount & handle paused state changes
-  useEffect(() => {
-    if (isPaused) {
-      stopScroll();
-    } else {
-      startScroll();
-    }
-    return () => stopScroll();
-  }, [isPaused, startScroll, stopScroll]);
-
-  // ── Mouse Drag Support ───────────────────────────────────────────────────
-  const handleMouseDown = (e: React.MouseEvent) => {
-    pauseAutoScroll();
-    isDraggingRef.current = true;
-    dragStartXRef.current = e.pageX - (trackRef.current?.offsetLeft || 0);
-    scrollStartLeftRef.current = trackRef.current?.scrollLeft || 0;
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDraggingRef.current || !trackRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - (trackRef.current.offsetLeft || 0);
-    const walk = (x - dragStartXRef.current) * 1.4;
-    trackRef.current.scrollLeft = scrollStartLeftRef.current - walk;
-  };
-
-  const handleMouseUpOrLeave = () => {
-    if (isDraggingRef.current) {
-      isDraggingRef.current = false;
-    }
-  };
-
-  const handleCopy = (e: React.MouseEvent, code: string) => {
+  const handleCopy = (e: React.MouseEvent | React.TouchEvent, code: string) => {
     e.stopPropagation();
-    pauseAutoScroll();
+    setIsPaused(true);
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
     setTimeout(() => {
       setCopiedCode((prev) => (prev === code ? null : prev));
+      setIsPaused(false);
     }, 2200);
   };
 
-  // Circular queue sets (each set repeated so Set 1 width > viewport width)
+  // Build repeating items to ensure track is comfortably wider than any screen
   const repeatCount = useMemo(() => {
     if (promos.length === 1) return 4;
     if (promos.length === 2) return 3;
@@ -224,62 +112,77 @@ export function PromoBanner({ promos: initialPromos = [] }: PromoBannerProps) {
     return items;
   }, [promos, repeatCount]);
 
-  const set2 = set1; // Identical duplicate for seamless continuous wrap
+  if (promos.length === 0) return null;
 
   const renderItem = (promo: PromoCodeItem, key: string) => {
     const isCopied = copiedCode === promo.code;
-    const discountText =
-      promo.discountType === "PERCENTAGE"
-        ? `${promo.discountValue}% OFF`
-        : `FLAT ₹${promo.discountValue} OFF`;
+
+    // Prioritize user's exact announcement text given in description
+    const displayText = promo.description?.trim()
+      ? promo.description.trim()
+      : promo.discountValue
+        ? promo.discountType === "PERCENTAGE"
+          ? `${promo.discountValue}% OFF`
+          : `FLAT ₹${promo.discountValue} OFF`
+        : promo.code
+          ? "SPECIAL OFFER"
+          : "";
+
+    if (!displayText && !promo.code) return null;
 
     return (
       <div
         key={key}
-        className="flex items-center gap-3 shrink-0 px-6 sm:px-10"
+        className="flex items-center gap-2.5 sm:gap-3 shrink-0 px-4 sm:px-8"
       >
-        {/* Discount Headline */}
-        <span className="text-white text-[11px] sm:text-xs font-semibold tracking-wider uppercase whitespace-nowrap">
-          {discountText}
-          {promo.minOrderValue && (
-            <span className="text-white/85 font-normal ml-1">
-              ON ORDERS OVER ₹{promo.minOrderValue}
-            </span>
-          )}
-        </span>
-
+        {/* User-given Announcement Text / Headline */}
+        {displayText && (
+          <span className="text-white text-[11px] sm:text-xs font-semibold tracking-wider uppercase whitespace-nowrap">
+            {displayText}
+            {/* Show min order value only if not already mentioned in user's text */}
+            {promo.minOrderValue && !displayText.toLowerCase().includes("order") && (
+              <span className="text-white/85 font-normal ml-1">
+                ON ORDERS OVER ₹{promo.minOrderValue}
+              </span>
+            )}
+          </span>
+        )}
 
         {/* Separator dot */}
-        <span className="text-white/40 text-[10px] select-none">•</span>
+        {displayText && promo.code && (
+          <span className="text-white/40 text-[10px] select-none">•</span>
+        )}
 
         {/* Interactive Copyable Promo Code Badge */}
-        <button
-          type="button"
-          onClick={(e) => handleCopy(e, promo.code)}
-          title="Click to copy promo code"
-          className="group/btn inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 text-[#fcedc7] border border-white/20 transition-all cursor-pointer shadow-xs select-none"
-        >
-          <span className="text-[10px] sm:text-[11px] font-medium tracking-wide text-white/90">
-            CODE:
-          </span>
-          <span className="text-[11px] sm:text-xs font-bold tracking-widest uppercase text-[#fcedc7]">
-            {promo.code}
-          </span>
-          {isCopied ? (
-            <span className="inline-flex items-center text-[10px] font-bold text-emerald-300 ml-0.5">
-              <Check size={12} strokeWidth={2.5} className="mr-0.5" /> COPIED!
+        {promo.code && (
+          <button
+            type="button"
+            onClick={(e) => handleCopy(e, promo.code)}
+            title="Click to copy promo code"
+            className="group/btn inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-[#fcedc7] border border-white/20 transition-all cursor-pointer shadow-xs select-none shrink-0"
+          >
+            <span className="text-[10px] sm:text-[11px] font-medium tracking-wide text-white/90">
+              CODE:
             </span>
-          ) : (
-            <Copy
-              size={11}
-              strokeWidth={1.75}
-              className="text-white/70 group-hover/btn:text-white transition-colors ml-0.5"
-            />
-          )}
-        </button>
+            <span className="text-[11px] sm:text-xs font-bold tracking-widest uppercase text-[#fcedc7]">
+              {promo.code}
+            </span>
+            {isCopied ? (
+              <span className="inline-flex items-center text-[10px] font-bold text-emerald-300 ml-0.5">
+                <Check size={12} strokeWidth={2.5} className="mr-0.5" /> COPIED!
+              </span>
+            ) : (
+              <Copy
+                size={11}
+                strokeWidth={1.75}
+                className="text-white/70 group-hover/btn:text-white transition-colors ml-0.5"
+              />
+            )}
+          </button>
+        )}
 
         {/* Visual Separator between different promo entries */}
-        <span className="text-[#fcedc7]/40 text-xs sm:text-sm ml-6 sm:ml-10 select-none">
+        <span className="text-white/30 text-xs sm:text-sm ml-4 sm:ml-8 select-none">
           ✦
         </span>
       </div>
@@ -288,37 +191,36 @@ export function PromoBanner({ promos: initialPromos = [] }: PromoBannerProps) {
 
   return (
     <aside
-      ref={bannerRef}
       aria-label="Promotion Banner"
-      onPointerDown={pauseAutoScroll}
-      onWheel={pauseAutoScroll}
-      onTouchStart={pauseAutoScroll}
-      onMouseLeave={() => {
-        handleMouseUpOrLeave();
-        resumeAutoScroll();
-      }}
-      className="fixed top-0 left-0 right-0 h-[var(--banner-height,38px)] min-h-[38px] z-[60] bg-gradient-to-r from-[#24524c] via-[#2c615a] to-[#24524c] border-b border-[#1b3d39] text-white flex items-center overflow-hidden shadow-xs select-none"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={() => setIsPaused(true)}
+      onTouchEnd={() => setIsPaused(false)}
+      className="marquee-container fixed top-0 left-0 right-0 h-[var(--banner-height,38px)] min-h-[38px] z-[60] bg-black border-b border-white/10 text-white flex items-center overflow-hidden shadow-xs select-none"
       style={{ height: "var(--banner-height, 38px)" }}
     >
       <div
-        ref={trackRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUpOrLeave}
-        className="w-full h-full flex items-center overflow-x-auto select-none cursor-grab active:cursor-grabbing"
+        className="w-full h-full flex items-center overflow-hidden select-none"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
         }}
       >
-        {/* Set 1 */}
-        <div className="flex items-center shrink-0">
+        {/* Track 1 */}
+        <div
+          className="animate-marquee-track flex items-center shrink-0"
+          style={{ animationPlayState: isPaused ? "paused" : "running" }}
+        >
           {set1.map((promo, idx) => renderItem(promo, `s1-${idx}-${promo.id}`))}
         </div>
 
-        {/* Set 2 (Identical duplicate for seamless endless circular queue) */}
-        <div className="flex items-center shrink-0" aria-hidden="true">
-          {set2.map((promo, idx) => renderItem(promo, `s2-${idx}-${promo.id}`))}
+        {/* Track 2 (Identical seamless duplicate for endless loop) */}
+        <div
+          className="animate-marquee-track flex items-center shrink-0"
+          aria-hidden="true"
+          style={{ animationPlayState: isPaused ? "paused" : "running" }}
+        >
+          {set1.map((promo, idx) => renderItem(promo, `s2-${idx}-${promo.id}`))}
         </div>
       </div>
     </aside>
