@@ -25,20 +25,34 @@ export function HeroSection({ promos = [] }: HeroSectionProps) {
   return (
     <section
       ref={sectionRef}
-      className="relative h-screen min-h-[500px] max-h-[1200px] overflow-hidden bg-bharati-dark"
+      className="relative h-screen min-h-[550px] max-h-[1200px] overflow-hidden bg-bharati-dark"
+      style={{ height: "100dvh" }}
       aria-label="Hero"
     >
-      {/* Background — Video Placeholder */}
+      {/* Background — Video Layer */}
       <div className="absolute inset-0">
-        {/* Hero Video */}
+        {/* Hero Video with separate optimized mobile portrait & desktop cinematic streams */}
         <motion.div className="absolute inset-0" style={{ scale: imageScale }}>
+          {/* Mobile Video (9:16 Portrait — Smart Per-Scene Focal Framing on Bharati Cooker) */}
+          <video
+            src="/hero/Hero_video_mobile.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="md:hidden block w-full h-full object-cover object-center"
+          />
+
+          {/* Desktop Video (16:9 Landscape Cinematic) */}
           <video
             src="/hero/Hero_video.mp4"
             autoPlay
             loop
             muted
             playsInline
-            className="w-full h-full object-cover"
+            preload="auto"
+            className="hidden md:block w-full h-full object-cover object-center"
           />
         </motion.div>
 
@@ -48,13 +62,13 @@ export function HeroSection({ promos = [] }: HeroSectionProps) {
         {/* Grain */}
         <div className="absolute inset-0 grain overflow-hidden" />
 
-        {/* Bottom gradient for text readability */}
-        <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-bharati-black/80 via-bharati-black/30 to-transparent" />
+        {/* Bottom gradient for text readability - tuned so cooker & whistle stay vibrant */}
+        <div className="absolute inset-x-0 bottom-0 h-[48%] md:h-[55%] bg-gradient-to-t from-bharati-black/90 via-bharati-black/40 to-transparent pointer-events-none" />
       </div>
 
       {/* Content */}
       <motion.div
-        className="relative z-10 h-full flex flex-col items-center justify-end pb-12 md:pb-20 px-6 text-center"
+        className="relative z-10 h-full flex flex-col items-center justify-end pb-8 sm:pb-12 md:pb-20 px-5 sm:px-6 text-center"
         style={{
           opacity: contentOpacity,
           y: contentY,
@@ -63,7 +77,7 @@ export function HeroSection({ promos = [] }: HeroSectionProps) {
       >
         {/* Headline */}
         <motion.h1
-          className="text-display text-bharati-white mb-5"
+          className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-display text-bharati-white mb-3 sm:mb-4 md:mb-5 tracking-tight leading-[1.1]"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
@@ -74,7 +88,7 @@ export function HeroSection({ promos = [] }: HeroSectionProps) {
 
         {/* Subline */}
         <motion.p
-          className="text-body-large text-bharati-aluminium max-w-md mb-10"
+          className="text-xs sm:text-sm md:text-body-large text-bharati-aluminium max-w-xs sm:max-w-md mb-6 sm:mb-8 md:mb-10 font-normal"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
@@ -90,11 +104,11 @@ export function HeroSection({ promos = [] }: HeroSectionProps) {
         >
           <Link
             href="/products/pressure-cooker"
-            className="inline-flex items-center gap-3 px-8 py-3.5 text-[0.7rem] tracking-[0.2em] uppercase font-semibold bg-bharati-mint text-white hover:bg-bharati-mint-dark shadow-lg shadow-bharati-mint/25 transition-all duration-400 group rounded-none"
+            className="inline-flex items-center gap-2.5 sm:gap-3 px-6 sm:px-8 py-3 sm:py-3.5 text-[0.68rem] sm:text-[0.7rem] tracking-[0.2em] uppercase font-semibold bg-bharati-mint text-white hover:bg-bharati-mint-dark shadow-lg shadow-bharati-mint/25 transition-all duration-400 group rounded-none"
           >
             Explore the Cooker
             <svg
-              className="w-4 h-4 transition-transform duration-400 group-hover:translate-x-1"
+              className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-400 group-hover:translate-x-1"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -110,15 +124,15 @@ export function HeroSection({ promos = [] }: HeroSectionProps) {
         </motion.div>
       </motion.div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator - hidden on small mobile to avoid crowding the CTA */}
       <motion.div
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10"
+        className="hidden sm:block absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 0.8 }}
       >
         <motion.div
-          className="w-[2px] h-8 bg-gradient-to-b from-bharati-mint to-transparent mx-auto rounded-full"
+          className="w-[2px] h-6 md:h-8 bg-gradient-to-b from-bharati-mint to-transparent mx-auto rounded-full"
           animate={{ scaleY: [1, 0.5, 1], opacity: [0.8, 0.3, 0.8] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         />

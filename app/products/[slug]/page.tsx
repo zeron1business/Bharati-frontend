@@ -119,11 +119,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <div className="min-h-screen pt-[var(--header-height)]">
-      <div className="section-container section-spacing">
+      <div className="section-container pt-4 md:pt-6 pb-16 md:pb-24">
         {/* Back link */}
         <Link
           href="/products"
-          className="inline-flex items-center gap-2 text-[0.75rem] tracking-[0.12em] uppercase text-bharati-ash hover:text-bharati-black transition-colors duration-300 mb-6 lg:mb-12"
+          className="inline-flex items-center gap-2 text-[0.75rem] tracking-[0.12em] uppercase text-bharati-ash hover:text-bharati-black transition-colors duration-300 mb-4 md:mb-6"
         >
           <ArrowLeft size={16} strokeWidth={1.5} />
           All Products

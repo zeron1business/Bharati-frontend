@@ -296,7 +296,7 @@ export function ShopByCategory({ products = [] }: Props) {
       onPointerDown={pauseAutoScroll}
       onMouseLeave={resumeAutoScroll}
       className="py-14 md:py-20 bg-bharati-cream transition-colors"
-      aria-label="Shop by Category"
+      aria-label="Shop by Products"
     >
       <div className="section-container max-w-[1920px] mx-auto px-4 md:px-8">
         {/* Header */}
@@ -306,7 +306,7 @@ export function ShopByCategory({ products = [] }: Props) {
               color="black"
               className="mb-2 block text-xs tracking-widest text-bharati-ash font-semibold uppercase"
             >
-              Shop by Category
+              Shop by Products
             </SectionLabel>
             <h2 className="text-4xl md:text-5xl font-serif text-[#449188] tracking-tight">
               Find your essentials

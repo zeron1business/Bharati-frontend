@@ -257,7 +257,7 @@ export function PromoBanner({ promos: initialPromos = [] }: PromoBannerProps) {
           type="button"
           onClick={(e) => handleCopy(e, promo.code)}
           title="Click to copy promo code"
-          className="group/btn inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 text-[#fcedc7] border border-white/20 transition-all cursor-pointer shadow-xs select-none"
+          className="group/btn inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-[#fcedc7] border border-white/20 transition-all cursor-pointer shadow-xs select-none"
         >
           <span className="text-[10px] sm:text-[11px] font-medium tracking-wide text-white/90">
             CODE:
@@ -279,7 +279,7 @@ export function PromoBanner({ promos: initialPromos = [] }: PromoBannerProps) {
         </button>
 
         {/* Visual Separator between different promo entries */}
-        <span className="text-[#fcedc7]/40 text-xs sm:text-sm ml-6 sm:ml-10 select-none">
+        <span className="text-white/30 text-xs sm:text-sm ml-6 sm:ml-10 select-none">
           ✦
         </span>
       </div>
@@ -297,7 +297,7 @@ export function PromoBanner({ promos: initialPromos = [] }: PromoBannerProps) {
         handleMouseUpOrLeave();
         resumeAutoScroll();
       }}
-      className="fixed top-0 left-0 right-0 h-[var(--banner-height)] z-[60] bg-gradient-to-r from-[#24524c] via-[#2c615a] to-[#24524c] border-b border-[#1b3d39] text-white flex items-center overflow-hidden shadow-xs select-none"
+      className="fixed top-0 left-0 right-0 h-[var(--banner-height)] z-[60] bg-black border-b border-white/10 text-white flex items-center overflow-hidden shadow-xs select-none"
     >
       <div
         ref={trackRef}

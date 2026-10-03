@@ -68,12 +68,12 @@ export function ShopCategory() {
   }, [emblaApi, categories]);
 
   return (
-    <section className="section-spacing bg-bharati-cream" aria-label="Shop by Category">
+    <section className="section-spacing bg-bharati-cream" aria-label="Shop by Products">
       <div className="section-container">
         {/* Header */}
         <AnimatedSection className="flex items-end justify-between mb-10 md:mb-14">
           <div>
-            <SectionLabel color="black" className="mb-3 block">Shop by Category</SectionLabel>
+            <SectionLabel color="black" className="mb-3 block">Shop by Products</SectionLabel>
             <h2 className="text-section-title text-bharati-mint-dark">
               Find your essentials
             </h2>
