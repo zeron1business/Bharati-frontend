@@ -73,6 +73,7 @@ export interface ProductDetail {
   sku?: string;
   stockQuantity?: number;
   inStock?: boolean;
+  features?: { title: string; description: string }[];
 }
 
 export interface CartItem {
@@ -176,6 +177,8 @@ export interface OrderDetail {
   tax: number;
   total: number;
   createdAt: string;
+  paymentMode?: string;
+  paymentStatus?: string;
   shippingName?: string;
   shippingPhone?: string;
   shippingLine1?: string;

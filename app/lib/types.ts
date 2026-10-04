@@ -65,6 +65,7 @@ export interface ProductDetail {
   warrantyDuration?: string;
   warrantyDetails?: string;
   sortOrder?: number;
+  features?: { title: string; description: string }[];
 }
 
 export interface PagedResponse<T> {

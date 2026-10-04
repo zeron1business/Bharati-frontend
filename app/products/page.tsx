@@ -71,7 +71,7 @@ export default async function ProductsPage(props: ProductsPageProps) {
             if (p.minPrice === p.maxPrice) {
                 formattedPrice = `₹ ${Number(p.minPrice).toLocaleString("en-IN")}`;
             } else {
-                formattedPrice = `₹ ${Number(p.minPrice).toLocaleString("en-IN")} – ₹ ${Number(p.maxPrice).toLocaleString("en-IN")}`;
+                formattedPrice = `₹ ${Number(p.minPrice).toLocaleString("en-IN")}`;
             }
         } else if (p.discountedPrice || p.basePrice) {
             const rawPrice = p.discountedPrice || p.basePrice;

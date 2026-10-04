@@ -101,7 +101,7 @@ export function HeroSection({ promos = [] }: HeroSectionProps) {
           transition={{ delay: 1.1, duration: 0.7 }}
         >
           <Link
-            href="/products/pressure-cooker"
+            href="/products/bharati-regular-pressure-cooker"
             className="inline-flex items-center gap-3 px-8 py-3.5 text-[0.7rem] tracking-[0.2em] uppercase font-semibold bg-bharati-mint text-white hover:bg-bharati-mint-dark shadow-lg shadow-bharati-mint/25 transition-all duration-400 group rounded-none"
           >
             Explore the Cooker
