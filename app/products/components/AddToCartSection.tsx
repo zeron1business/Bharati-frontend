@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { Check, ShoppingBag, Plus, Minus, Truck, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { useProductImages } from "./ProductContext";
 
 interface Variant {
   id: string;
@@ -16,6 +17,8 @@ interface Variant {
   inductionCompatible?: boolean;
   warrantyOverride?: string;
   specifications?: Array<{ specKey: string; specValue: string }>;
+  mediaUrls?: string[];
+  media?: { url: string }[];
 }
 
 interface AddToCartSectionProps {
@@ -28,6 +31,7 @@ interface AddToCartSectionProps {
   fallbackInStock?: boolean;
   fallbackStock?: number;
   productWarranty?: string;
+  productBaseImages?: string[];
 }
 
 export function AddToCartSection({
@@ -40,8 +44,10 @@ export function AddToCartSection({
   fallbackInStock = true,
   fallbackStock = 99,
   productWarranty = "5-Year Warranty",
+  productBaseImages = [],
 }: AddToCartSectionProps) {
   const { addItem } = useCart();
+  const { setActiveImages } = useProductImages();
   
   // 1. Extract unique dimensions
   const hasVariants = variants && variants.length > 1;
@@ -107,7 +113,25 @@ export function AddToCartSection({
     } else if (quantity < 1 && currentStock > 0) {
         setQuantity(1);
     }
-  }, [selectedVariant, currentStock]);
+    
+    // Update the image gallery with variant specific images
+    if (selectedVariant) {
+        let variantImages: string[] = [];
+        if (selectedVariant.mediaUrls && selectedVariant.mediaUrls.length > 0) {
+            variantImages = selectedVariant.mediaUrls;
+        } else if (selectedVariant.media && selectedVariant.media.length > 0) {
+            variantImages = selectedVariant.media.map(m => m.url);
+        }
+        
+        if (variantImages.length > 0) {
+            setActiveImages(variantImages);
+        } else {
+            setActiveImages(productBaseImages);
+        }
+    } else {
+        setActiveImages(productBaseImages);
+    }
+  }, [selectedVariant, currentStock, productBaseImages, setActiveImages]);
 
   const handleAddToCart = () => {
     if (!currentInStock || (hasVariants && !selectedVariant)) return;
@@ -167,7 +191,7 @@ export function AddToCartSection({
           <div className="flex items-baseline gap-4">
             <span className="text-[1.75rem] font-medium text-bharati-mint-dark transition-all">
               {hasVariants && !selectedVariant && priceRange && priceRange.min !== priceRange.max ? (
-                  `₹ ${priceRange.min.toLocaleString("en-IN")} – ₹ ${priceRange.max.toLocaleString("en-IN")}`
+                  `₹ ${priceRange.min.toLocaleString("en-IN")}`
               ) : (
                   `₹ ${currentPrice.toLocaleString("en-IN")}`
               )}
@@ -194,25 +218,19 @@ export function AddToCartSection({
                   <div className="space-y-3">
                       <span className="text-sm font-medium text-bharati-charcoal">Compatibility</span>
                       <div className="flex flex-wrap gap-3">
-                          {uniqueInductions.map(isInduction => {
-                              const isAvailable = isCombinationAvailable(isInduction, null, null);
-                              return (
+                          {uniqueInductions.filter(isInduction => isCombinationAvailable(isInduction, null, null)).map(isInduction => (
                                   <button
                                       key={isInduction ? 'induction' : 'non-induction'}
                                       onClick={() => setSelectedInduction(isInduction)}
-                                      disabled={!isAvailable}
                                       className={`px-4 py-2 text-sm rounded-md border transition-all ${
                                           selectedInduction === isInduction
                                           ? 'border-bharati-mint-dark bg-bharati-mint/10 text-bharati-mint-dark font-medium shadow-sm' 
-                                          : !isAvailable 
-                                            ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50/50'
-                                            : 'border-bharati-mist text-bharati-ash hover:border-bharati-charcoal/30'
+                                          : 'border-bharati-mist text-bharati-ash hover:border-bharati-charcoal/30'
                                       }`}
                                   >
                                       {isInduction ? 'Induction Base' : 'Non-Induction Base'}
                                   </button>
-                              );
-                          })}
+                          ))}
                       </div>
                   </div>
               )}
@@ -222,25 +240,19 @@ export function AddToCartSection({
                   <div className="space-y-3">
                       <span className="text-sm font-medium text-bharati-charcoal">Capacity</span>
                       <div className="flex flex-wrap gap-3">
-                          {uniqueVolumes.map(vol => {
-                              const isAvailable = isCombinationAvailable(null, vol, null);
-                              return (
+                          {uniqueVolumes.filter(vol => isCombinationAvailable(null, vol, null)).map(vol => (
                                   <button
                                       key={vol}
                                       onClick={() => setSelectedVolume(vol)}
-                                      disabled={!isAvailable}
                                       className={`px-4 py-2 text-sm rounded-md border transition-all min-w-[3rem] ${
                                           selectedVolume === vol
                                           ? 'border-bharati-mint-dark bg-bharati-mint/10 text-bharati-mint-dark font-medium shadow-sm' 
-                                          : !isAvailable 
-                                            ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50/50'
-                                            : 'border-bharati-mist text-bharati-ash hover:border-bharati-charcoal/30'
+                                          : 'border-bharati-mist text-bharati-ash hover:border-bharati-charcoal/30'
                                       }`}
                                   >
                                       {vol}L
                                   </button>
-                              );
-                          })}
+                          ))}
                       </div>
                   </div>
               )}
@@ -250,25 +262,19 @@ export function AddToCartSection({
                   <div className="space-y-3">
                       <span className="text-sm font-medium text-bharati-charcoal">Material Type</span>
                       <div className="flex flex-wrap gap-3">
-                          {uniqueMaterials.map(mat => {
-                              const isAvailable = isCombinationAvailable(null, null, mat);
-                              return (
+                          {uniqueMaterials.filter(mat => isCombinationAvailable(null, null, mat)).map(mat => (
                                   <button
                                       key={mat}
                                       onClick={() => setSelectedMaterial(mat)}
-                                      disabled={!isAvailable}
                                       className={`px-4 py-2 text-sm rounded-md border transition-all ${
                                           selectedMaterial === mat
                                           ? 'border-bharati-mint-dark bg-bharati-mint/10 text-bharati-mint-dark font-medium shadow-sm' 
-                                          : !isAvailable 
-                                            ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50/50'
-                                            : 'border-bharati-mist text-bharati-ash hover:border-bharati-charcoal/30'
+                                          : 'border-bharati-mist text-bharati-ash hover:border-bharati-charcoal/30'
                                       }`}
                                   >
                                       {mat}
                                   </button>
-                              );
-                          })}
+                          ))}
                       </div>
                   </div>
               )}

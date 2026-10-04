@@ -6,6 +6,8 @@ import { products, cookerFeatures } from "@/app/data/products";
 import { getProductBySlug } from "@/lib/api";
 import { ArrowLeft } from "lucide-react";
 import { AddToCartSection } from "../components/AddToCartSection";
+import { ProductGallery } from "../components/ProductGallery";
+import { ProductProvider } from "../components/ProductContext";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -50,11 +52,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
     numericPrice: number;
     formattedPrice: string;
     image: string;
+    images: string[];
     category: string;
     inStock: boolean;
     stockQuantity: number;
     variants: any[];
     warrantyDuration: string;
+    features: { title: string; description: string }[];
   } | null = null;
 
   try {
@@ -75,6 +79,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
         : (typeof live.stockQuantity === "number" ? live.stockQuantity : 50);
       const isAvailable = stock > 0;
 
+      let allImages = live.media?.map((m: any) => m.url) || [];
+      if (live.variants && live.variants.length > 0) {
+        live.variants.forEach((v: any) => {
+          if (v.mediaUrls && v.mediaUrls.length > 0) {
+            allImages.push(...v.mediaUrls);
+          } else if (v.media && v.media.length > 0) {
+            allImages.push(...v.media.map((m: any) => m.url));
+          }
+        });
+      }
+      allImages = Array.from(new Set(allImages));
+      if (allImages.length === 0) {
+        allImages = [primaryImg];
+      }
+
         productData = {
         id: live.id,
         title: live.title || live.name || "Product",
@@ -84,11 +103,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
         numericPrice: price,
         formattedPrice: `₹ ${price.toLocaleString("en-IN")}`,
         image: primaryImg,
-        category: live.subcategory?.name || live.category?.name || "Cookware",
+        images: allImages,
+        category: "Bharati",
         inStock: isAvailable,
         stockQuantity: stock > 0 ? stock : 50,
         variants: live.variants || [],
-        warrantyDuration: live.warrantyDuration || "5-Year Warranty"
+        warrantyDuration: live.warrantyDuration || "5-Year Warranty",
+        features: live.features || []
       };
     }
   } catch (error) {
@@ -112,11 +133,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
       numericPrice: defaultPrice,
       formattedPrice: `₹ ${defaultPrice.toLocaleString("en-IN")}`,
       image: staticProd.image,
-      category: staticProd.category.replace("-", " "),
+      images: [staticProd.image],
+      category: "Bharati",
       inStock: true,
       stockQuantity: 50,
       variants: [],
-      warrantyDuration: "5-Year Warranty"
+      warrantyDuration: "5-Year Warranty",
+      features: []
     };
   }
 
@@ -132,66 +155,59 @@ export default async function ProductPage({ params }: ProductPageProps) {
           All Products
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-          {/* Product Image */}
-          <div className="relative aspect-square bg-bharati-ivory rounded-2xl overflow-hidden border border-bharati-mist/50">
-            <Image
-              src={productData.image}
-              alt={productData.title}
-              fill
-              unoptimized={Boolean(productData.image?.startsWith("http"))}
-              className="object-contain p-6 lg:p-12"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              priority
-            />
-          </div>
-
-          {/* Product Info */}
-          <div className="flex flex-col justify-center">
-            <span className="text-label text-bharati-mint-dark mb-4 block font-medium capitalize">
-              {productData.category}
-            </span>
-            <h1 className="text-headline text-bharati-black mb-4">
-              {productData.title}
-            </h1>
-            <p className="text-body-large text-bharati-ash mb-3">
-              {productData.tagline}
-            </p>
-            <p className="text-[0.95rem] text-bharati-silver font-light leading-relaxed mb-8 max-w-md">
-              {productData.description}
-            </p>
-            {/* Interactive Price, Variant Selection & Add to Cart */}
-            <div className="mb-8">
-              <AddToCartSection
-                productId={productData.id}
-                title={productData.title}
-                slug={productData.slug}
-                baseNumericPrice={productData.numericPrice}
-                imageUrl={productData.image}
-                variants={productData.variants}
-                fallbackInStock={productData.inStock}
-                fallbackStock={productData.stockQuantity}
-                productWarranty={productData.warrantyDuration}
-              />
+        <ProductProvider initialImages={productData.images}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+            {/* Product Image Gallery */}
+            <div className="w-full">
+              <ProductGallery title={productData.title} />
             </div>
 
+            {/* Product Info */}
+            <div className="flex flex-col justify-center">
+              <span className="text-label text-bharati-mint-dark mb-4 block font-medium capitalize">
+                {productData.category}
+              </span>
+              <h1 className="text-headline text-bharati-black mb-4">
+                {productData.title}
+              </h1>
+              <p className="text-body-large text-bharati-ash mb-3">
+                {productData.tagline}
+              </p>
+              <p className="text-[0.95rem] text-bharati-silver font-light leading-relaxed mb-8 max-w-md">
+                {productData.description}
+              </p>
+              {/* Interactive Price, Variant Selection & Add to Cart */}
+              <div className="mb-8">
+                <AddToCartSection
+                  productId={productData.id}
+                  title={productData.title}
+                  slug={productData.slug}
+                  baseNumericPrice={productData.numericPrice}
+                  imageUrl={productData.image}
+                  variants={productData.variants}
+                  fallbackInStock={productData.inStock}
+                  fallbackStock={productData.stockQuantity}
+                  productWarranty={productData.warrantyDuration}
+                  productBaseImages={productData.images}
+                />
+              </div>
 
-            {/* Features (show for pressure cooker) */}
-            {(productData.slug.includes("cooker") || slug === "pressure-cooker") && (
-              <div className="mt-10 pt-10 border-t border-bharati-mist">
-                <span className="text-label text-bharati-mint-dark mb-6 block font-medium">
+            {/* Features (Dynamic) */}
+            {productData.features && productData.features.length > 0 && (
+              <div className="mt-12 pt-10 border-t border-bharati-mist">
+                <span className="text-[0.85rem] tracking-[0.15em] text-bharati-mint-dark mb-8 block font-medium uppercase">
                   Features
                 </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {cookerFeatures.map((feature) => (
-                    <div key={feature.number}>
-                      <span className="text-[0.7rem] tracking-[0.2em] text-bharati-mint-dark font-semibold bg-bharati-mint/15 px-3 py-0.5 rounded-full border border-bharati-mint/25 inline-block mb-1.5">
-                        {feature.number}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-10">
+                  {productData.features.map((feature, idx) => (
+                    <div key={idx}>
+                      <span className="text-xs tracking-[0.2em] text-bharati-mint-dark font-medium bg-bharati-mint/15 px-3 py-1 rounded-full border border-bharati-mint/25 inline-flex items-center justify-center mb-4">
+                        {String(idx + 1).padStart(2, '0')}
                       </span>
-                      <h3 className="text-[0.95rem] font-medium text-bharati-charcoal mt-1 mb-1">
+                      <h3 className="text-[1.1rem] font-medium text-bharati-charcoal mb-2">
                         {feature.title}
                       </h3>
-                      <p className="text-[0.8rem] text-bharati-silver font-light leading-relaxed">
+                      <p className="text-[0.9rem] text-bharati-silver/90 font-light leading-relaxed pr-2">
                         {feature.description}
                       </p>
                     </div>
@@ -201,6 +217,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             )}
           </div>
         </div>
+        </ProductProvider>
       </div>
     </div>
   );

@@ -160,6 +160,24 @@ export default function OrdersHistoryPage() {
                       </span>
                     </div>
                   </div>
+                  
+                  {/* Payment Info */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-bharati-mist/50">
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs text-bharati-silver font-medium">Payment Mode:</span>
+                        <span className="text-xs font-bold text-bharati-charcoal">{order.paymentMode || "COD"}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs text-bharati-silver font-medium">Payment Status:</span>
+                        <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full ${
+                          (order.paymentStatus === 'CAPTURED' || order.paymentStatus === 'PAID') 
+                            ? 'bg-green-100 text-green-700' 
+                            : 'bg-red-100 text-red-700'
+                        }`}>
+                            {(order.paymentStatus === 'CAPTURED' || order.paymentStatus === 'PAID') ? 'PAID' : 'UNPAID'}
+                        </span>
+                    </div>
+                  </div>
 
                   {/* Thumbnails preview */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

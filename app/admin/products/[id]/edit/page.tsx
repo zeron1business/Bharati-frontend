@@ -61,6 +61,8 @@ export default function EditProduct({ params }: { params: { id: string } }) {
     warrantyDetails: "",
   });
 
+  const [features, setFeatures] = useState<{title: string, description: string}[]>([]);
+
   const [variants, setVariants] = useState<any[]>([]);
 
   useEffect(() => {
@@ -101,6 +103,10 @@ export default function EditProduct({ params }: { params: { id: string } }) {
             warrantyDuration: p.warrantyDuration || "",
             warrantyDetails: p.warrantyDetails || "",
         });
+        
+        if (p.features && Array.isArray(p.features)) {
+            setFeatures(p.features);
+        }
         
         if (p.warrantyDuration) {
             const presets = ["6 months", "1 year", "2 years", "5 years", "Lifetime"];
@@ -356,6 +362,20 @@ export default function EditProduct({ params }: { params: { id: string } }) {
     setVariants(newVariants);
   };
 
+  const handleFeatureChange = (index: number, field: 'title' | 'description', value: string) => {
+    const newFeatures = [...features];
+    newFeatures[index][field] = value;
+    setFeatures(newFeatures);
+  };
+
+  const addFeature = () => {
+    setFeatures([...features, { title: "", description: "" }]);
+  };
+
+  const removeFeature = (index: number) => {
+    setFeatures(features.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -398,7 +418,8 @@ export default function EditProduct({ params }: { params: { id: string } }) {
         subcategoryId: formData.subcategoryId || null,
         badges: parsedBadges,
         mediaUrls: coverImageUrl ? [coverImageUrl] : [],
-        variants: formattedVariants
+        variants: formattedVariants,
+        features: features
       };
 
       await adminUpdateProduct(id, payload);
@@ -623,6 +644,39 @@ export default function EditProduct({ params }: { params: { id: string } }) {
           <div>
             <label className="block text-sm font-medium text-bharati-charcoal mb-2">Details (Optional)</label>
             <textarea name="warrantyDetails" value={formData.warrantyDetails} onChange={handleChange} rows={2} placeholder="e.g. Covers manufacturing defects. Does not cover physical damage." className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors resize-none" />
+          </div>
+        </div>
+
+        <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
+          <div className="flex justify-between items-center border-b border-bharati-mist pb-2">
+            <h2 className="text-lg font-medium text-bharati-black">Product Features</h2>
+            <button type="button" onClick={addFeature} className="flex items-center gap-2 text-sm text-bharati-gold hover:text-bharati-charcoal font-medium transition-colors">
+              <Plus size={16} /> Add Feature
+            </button>
+          </div>
+          <div className="space-y-4">
+            {features.map((feature, index) => (
+              <div key={index} className="flex flex-col md:flex-row gap-4 p-4 border border-bharati-mist rounded-md bg-gray-50/50">
+                <div className="flex-1">
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Title</label>
+                  <input type="text" value={feature.title} onChange={(e) => handleFeatureChange(index, 'title', e.target.value)} placeholder="e.g. Premium Aluminium" className="w-full p-2 border border-bharati-mist rounded-md focus:border-bharati-black text-sm bg-white" />
+                </div>
+                <div className="flex-[2]">
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Description</label>
+                  <input type="text" value={feature.description} onChange={(e) => handleFeatureChange(index, 'description', e.target.value)} placeholder="e.g. Made from virgin aluminium for durability." className="w-full p-2 border border-bharati-mist rounded-md focus:border-bharati-black text-sm bg-white" />
+                </div>
+                <div className="flex items-end mb-[2px]">
+                  <button type="button" onClick={() => removeFeature(index)} className="p-2 border border-bharati-mist rounded-md text-red-500 hover:bg-red-50 transition-colors">
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {features.length === 0 && (
+              <div className="text-center py-6 text-gray-400 text-sm border-2 border-dashed border-gray-200 rounded-md">
+                No features added yet.
+              </div>
+            )}
           </div>
         </div>
 
