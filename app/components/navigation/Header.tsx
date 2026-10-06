@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, useScroll, useMotionValueEvent } from "framer-motion";
+import { motion, useScroll, useMotionValueEvent, useTransform, useMotionTemplate } from "framer-motion";
 import { Search, User, ShoppingBag, Menu } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -22,12 +22,37 @@ export function Header({ hasBanner = false }: HeaderProps) {
   const { itemCount, isHydrated } = useCart();
   const { isLoggedIn, openAuthModal } = useAuth();
 
+  // Scroll thresholds: header transitions between 30%–70% of viewport height
+  const [scrollStart, setScrollStart] = useState(240);
+  const [scrollEnd, setScrollEnd] = useState(560);
+
+  useEffect(() => {
+    const update = () => {
+      const h = window.innerHeight;
+      setScrollStart(h * 0.3);
+      setScrollEnd(h * 0.7);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  // Smooth scroll-driven interpolation for the header background
+  const bgOpacity = useTransform(scrollY, [scrollStart, scrollEnd], [0, 0.85]);
+  const blurAmount = useTransform(scrollY, [scrollStart, scrollEnd], [0, 20]);
+  const borderAlpha = useTransform(scrollY, [scrollStart, scrollEnd], [0, 0.6]);
+  const shadowAlpha = useTransform(scrollY, [scrollStart, scrollEnd], [0, 0.05]);
+
+  // Composed CSS values from motion values
+  const motionBackdropFilter = useMotionTemplate`blur(${blurAmount}px)`;
+  const motionBgColor = useMotionTemplate`rgba(250, 248, 245, ${bgOpacity})`;
+  const motionBorderColor = useMotionTemplate`rgba(232, 232, 232, ${borderAlpha})`;
+  const motionBoxShadow = useMotionTemplate`0 1px 3px rgba(0, 0, 0, ${shadowAlpha})`;
+
+  // Swap text/icon colors at the midpoint (50% of hero)
   useMotionValueEvent(scrollY, "change", (latest) => {
-    if (latest > 50) {
-      setIsScrolled(true);
-    } else {
-      setIsScrolled(false);
-    }
+    const midpoint = (scrollStart + scrollEnd) / 2;
+    setIsScrolled(latest > midpoint);
   });
 
   const isHeroMode = isHomePage && !isScrolled;
@@ -50,13 +75,20 @@ export function Header({ hasBanner = false }: HeaderProps) {
 
   return (
     <motion.header
-      className={`fixed left-0 right-0 z-50 transition-all duration-400 ${
-        isHeroMode
-          ? "bg-transparent border-b border-transparent"
-          : "bg-bharati-cream/85 backdrop-blur-xl border-b border-bharati-mist/60 shadow-xs"
+      className={`fixed left-0 right-0 z-50 border-b ${
+        !isHomePage
+          ? "bg-bharati-cream/85 backdrop-blur-xl border-bharati-mist/60 shadow-xs"
+          : ""
       }`}
       style={{
-        top: hasBanner ? 'var(--banner-height, 38px)' : '0'
+        top: hasBanner ? 'var(--banner-height, 38px)' : '0',
+        ...(isHomePage ? {
+          backgroundColor: motionBgColor,
+          backdropFilter: motionBackdropFilter,
+          WebkitBackdropFilter: motionBackdropFilter,
+          borderBottomColor: motionBorderColor,
+          boxShadow: motionBoxShadow,
+        } : {}),
       }}
     >
       <div className="flex items-center justify-between h-[var(--header-height)] px-6 md:px-10 max-w-[var(--container-max)] mx-auto">

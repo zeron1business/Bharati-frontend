@@ -5,13 +5,13 @@ import { navLinks } from "@/app/data/products";
 
 export function Footer() {
   return (
-    <footer className="bg-bharati-charcoal text-bharati-aluminium">
+    <footer className="bg-[#77ACA2] text-white">
       <div className="section-container py-16 md:py-24">
         {/* Top — Logo + Tagline */}
         <div className="mb-16 md:mb-20">
           <Link href="/" className="inline-block group" aria-label="BHARATI Home">
             <Image
-              src="/logo/LogoWithMoto_clean.png"
+              src="/logo/LogoWithMoto_white.png"
               alt="BHARATI — Elevate Your Cooking Game With Bharati"
               width={260}
               height={55}
@@ -24,12 +24,12 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-16 mb-16 md:mb-20">
           {/* Shop */}
           <div>
-            <span className="text-label text-bharati-ash mb-5 block">Shop</span>
+            <span className="text-label text-white/70 font-semibold mb-5 block">Shop</span>
             <ul className="flex flex-col gap-3">
               <li>
                 <Link
                   href="/products?category=pressure-cookers"
-                  className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+                  className="text-[0.9rem] text-white/90 hover:text-white transition-colors duration-300"
                 >
                   Pressure Cookers
                 </Link>
@@ -37,7 +37,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/products?category=tri-ply-products"
-                  className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+                  className="text-[0.9rem] text-white/90 hover:text-white transition-colors duration-300"
                 >
                   Tri-ply Products
                 </Link>
@@ -47,14 +47,14 @@ export function Footer() {
 
           {/* Products */}
           <div>
-            <span className="text-label text-bharati-ash mb-5 block">
+            <span className="text-label text-white/70 font-semibold mb-5 block">
               Products
             </span>
             <ul className="flex flex-col gap-3">
               <li>
                 <Link
                   href="/products/bharati-regular-pressure-cooker"
-                  className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+                  className="text-[0.9rem] text-white/90 hover:text-white transition-colors duration-300"
                 >
                   Regular Cooker
                 </Link>
@@ -62,7 +62,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/products/triply-saucepan"
-                  className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+                  className="text-[0.9rem] text-white/90 hover:text-white transition-colors duration-300"
                 >
                   Saucepan
                 </Link>
@@ -70,7 +70,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/products/triply-kadhai"
-                  className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+                  className="text-[0.9rem] text-white/90 hover:text-white transition-colors duration-300"
                 >
                   Kadai
                 </Link>
@@ -78,7 +78,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/products/triply-casserole"
-                  className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+                  className="text-[0.9rem] text-white/90 hover:text-white transition-colors duration-300"
                 >
                   Casserole
                 </Link>
@@ -86,7 +86,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/products"
-                  className="text-[0.9rem] text-bharati-mint hover:text-bharati-mint-light font-medium transition-colors duration-300"
+                  className="text-[0.9rem] text-white font-medium underline underline-offset-4 decoration-white/40 hover:decoration-white transition-colors duration-300"
                 >
                   See more...
                 </Link>
@@ -96,7 +96,7 @@ export function Footer() {
 
           {/* Support */}
           <div>
-            <span className="text-label text-bharati-ash mb-5 block">
+            <span className="text-label text-white/70 font-semibold mb-5 block">
               Support
             </span>
             <ul className="flex flex-col gap-3">
@@ -104,7 +104,7 @@ export function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+                    className="text-[0.9rem] text-white/90 hover:text-white transition-colors duration-300"
                   >
                     {link.name}
                   </Link>
@@ -115,12 +115,12 @@ export function Footer() {
 
           {/* Legal */}
           <div>
-            <span className="text-label text-bharati-ash mb-5 block">Legal</span>
+            <span className="text-label text-white/70 font-semibold mb-5 block">Legal</span>
             <ul className="flex flex-col gap-3">
               <li>
                 <Link
                   href="/privacy"
-                  className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+                  className="text-[0.9rem] text-white/90 hover:text-white transition-colors duration-300"
                 >
                   Privacy Policy
                 </Link>
@@ -128,7 +128,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/terms"
-                  className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+                  className="text-[0.9rem] text-white/90 hover:text-white transition-colors duration-300"
                 >
                   Terms of Service
                 </Link>
@@ -136,7 +136,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/shipping"
-                  className="text-[0.9rem] text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+                  className="text-[0.9rem] text-white/90 hover:text-white transition-colors duration-300"
                 >
                   Shipping Policy
                 </Link>
@@ -146,14 +146,14 @@ export function Footer() {
         </div>
 
         {/* Bottom — Social + Copyright */}
-        <div className="pt-8 border-t border-bharati-steel/40 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div className="pt-8 border-t border-white/20 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           {/* Social */}
           <div className="flex items-center gap-5">
             <a
               href="https://instagram.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+              className="text-white/80 hover:text-white transition-colors duration-300"
               aria-label="Instagram"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
@@ -162,7 +162,7 @@ export function Footer() {
               href="https://facebook.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+              className="text-white/80 hover:text-white transition-colors duration-300"
               aria-label="Facebook"
             >
               <svg
@@ -182,7 +182,7 @@ export function Footer() {
               href="https://youtube.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-bharati-silver hover:text-bharati-white transition-colors duration-300"
+              className="text-white/80 hover:text-white transition-colors duration-300"
               aria-label="YouTube"
             >
               <svg
@@ -202,7 +202,7 @@ export function Footer() {
           </div>
 
           {/* Copyright */}
-          <p className="text-[0.75rem] text-bharati-ash tracking-wide">
+          <p className="text-[0.75rem] text-white/75 tracking-wide">
             © {new Date().getFullYear()} BHARATI. All rights reserved.
           </p>
         </div>

@@ -159,23 +159,23 @@ export function PromoBanner({ promos: initialPromos = [] }: PromoBannerProps) {
             type="button"
             onClick={(e) => handleCopy(e, promo.code)}
             title="Click to copy promo code"
-            className="group/btn inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-[#fcedc7] border border-white/20 transition-all cursor-pointer shadow-xs select-none shrink-0"
+            className="group/btn inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/15 hover:bg-black/25 active:scale-95 text-white border border-white/30 transition-all cursor-pointer shadow-xs select-none shrink-0"
           >
             <span className="text-[10px] sm:text-[11px] font-medium tracking-wide text-white/90">
               CODE:
             </span>
-            <span className="text-[11px] sm:text-xs font-bold tracking-widest uppercase text-[#fcedc7]">
+            <span className="text-[11px] sm:text-xs font-bold tracking-widest uppercase text-white">
               {promo.code}
             </span>
             {isCopied ? (
-              <span className="inline-flex items-center text-[10px] font-bold text-emerald-300 ml-0.5">
+              <span className="inline-flex items-center text-[10px] font-bold text-white ml-0.5">
                 <Check size={12} strokeWidth={2.5} className="mr-0.5" /> COPIED!
               </span>
             ) : (
               <Copy
                 size={11}
                 strokeWidth={1.75}
-                className="text-white/70 group-hover/btn:text-white transition-colors ml-0.5"
+                className="text-white/80 group-hover/btn:text-white transition-colors ml-0.5"
               />
             )}
           </button>
@@ -196,7 +196,7 @@ export function PromoBanner({ promos: initialPromos = [] }: PromoBannerProps) {
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={() => setIsPaused(true)}
       onTouchEnd={() => setIsPaused(false)}
-      className="marquee-container fixed top-0 left-0 right-0 h-[var(--banner-height,38px)] min-h-[38px] z-[60] bg-black border-b border-white/10 text-white flex items-center overflow-hidden shadow-xs select-none"
+      className="marquee-container fixed top-0 left-0 right-0 h-[var(--banner-height,38px)] min-h-[38px] z-[60] bg-[#77ACA2] border-b border-black/10 text-white flex items-center overflow-hidden shadow-xs select-none"
       style={{ height: "var(--banner-height, 38px)" }}
     >
       <div
