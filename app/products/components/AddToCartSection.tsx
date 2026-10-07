@@ -32,7 +32,10 @@ interface AddToCartSectionProps {
   fallbackStock?: number;
   productWarranty?: string;
   productBaseImages?: string[];
+  productOwnImages?: string[];
 }
+
+const EMPTY_IMAGES: string[] = [];
 
 export function AddToCartSection({
   productId,
@@ -44,13 +47,14 @@ export function AddToCartSection({
   fallbackInStock = true,
   fallbackStock = 99,
   productWarranty = "5-Year Warranty",
-  productBaseImages = [],
+  productBaseImages = EMPTY_IMAGES,
+  productOwnImages = EMPTY_IMAGES,
 }: AddToCartSectionProps) {
   const { addItem } = useCart();
   const { setActiveImages } = useProductImages();
   
   // 1. Extract unique dimensions
-  const hasVariants = variants && variants.length > 1;
+  const hasVariants = variants && variants.length > 0;
   const uniqueInductions = useMemo(() => Array.from(new Set(variants.map(v => v.inductionCompatible).filter(i => i != null))) as boolean[], [variants]);
   const uniqueVolumes = useMemo(() => Array.from(new Set(variants.map(v => v.volumeLitres).filter(v => v != null))).sort((a, b) => a - b) as number[], [variants]);
   const uniqueMaterials = useMemo(() => Array.from(new Set(variants.map(v => v.materialType).filter(m => m != null && m !== ""))) as string[], [variants]);
@@ -124,14 +128,15 @@ export function AddToCartSection({
         }
         
         if (variantImages.length > 0) {
-            setActiveImages(variantImages);
+            // Keep the product's own photos alongside the variant photos
+            setActiveImages(Array.from(new Set([...productOwnImages, ...variantImages])));
         } else {
             setActiveImages(productBaseImages);
         }
     } else {
         setActiveImages(productBaseImages);
     }
-  }, [selectedVariant, currentStock, productBaseImages, setActiveImages]);
+  }, [selectedVariant, currentStock, productBaseImages, productOwnImages, setActiveImages]);
 
   const handleAddToCart = () => {
     if (!currentInStock || (hasVariants && !selectedVariant)) return;
@@ -218,10 +223,20 @@ export function AddToCartSection({
                   <div className="space-y-3">
                       <span className="text-sm font-medium text-bharati-charcoal">Compatibility</span>
                       <div className="flex flex-wrap gap-3">
-                          {uniqueInductions.filter(isInduction => isCombinationAvailable(isInduction, null, null)).map(isInduction => (
+                          {uniqueInductions.map(isInduction => (
                                   <button
                                       key={isInduction ? 'induction' : 'non-induction'}
-                                      onClick={() => setSelectedInduction(isInduction)}
+                                      onClick={() => {
+                                          setSelectedInduction(isInduction);
+                                          const exists = variants.some(v => v.inductionCompatible === isInduction && v.volumeLitres === selectedVolume && v.materialType === selectedMaterial);
+                                          if (!exists) {
+                                              const fallback = variants.find(v => v.inductionCompatible === isInduction);
+                                              if (fallback) {
+                                                  if (fallback.volumeLitres != null) setSelectedVolume(fallback.volumeLitres);
+                                                  if (fallback.materialType != null) setSelectedMaterial(fallback.materialType);
+                                              }
+                                          }
+                                      }}
                                       className={`px-4 py-2 text-sm rounded-md border transition-all ${
                                           selectedInduction === isInduction
                                           ? 'border-bharati-mint-dark bg-bharati-mint/10 text-bharati-mint-dark font-medium shadow-sm' 
@@ -240,10 +255,20 @@ export function AddToCartSection({
                   <div className="space-y-3">
                       <span className="text-sm font-medium text-bharati-charcoal">Capacity</span>
                       <div className="flex flex-wrap gap-3">
-                          {uniqueVolumes.filter(vol => isCombinationAvailable(null, vol, null)).map(vol => (
+                          {uniqueVolumes.map(vol => (
                                   <button
                                       key={vol}
-                                      onClick={() => setSelectedVolume(vol)}
+                                      onClick={() => {
+                                          setSelectedVolume(vol);
+                                          const exists = variants.some(v => v.inductionCompatible === selectedInduction && v.volumeLitres === vol && v.materialType === selectedMaterial);
+                                          if (!exists) {
+                                              const fallback = variants.find(v => v.volumeLitres === vol);
+                                              if (fallback) {
+                                                  if (fallback.inductionCompatible != null) setSelectedInduction(fallback.inductionCompatible);
+                                                  if (fallback.materialType != null) setSelectedMaterial(fallback.materialType);
+                                              }
+                                          }
+                                      }}
                                       className={`px-4 py-2 text-sm rounded-md border transition-all min-w-[3rem] ${
                                           selectedVolume === vol
                                           ? 'border-bharati-mint-dark bg-bharati-mint/10 text-bharati-mint-dark font-medium shadow-sm' 
@@ -262,10 +287,20 @@ export function AddToCartSection({
                   <div className="space-y-3">
                       <span className="text-sm font-medium text-bharati-charcoal">Material Type</span>
                       <div className="flex flex-wrap gap-3">
-                          {uniqueMaterials.filter(mat => isCombinationAvailable(null, null, mat)).map(mat => (
+                          {uniqueMaterials.map(mat => (
                                   <button
                                       key={mat}
-                                      onClick={() => setSelectedMaterial(mat)}
+                                      onClick={() => {
+                                          setSelectedMaterial(mat);
+                                          const exists = variants.some(v => v.inductionCompatible === selectedInduction && v.volumeLitres === selectedVolume && v.materialType === mat);
+                                          if (!exists) {
+                                              const fallback = variants.find(v => v.materialType === mat);
+                                              if (fallback) {
+                                                  if (fallback.inductionCompatible != null) setSelectedInduction(fallback.inductionCompatible);
+                                                  if (fallback.volumeLitres != null) setSelectedVolume(fallback.volumeLitres);
+                                              }
+                                          }
+                                      }}
                                       className={`px-4 py-2 text-sm rounded-md border transition-all ${
                                           selectedMaterial === mat
                                           ? 'border-bharati-mint-dark bg-bharati-mint/10 text-bharati-mint-dark font-medium shadow-sm' 

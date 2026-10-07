@@ -101,7 +101,14 @@ export async function getProducts(params?: {
 }
 
 export async function getProductBySlug(slug: string): Promise<ProductDetail> {
-  return fetchApi<ProductDetail>(`/products/${slug}`, { cache: "no-store" });
+  // Cache-bust with timestamp to bypass CDN / reverse-proxy caches
+  const cacheBuster = `_t=${Date.now()}`;
+  const sep = slug.includes("?") ? "&" : "?";
+  return fetchApi<ProductDetail>(`/products/${slug}${sep}${cacheBuster}`, {
+    cache: "no-store",
+    next: { revalidate: 0 },
+    headers: { "Cache-Control": "no-cache, no-store, must-revalidate" },
+  } as any);
 }
 
 export async function getCategories(): Promise<ProductCategory[]> {
