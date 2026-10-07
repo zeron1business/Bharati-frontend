@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { adminFetchProducts, adminDeleteProduct, adminUpdateProductSortOrder } from "@/app/lib/admin-api";
 import { getSessionCache, setSessionCache, clearSessionCacheByPrefix, CACHE_KEYS } from "@/app/lib/cache";
 import Link from "next/link";
@@ -39,8 +39,14 @@ export default function AdminProducts() {
     return !cached;
   });
 
-  const fetchProducts = async (forceRefresh = false) => {
-    const cacheKey = getCacheKey(page, search);
+  // Tracks the latest request so slower, stale responses can't overwrite newer results
+  const requestIdRef = useRef(0);
+  const isFirstSearchRender = useRef(true);
+
+  const fetchProducts = async (forceRefresh = false, pageArg: number = page, searchArg: string = search) => {
+    const term = searchArg.trim();
+    const cacheKey = getCacheKey(pageArg, term.toLowerCase());
+    const requestId = ++requestIdRef.current;
 
     // If we don't have data in memory yet, check session cache first
     if (!forceRefresh && products.length === 0) {
@@ -59,17 +65,19 @@ export default function AdminProducts() {
     }
 
     try {
-      const response = await adminFetchProducts(page, search);
+      const response = await adminFetchProducts(pageArg, term);
+      if (requestId !== requestIdRef.current) return; // stale response
       const data = response.data;
       setProducts(data.content);
       setTotalPages(data.totalPages);
       setSessionCache(cacheKey, { content: data.content, totalPages: data.totalPages });
       setSyncStatus("synced");
     } catch (error) {
+      if (requestId !== requestIdRef.current) return;
       console.error("Failed to fetch products:", error);
       setSyncStatus("idle");
     } finally {
-      setIsLoading(false);
+      if (requestId === requestIdRef.current) setIsLoading(false);
     }
   };
 
@@ -77,10 +85,23 @@ export default function AdminProducts() {
     fetchProducts();
   }, [page]);
 
+  // Live, debounced search (case-insensitive on the backend)
+  useEffect(() => {
+    if (isFirstSearchRender.current) {
+      isFirstSearchRender.current = false;
+      return;
+    }
+    const t = setTimeout(() => {
+      if (page !== 0) setPage(0); // page effect will fetch with the new search
+      else fetchProducts(true, 0, search);
+    }, 350);
+    return () => clearTimeout(t);
+  }, [search]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setPage(0);
-    fetchProducts(true);
+    if (page !== 0) setPage(0);
+    else fetchProducts(true, 0, search);
   };
 
   const handleDeleteProduct = async () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { adminLogin } from "@/app/lib/admin-api";
 import Image from "next/image";
@@ -11,6 +11,16 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const [notice, setNotice] = useState("");
+
+  useEffect(() => {
+    const reason = new URLSearchParams(window.location.search).get("reason");
+    if (reason === "replaced") {
+      setNotice("You were signed out because this account logged in on another device.");
+    } else if (reason === "expired") {
+      setNotice("Your session has expired. Please sign in again.");
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +57,12 @@ export default function AdminLogin() {
         <h1 className="text-2xl font-light text-center text-bharati-black mb-8 tracking-wide">
           Admin Portal
         </h1>
+
+        {notice && !error && (
+          <div className="bg-amber-50 text-amber-800 border border-amber-200/60 p-3 rounded-md mb-6 text-sm">
+            {notice}
+          </div>
+        )}
 
         {error && (
           <div className="bg-red-50 text-red-600 p-3 rounded-md mb-6 text-sm">

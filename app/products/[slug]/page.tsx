@@ -53,6 +53,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     formattedPrice: string;
     image: string;
     images: string[];
+    productOwnImages: string[];
     category: string;
     inStock: boolean;
     stockQuantity: number;
@@ -64,6 +65,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
   try {
     const live = await getProductBySlug(slug);
     if (live) {
+      const allVariants = live.variants || [];
+      const activeVariants = allVariants.filter((v: any) => v.isActive !== false);
+      console.log(`[ProductPage] "${slug}" — ${allVariants.length} total variant(s) from API, ${activeVariants.length} active:`,
+        JSON.stringify(allVariants.map((v: any) => ({ id: v.id, sku: v.sku, isActive: v.isActive, volumeLitres: v.volumeLitres })), null, 2));
+
       // Derive price from first variant, or fallback to top-level legacy fields
       const firstVariant = live.variants && live.variants.length > 0 ? live.variants[0] : null;
       const price = firstVariant 
@@ -79,7 +85,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
         : (typeof live.stockQuantity === "number" ? live.stockQuantity : 50);
       const isAvailable = stock > 0;
 
-      let allImages = live.media?.map((m: any) => m.url) || [];
+      // Product-level photos (uploaded on the product itself), primary first
+      const productOwnImages: string[] = Array.from(new Set(
+        [...(live.media || [])]
+          .filter((m: any) => m?.url && (!m.type || m.type === "IMAGE"))
+          .sort((a: any, b: any) => Number(!!b.isPrimary) - Number(!!a.isPrimary) || (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+          .map((m: any) => m.url as string)
+      ));
+
+      let allImages = [...productOwnImages];
       if (live.variants && live.variants.length > 0) {
         live.variants.forEach((v: any) => {
           if (v.mediaUrls && v.mediaUrls.length > 0) {
@@ -104,10 +118,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
         formattedPrice: `₹ ${price.toLocaleString("en-IN")}`,
         image: primaryImg,
         images: allImages,
+        productOwnImages,
         category: "Bharati",
         inStock: isAvailable,
         stockQuantity: stock > 0 ? stock : 50,
-        variants: live.variants || [],
+        variants: (live.variants || []).filter((v: any) => v.isActive !== false),
         warrantyDuration: live.warrantyDuration || "5-Year Warranty",
         features: live.features || []
       };
@@ -134,6 +149,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       formattedPrice: `₹ ${defaultPrice.toLocaleString("en-IN")}`,
       image: staticProd.image,
       images: [staticProd.image],
+      productOwnImages: [staticProd.image],
       category: "Bharati",
       inStock: true,
       stockQuantity: 50,
@@ -189,6 +205,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   fallbackStock={productData.stockQuantity}
                   productWarranty={productData.warrantyDuration}
                   productBaseImages={productData.images}
+                  productOwnImages={productData.productOwnImages}
                 />
               </div>
 

@@ -23,8 +23,16 @@ export const adminFetch = async (endpoint: string, options: RequestInit = {}) =>
 
   if (response.status === 401 || response.status === 403) {
     if (typeof window !== "undefined" && !endpoint.includes("/auth/login")) {
+        let reason = "expired";
+        try {
+          const body = await response.clone().json();
+          if (body?.code === "SESSION_REPLACED") reason = "replaced";
+        } catch {
+          // non-JSON body
+        }
         localStorage.removeItem("bharati_admin_token");
-        window.location.href = "/admin/login";
+        window.location.href = `/admin/login?reason=${reason}`;
+        throw new Error(reason === "replaced" ? "Signed in on another device" : "Session expired");
     }
   }
 
@@ -39,9 +47,10 @@ export const adminLogin = (credentials: any) =>
   adminFetch("/auth/login", { method: "POST", body: JSON.stringify(credentials) });
 
 export const adminFetchProducts = (page: number = 0, search: string = "") => {
-    let url = `/products?page=${page}&size=20`;
-    if (search) url += `&search=${search}`;
-    return adminFetch(url);
+  let url = `/products?page=${page}&size=20`;
+  const term = search.trim();
+  if (term) url += `&search=${encodeURIComponent(term)}`;
+  return adminFetch(url, { cache: "no-store" });
 };
 
 export const adminFetchProduct = (id: string) => adminFetch(`/products/${id}`);
