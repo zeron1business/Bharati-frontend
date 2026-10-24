@@ -12,6 +12,7 @@ import {
   OrderResponse,
   PaymentVerificationPayload,
   OrderDetail,
+  TrackOrderData,
 } from "@/types/ecommerce";
 
 const API_BASE_URL =
@@ -218,4 +219,8 @@ export async function getMyOrders(): Promise<OrderDetail[]> {
 
 export async function getOrderByNumber(orderNumber: string): Promise<OrderDetail> {
   return fetchApi<OrderDetail>(`/orders/${orderNumber}`);
+}
+
+export async function trackOrder(orderNumber: string): Promise<TrackOrderData> {
+  return fetchApi<TrackOrderData>(`/orders/track/${orderNumber}`, { cache: "no-store" });
 }

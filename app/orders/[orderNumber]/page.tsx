@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getOrderByNumber } from "@/lib/api";
 import { OrderDetail } from "@/types/ecommerce";
+import StatusTimeline from "@/app/track-order/components/StatusTimeline";
 import {
   CheckCircle2,
   Package,
@@ -149,6 +150,19 @@ export default function OrderConfirmationPage() {
             <Printer size={14} />
             Print Receipt
           </button>
+        </div>
+
+        {/* Order Status Timeline */}
+        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-bharati-mist shadow-xs">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-bharati-charcoal pb-3 border-b border-bharati-mist/60 mb-6 flex items-center gap-2">
+            <Package size={16} className="text-bharati-mint-dark" />
+            Order Progress
+          </h3>
+          <StatusTimeline
+            status={order.status}
+            createdAt={order.createdAt}
+            updatedAt={order.updatedAt}
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
