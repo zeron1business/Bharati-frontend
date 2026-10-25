@@ -166,14 +166,14 @@ export default function OrderConfirmationPage() {
                     className="py-4 flex items-center justify-between gap-4 first:pt-0 last:pb-0"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="relative w-16 h-16 bg-bharati-ivory rounded-xl overflow-hidden shrink-0 border border-bharati-mist/30">
+                      <div className="relative w-20 h-20 bg-bharati-ivory rounded-xl overflow-hidden shrink-0 border border-bharati-mist/40 shadow-xs">
                         <Image
-                          src={item.productImageUrl || "/products/cooker_cutout.png"}
+                          src={item.productImageUrl || "/products/Cooker-front.jpg"}
                           alt={item.titleSnapshot}
                           fill
                           unoptimized={Boolean(item.productImageUrl?.startsWith("http"))}
-                          className="object-contain p-2"
-                          sizes="64px"
+                          className="object-cover"
+                          sizes="80px"
                         />
                       </div>
                       <div className="space-y-1">

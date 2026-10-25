@@ -37,6 +37,8 @@ export interface ProductVariant {
   isActive?: boolean;
   warrantyOverride?: string | null;
   specifications?: Array<{ specKey: string; specValue: string }>;
+  media?: ProductMedia[];
+  mediaUrls?: string[];
 }
 
 export interface ProductCategory {

@@ -23,7 +23,7 @@ export function ProductGallery({ title }: ProductGalleryProps) {
 
   // Fallback if no images
   if (!images || images.length === 0) {
-    images = ["/products/cooker_cutout.png"];
+    images = ["/products/Cooker-front.jpg"];
   }
 
   const handleNext = () => {
@@ -35,16 +35,16 @@ export function ProductGallery({ title }: ProductGalleryProps) {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 max-w-[500px] mx-auto lg:mx-0">
       {/* Main Image */}
-      <div className="relative aspect-square bg-bharati-ivory rounded-2xl overflow-hidden border border-bharati-mist/50 group">
+      <div className="relative aspect-square bg-bharati-ivory rounded-2xl overflow-hidden border border-bharati-mist/50 group shadow-xs">
         <Image
           src={images[activeIndex]}
           alt={`${title} - View ${activeIndex + 1}`}
           fill
           unoptimized={Boolean(images[activeIndex]?.startsWith("http"))}
-          className="object-contain p-6 lg:p-12 transition-all duration-300"
-          sizes="(max-width: 1024px) 100vw, 50vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+          sizes="(max-width: 1024px) 90vw, 500px"
           priority
         />
         
@@ -69,12 +69,12 @@ export function ProductGallery({ title }: ProductGalleryProps) {
 
       {/* Thumbnails */}
       {images.length > 1 && (
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2.5">
           {images.map((img, idx) => (
             <button
               key={idx}
               onClick={() => setActiveIndex(idx)}
-              className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
+              className={`relative w-16 h-16 lg:w-[70px] lg:h-[70px] rounded-xl overflow-hidden border-2 transition-all ${
                 activeIndex === idx
                   ? "border-bharati-mint-dark ring-2 ring-bharati-mint-dark/20"
                   : "border-transparent hover:border-bharati-mist"
@@ -85,8 +85,8 @@ export function ProductGallery({ title }: ProductGalleryProps) {
                 alt={`${title} thumbnail ${idx + 1}`}
                 fill
                 unoptimized={Boolean(img?.startsWith("http"))}
-                className="object-contain p-2"
-                sizes="80px"
+                className="object-cover"
+                sizes="70px"
               />
             </button>
           ))}

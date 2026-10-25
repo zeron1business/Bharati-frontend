@@ -183,13 +183,13 @@ export default async function ProductsPage(props: ProductsPageProps) {
               href={`/products/${product.slug}`}
               className="group block"
             >
-              <div className="relative aspect-square bg-bharati-ivory overflow-hidden mb-5 border border-transparent group-hover:border-bharati-mint/30 transition-all duration-500">
+              <div className="relative aspect-square bg-bharati-ivory overflow-hidden mb-5 rounded-2xl border border-bharati-mist/50 group-hover:border-bharati-mint/40 transition-all duration-500 shadow-xs">
                 <Image
                   src={product.image}
                   alt={product.name}
                   fill
                   unoptimized={Boolean(product.image?.startsWith("http"))}
-                  className="object-contain p-5 md:p-10 transition-transform duration-700 ease-out group-hover:scale-105"
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   sizes="(max-width: 768px) 50vw, (max-width: 1024px) 50vw, 33vw"
                 />
               </div>

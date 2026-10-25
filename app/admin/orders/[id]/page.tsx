@@ -442,7 +442,7 @@ export default function AdminOrderDetailsPage({
                           alt={item.titleSnapshot}
                           fill
                           unoptimized={Boolean(item.productImageUrl?.startsWith("http"))}
-                          className="object-contain p-1.5"
+                          className="object-cover"
                           sizes="64px"
                         />
                       </div>

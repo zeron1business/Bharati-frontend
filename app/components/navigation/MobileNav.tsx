@@ -168,12 +168,12 @@ export function MobileNav({ hasBanner = false }: MobileNavProps) {
                         onClick={closeMenu}
                         className="shrink-0 group"
                       >
-                        <div className="relative w-[120px] h-[140px] md:w-[130px] md:h-[150px] bg-bharati-ivory overflow-hidden rounded-sm">
+                        <div className="relative w-[120px] h-[120px] md:w-[130px] md:h-[130px] bg-bharati-ivory overflow-hidden rounded-xl">
                           <Image
                             src={cat.imageUrl || "/products/Cooker-front.jpg"}
                             alt={cat.name}
                             fill
-                            className="object-contain p-3 transition-transform duration-500 group-hover:scale-105"
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
                             sizes="130px"
                           />
                         </div>

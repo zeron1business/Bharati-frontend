@@ -1,12 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import { AnimatedSection } from "@/app/components/ui/AnimatedSection";
 import {
   ShieldCheck,
   Award,
   Flame,
   Sparkles,
-  Flag,
 } from "lucide-react";
 
 const benefits = [
@@ -31,7 +31,7 @@ const benefits = [
     description: "Hygienic mirror-finish steel",
   },
   {
-    icon: Flag,
+    icon: null,
     title: "Made in India",
     description: "Proudly engineered at home",
   },
@@ -49,6 +49,7 @@ export function BenefitsStrip() {
             {benefits.map((benefit) => {
               const Icon = benefit.icon;
               const isEasyToClean = benefit.title === "Easy to Clean";
+              const isMadeInIndia = benefit.title === "Made in India";
 
               return (
                 <div
@@ -59,11 +60,30 @@ export function BenefitsStrip() {
                 >
                   {/* Luxury Floating Icon Pill */}
                   <div className="w-12 h-12 md:w-13 md:h-13 rounded-2xl bg-white shadow-sm border border-bharati-mist/60 flex items-center justify-center mb-3.5 text-[#6fa89b] group-hover:scale-105 group-hover:shadow-md group-hover:border-[#6fa89b]/50 group-hover:bg-[#6fa89b] group-hover:text-white transition-all duration-300">
-                    <Icon
-                      size={22}
-                      strokeWidth={1.5}
-                      className="transition-colors duration-300"
-                    />
+                    {isMadeInIndia ? (
+                      <div className="relative w-8 h-4 flex items-center justify-center">
+                        <Image
+                          src="/logo/make_in_india_bharati.png"
+                          alt="Made in India Lion Emblem"
+                          width={34}
+                          height={16}
+                          className="object-contain group-hover:hidden transition-all duration-300"
+                        />
+                        <Image
+                          src="/logo/make_in_india_white.png"
+                          alt="Made in India Lion Emblem"
+                          width={34}
+                          height={16}
+                          className="object-contain hidden group-hover:block transition-all duration-300"
+                        />
+                      </div>
+                    ) : Icon ? (
+                      <Icon
+                        size={22}
+                        strokeWidth={1.5}
+                        className="transition-colors duration-300"
+                      />
+                    ) : null}
                   </div>
 
                   {/* Title */}

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { Check, ShoppingBag, Plus, Minus, Truck, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { useProductImages } from "./ProductContext";
@@ -63,6 +64,29 @@ export function AddToCartSection({
   const [selectedInduction, setSelectedInduction] = useState<boolean | null>(null);
   const [selectedVolume, setSelectedVolume] = useState<number | null>(null);
   const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null);
+
+  // 2b. Filtered options based on selected induction (hides unavailable volumes/materials)
+  const filteredVolumes = useMemo(() => {
+    if (selectedInduction === null || uniqueInductions.length === 0) {
+      return uniqueVolumes;
+    }
+    const available = variants
+      .filter(v => v.inductionCompatible === selectedInduction)
+      .map(v => v.volumeLitres)
+      .filter(v => v != null);
+    return Array.from(new Set(available)).sort((a, b) => a - b) as number[];
+  }, [variants, selectedInduction, uniqueInductions, uniqueVolumes]);
+
+  const filteredMaterials = useMemo(() => {
+    if (selectedInduction === null || uniqueInductions.length === 0) {
+      return uniqueMaterials;
+    }
+    const available = variants
+      .filter(v => v.inductionCompatible === selectedInduction)
+      .map(v => v.materialType)
+      .filter(m => m != null && m !== "");
+    return Array.from(new Set(available)) as string[];
+  }, [variants, selectedInduction, uniqueInductions, uniqueMaterials]);
 
   // Initialize selection with first variant if available
   useEffect(() => {
@@ -128,8 +152,8 @@ export function AddToCartSection({
         }
         
         if (variantImages.length > 0) {
-            // Keep the product's own photos alongside the variant photos
-            setActiveImages(Array.from(new Set([...productOwnImages, ...variantImages])));
+            // Only images for that particular variant
+            setActiveImages(variantImages);
         } else {
             setActiveImages(productBaseImages);
         }
@@ -216,7 +240,7 @@ export function AddToCartSection({
       </div>
       
       {/* Grouped Variant Selection */}
-      {(uniqueInductions.length > 0 || uniqueVolumes.length > 0 || uniqueMaterials.length > 0) && (
+      {(uniqueInductions.length > 0 || filteredVolumes.length > 0 || filteredMaterials.length > 0) && (
           <div className="space-y-5 pt-2">
               {/* Compatibility */}
               {uniqueInductions.length > 0 && (
@@ -228,13 +252,23 @@ export function AddToCartSection({
                                       key={isInduction ? 'induction' : 'non-induction'}
                                       onClick={() => {
                                           setSelectedInduction(isInduction);
-                                          const exists = variants.some(v => v.inductionCompatible === isInduction && v.volumeLitres === selectedVolume && v.materialType === selectedMaterial);
-                                          if (!exists) {
-                                              const fallback = variants.find(v => v.inductionCompatible === isInduction);
-                                              if (fallback) {
-                                                  if (fallback.volumeLitres != null) setSelectedVolume(fallback.volumeLitres);
-                                                  if (fallback.materialType != null) setSelectedMaterial(fallback.materialType);
-                                              }
+                                          const availableVols = variants
+                                              .filter(v => v.inductionCompatible === isInduction)
+                                              .map(v => v.volumeLitres)
+                                              .filter(v => v != null);
+                                          const sortedVols = Array.from(new Set(availableVols)).sort((a, b) => a - b);
+                                          let nextVol = selectedVolume;
+                                          if (sortedVols.length > 0 && (!selectedVolume || !sortedVols.includes(selectedVolume))) {
+                                              nextVol = sortedVols[0];
+                                              setSelectedVolume(nextVol);
+                                          }
+                                          const availableMats = variants
+                                              .filter(v => v.inductionCompatible === isInduction && (nextVol == null || v.volumeLitres === nextVol))
+                                              .map(v => v.materialType)
+                                              .filter(m => m != null && m !== "");
+                                          const uniqueMats = Array.from(new Set(availableMats)) as string[];
+                                          if (uniqueMats.length > 0 && uniqueMats[0] && (!selectedMaterial || !uniqueMats.includes(selectedMaterial))) {
+                                              setSelectedMaterial(uniqueMats[0]);
                                           }
                                       }}
                                       className={`px-4 py-2 text-sm rounded-md border transition-all ${
@@ -251,20 +285,19 @@ export function AddToCartSection({
               )}
 
               {/* Capacity */}
-              {uniqueVolumes.length > 0 && (
+              {filteredVolumes.length > 0 && (
                   <div className="space-y-3">
                       <span className="text-sm font-medium text-bharati-charcoal">Capacity</span>
                       <div className="flex flex-wrap gap-3">
-                          {uniqueVolumes.map(vol => (
+                          {filteredVolumes.map(vol => (
                                   <button
                                       key={vol}
                                       onClick={() => {
                                           setSelectedVolume(vol);
-                                          const exists = variants.some(v => v.inductionCompatible === selectedInduction && v.volumeLitres === vol && v.materialType === selectedMaterial);
+                                          const exists = variants.some(v => (selectedInduction == null || v.inductionCompatible === selectedInduction) && v.volumeLitres === vol && (selectedMaterial == null || v.materialType === selectedMaterial));
                                           if (!exists) {
-                                              const fallback = variants.find(v => v.volumeLitres === vol);
+                                              const fallback = variants.find(v => (selectedInduction == null || v.inductionCompatible === selectedInduction) && v.volumeLitres === vol);
                                               if (fallback) {
-                                                  if (fallback.inductionCompatible != null) setSelectedInduction(fallback.inductionCompatible);
                                                   if (fallback.materialType != null) setSelectedMaterial(fallback.materialType);
                                               }
                                           }
@@ -283,20 +316,19 @@ export function AddToCartSection({
               )}
 
               {/* Material Type */}
-              {uniqueMaterials.length > 0 && (
+              {filteredMaterials.length > 0 && (
                   <div className="space-y-3">
                       <span className="text-sm font-medium text-bharati-charcoal">Material Type</span>
                       <div className="flex flex-wrap gap-3">
-                          {uniqueMaterials.map(mat => (
+                          {filteredMaterials.map(mat => (
                                   <button
                                       key={mat}
                                       onClick={() => {
                                           setSelectedMaterial(mat);
-                                          const exists = variants.some(v => v.inductionCompatible === selectedInduction && v.volumeLitres === selectedVolume && v.materialType === mat);
+                                          const exists = variants.some(v => (selectedInduction == null || v.inductionCompatible === selectedInduction) && (selectedVolume == null || v.volumeLitres === selectedVolume) && v.materialType === mat);
                                           if (!exists) {
-                                              const fallback = variants.find(v => v.materialType === mat);
+                                              const fallback = variants.find(v => (selectedInduction == null || v.inductionCompatible === selectedInduction) && v.materialType === mat);
                                               if (fallback) {
-                                                  if (fallback.inductionCompatible != null) setSelectedInduction(fallback.inductionCompatible);
                                                   if (fallback.volumeLitres != null) setSelectedVolume(fallback.volumeLitres);
                                               }
                                           }
@@ -393,7 +425,7 @@ export function AddToCartSection({
       )}
 
       {/* Value Props */}
-      <div className="grid grid-cols-3 gap-4 py-6 border-y border-bharati-mist/60 text-center mt-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-6 border-y border-bharati-mist/60 text-center mt-8">
         <div className="flex flex-col items-center gap-1.5">
           <Truck size={20} className="text-bharati-mint-dark" />
           <span className="text-xs text-bharati-charcoal font-medium">Free Delivery</span>
@@ -410,6 +442,19 @@ export function AddToCartSection({
           <CheckCircle2 size={20} className="text-bharati-mint-dark" />
           <span className="text-xs text-bharati-charcoal font-medium">Certified Safe</span>
           <span className="text-[10px] text-bharati-silver font-light">ISI & Food Grade</span>
+        </div>
+        <div className="flex flex-col items-center gap-1.5">
+          <div className="h-5 flex items-center justify-center">
+            <Image
+              src="/logo/make_in_india_bharati.png"
+              alt="Made in India Lion Emblem"
+              width={34}
+              height={16}
+              className="object-contain"
+            />
+          </div>
+          <span className="text-xs text-bharati-charcoal font-medium">Made in India</span>
+          <span className="text-[10px] text-bharati-silver font-light">Engineered at Home</span>
         </div>
       </div>
 
