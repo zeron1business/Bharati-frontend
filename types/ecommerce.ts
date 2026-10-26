@@ -207,3 +207,30 @@ export interface PagedResponse<T> {
   totalPages: number;
   last: boolean;
 }
+
+export interface SubcategoryHit {
+  name: string;
+  slug: string;
+  imageUrl?: string | null;
+  productCount: number;
+  products?: ProductCard[];
+}
+
+export interface CategoryMatch {
+  categoryName: string;
+  categorySlug: string;
+  categoryImageUrl?: string | null;
+  imageUrl?: string | null;
+  categoryDescription?: string | null;
+  description?: string | null;
+  subcategories: SubcategoryHit[];
+  categoryProducts: ProductCard[];
+}
+
+export interface SearchResult {
+  query?: string;
+  categoryMatch?: CategoryMatch | null;
+  products: ProductCard[];
+  otherProducts?: ProductCard[];
+  totalProductResults: number;
+}

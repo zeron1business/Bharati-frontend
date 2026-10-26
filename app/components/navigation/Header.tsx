@@ -8,6 +8,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { SearchOverlay } from "@/app/components/search/SearchOverlay";
 
 interface HeaderProps {
   hasBanner?: boolean;
@@ -15,6 +16,7 @@ interface HeaderProps {
 
 export function Header({ hasBanner = false }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const isHomePage = pathname === "/";
@@ -60,9 +62,13 @@ export function Header({ hasBanner = false }: HeaderProps) {
   // Sync menu state with MobileNav via custom event
   useEffect(() => {
     const handleMenuClose = () => setMenuOpen(false);
+    const handleSearchOpen = () => setSearchOpen(true);
     window.addEventListener("bharati-menu-close", handleMenuClose);
-    return () =>
+    window.addEventListener("bharati-search-open", handleSearchOpen);
+    return () => {
       window.removeEventListener("bharati-menu-close", handleMenuClose);
+      window.removeEventListener("bharati-search-open", handleSearchOpen);
+    };
   }, []);
 
   const toggleMenu = () => {
@@ -74,6 +80,7 @@ export function Header({ hasBanner = false }: HeaderProps) {
   };
 
   return (
+    <>
     <motion.header
       className={`fixed left-0 right-0 z-50 border-b ${
         !isHomePage
@@ -112,8 +119,9 @@ export function Header({ hasBanner = false }: HeaderProps) {
 
         {/* Right Actions */}
         <div className="flex items-center gap-2 md:gap-3">
-          <Link
-            href="/products"
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
             className={`p-3 sm:p-2.5 rounded-full transition-colors duration-300 ${
               isHeroMode
                 ? "hover:bg-white/15 text-white"
@@ -125,7 +133,7 @@ export function Header({ hasBanner = false }: HeaderProps) {
               size={19}
               strokeWidth={1.5}
             />
-          </Link>
+          </button>
 
           {isLoggedIn ? (
             <Link
@@ -191,5 +199,8 @@ export function Header({ hasBanner = false }: HeaderProps) {
         </div>
       </div>
     </motion.header>
+
+    <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+    </>
   );
 }
