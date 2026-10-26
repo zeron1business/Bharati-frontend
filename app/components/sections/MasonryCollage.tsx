@@ -4,18 +4,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { CollectionTile } from "@/app/lib/types";
 
 const BLOCK_GAP = 24;
 const SCROLL_STEP = 0.45; // Slow, serene luxury drift
 
-interface BentoItem {
+export interface BentoItem {
   id: string;
   name: string;
   image: string;
   href: string;
 }
 
-interface BentoBlock {
+export interface BentoBlock {
   id: string;
   box1: BentoItem; // Top-left (square/medium)
   box2: BentoItem; // Top-middle (square/medium)
@@ -23,8 +24,8 @@ interface BentoBlock {
   box4: BentoItem; // Right-tall (_600_800)
 }
 
-// Set 1: Uses 550_550, 700_450, and 600_800 images
-const BLOCK_SET_1: BentoBlock = {
+// Set 1 Static Fallback: Uses 550_550, 700_450, and 600_800 images
+export const BLOCK_SET_1: BentoBlock = {
   id: "block-1",
   box1: {
     id: "saucepan",
@@ -52,8 +53,8 @@ const BLOCK_SET_1: BentoBlock = {
   },
 };
 
-// Set 2: Uses 500_650, 700_450, and 600_800 images
-const BLOCK_SET_2: BentoBlock = {
+// Set 2 Static Fallback: Uses 500_650, 700_450, and 600_800 images
+export const BLOCK_SET_2: BentoBlock = {
   id: "block-2",
   box1: {
     id: "kadai",
@@ -81,11 +82,59 @@ const BLOCK_SET_2: BentoBlock = {
   },
 };
 
+/** Convert live database tiles into ordered BentoBlock array with static fallbacks */
+export function buildBentoBlocks(tiles?: CollectionTile[]): BentoBlock[] {
+  if (!tiles || tiles.length === 0) {
+    return [BLOCK_SET_1, BLOCK_SET_2];
+  }
+
+  // Filter only active tiles and group by blockIndex
+  const activeTiles = tiles.filter((t) => t.isActive);
+  if (activeTiles.length === 0) {
+    return [BLOCK_SET_1, BLOCK_SET_2];
+  }
+
+  const byBlock: Record<number, Partial<Record<"BOX_1" | "BOX_2" | "BOX_3" | "BOX_4", BentoItem>>> = {};
+
+  activeTiles.forEach((tile) => {
+    if (!byBlock[tile.blockIndex]) {
+      byBlock[tile.blockIndex] = {};
+    }
+    byBlock[tile.blockIndex][tile.slotPosition] = {
+      id: tile.id,
+      name: tile.title,
+      image: tile.imageUrl,
+      href: tile.linkUrl,
+    };
+  });
+
+  const sortedBlockIndices = Object.keys(byBlock)
+    .map(Number)
+    .sort((a, b) => a - b);
+
+  if (sortedBlockIndices.length === 0) {
+    return [BLOCK_SET_1, BLOCK_SET_2];
+  }
+
+  const result: BentoBlock[] = sortedBlockIndices.map((bIdx) => {
+    const defaultBlock = bIdx % 2 === 0 ? BLOCK_SET_1 : BLOCK_SET_2;
+    const blockSlots = byBlock[bIdx];
+
+    return {
+      id: `block-${bIdx}`,
+      box1: blockSlots.BOX_1 || defaultBlock.box1,
+      box2: blockSlots.BOX_2 || defaultBlock.box2,
+      box3: blockSlots.BOX_3 || defaultBlock.box3,
+      box4: blockSlots.BOX_4 || defaultBlock.box4,
+    };
+  });
+
+  return result;
+}
+
 /** Individual curvy card inside the bento grid */
 function BentoCard({
   item,
-  isTall = false,
-  isWide = false,
 }: {
   item: BentoItem;
   isTall?: boolean;
@@ -102,6 +151,7 @@ function BentoCard({
         fill
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         className="object-cover transition-transform duration-700 ease-out group-hover:scale-106"
+        unoptimized={item.image.startsWith("http")}
       />
 
       {/* Dark gradient overlay for text legibility */}
@@ -114,30 +164,40 @@ function BentoCard({
         </h3>
 
         <div className="flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-white/30 bg-black/20 backdrop-blur-sm text-white/80 group-hover:border-white/60 group-hover:text-white group-hover:bg-black/35 flex items-center justify-center transition-all duration-300 shadow-sm">
-          <ArrowRight size={11} strokeWidth={1.6} className="transition-transform duration-300 group-hover:translate-x-0.5" />
+          <ArrowRight
+            size={11}
+            strokeWidth={1.6}
+            className="transition-transform duration-300 group-hover:translate-x-0.5"
+          />
         </div>
       </div>
     </Link>
   );
 }
 
-export function MasonryCollage() {
+export function MasonryCollage({ tiles }: { tiles?: CollectionTile[] }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const animFrameRef = useRef<number | null>(null);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Circular queue: 2 sets duplicated so it loops seamlessly
+  // Build the bento blocks from passed tiles or fallback
+  const blocks = useMemo(() => buildBentoBlocks(tiles), [tiles]);
+
+  // Circular queue: Duplicate blocks so it loops seamlessly
   const loopedBlocks = useMemo(() => {
-    return [BLOCK_SET_1, BLOCK_SET_2, BLOCK_SET_1, BLOCK_SET_2];
-  }, []);
+    if (blocks.length === 1) {
+      return [blocks[0], blocks[0], blocks[0], blocks[0]];
+    }
+    return [...blocks, ...blocks];
+  }, [blocks]);
 
   // ── Auto-scroll (Circular Queue) ──────────────────────────────────────────
   const scroll = useCallback(() => {
     const el = trackRef.current;
     if (!el) return;
 
-    // Reset when reached the halfway mark (after Set 1 + Set 2)
+    // Reset when reached the halfway mark (after the first set of blocks)
     if (el.scrollLeft >= el.scrollWidth / 2) {
       el.scrollLeft = 0;
     } else {
@@ -268,7 +328,7 @@ export function MasonryCollage() {
               <div
                 key={`${block.id}-${idx}`}
                 className="flex-shrink-0 w-[88vw] sm:w-[80vw] md:w-[760px] lg:w-[880px] xl:w-[980px] h-[390px] sm:h-[420px] md:h-[450px] lg:h-[470px] grid grid-cols-[63%_37%] gap-3 md:gap-4"
-                aria-hidden={idx >= 2 ? "true" : undefined}
+                aria-hidden={idx >= blocks.length ? "true" : undefined}
               >
                 {/* Left Side: 2 Rows (Top: Box 1 & Box 2, Bottom: Wide Box 3) */}
                 <div className="flex flex-col gap-3 md:gap-4 h-full">

@@ -83,3 +83,19 @@ export interface ApiResponse<T> {
   data: T;
   timestamp: string;
 }
+
+export type CollectionSlotPosition = "BOX_1" | "BOX_2" | "BOX_3" | "BOX_4";
+
+export interface CollectionTile {
+  id: string;
+  blockIndex: number;
+  slotPosition: CollectionSlotPosition;
+  title: string;
+  imageUrl: string;
+  linkUrl: string;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+

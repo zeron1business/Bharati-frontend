@@ -7,12 +7,13 @@ import { RecipesBanner } from "./components/sections/RecipesBanner";
 import { CustomerReviews } from "./components/sections/CustomerReviews";
 import { FinalBanner } from "./components/sections/FinalBanner";
 
-import { fetchHeroPromos, fetchProducts } from "./lib/api";
+import { fetchHeroPromos, fetchProducts, fetchCollectionTiles } from "./lib/api";
 
 export default async function HomePage() {
-  const [heroPromos, products] = await Promise.all([
+  const [heroPromos, products, collectionTiles] = await Promise.all([
     fetchHeroPromos(),
     fetchProducts(),
+    fetchCollectionTiles(),
   ]);
 
   return (
@@ -20,7 +21,7 @@ export default async function HomePage() {
       <HeroSection promos={heroPromos} />
       <ShopByCategory products={products} />
       <BrandStory />
-      <MasonryCollage />
+      <MasonryCollage tiles={collectionTiles} />
       <BenefitsStrip />
       <RecipesBanner />
       <CustomerReviews />

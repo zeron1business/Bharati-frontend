@@ -1,4 +1,4 @@
-import { ApiResponse, PagedResponse, ProductCard, ProductDetail, Category } from './types';
+import { ApiResponse, PagedResponse, ProductCard, ProductDetail, Category, CollectionTile } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api/v1';
 
@@ -96,4 +96,17 @@ export async function fetchHeroPromos(): Promise<any[]> {
 }
 
 export const fetchTopBannerPromos = fetchHeroPromos;
+
+export async function fetchCollectionTiles(): Promise<CollectionTile[]> {
+  try {
+    const res = await retryFetch(`${API_BASE_URL}/collection/tiles`, { next: { revalidate: 60 } });
+    if (!res.ok) throw new Error('Failed to fetch collection tiles');
+    const json: ApiResponse<CollectionTile[]> = await res.json();
+    return json.data || [];
+  } catch (error) {
+    console.warn(`[api] fetchCollectionTiles: ${startupErrMsg(error)}`);
+    return [];
+  }
+}
+
 

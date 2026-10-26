@@ -5,7 +5,6 @@ import { AnimatedSection } from "@/app/components/ui/AnimatedSection";
 import {
   ShieldCheck,
   Award,
-  Flame,
   Sparkles,
 } from "lucide-react";
 
@@ -19,11 +18,6 @@ const benefits = [
     icon: Award,
     title: "Premium Quality",
     description: "Built for lifetime performance",
-  },
-  {
-    icon: Flame,
-    title: "Works on All Stoves",
-    description: "Gas, induction & ceramic",
   },
   {
     icon: Sparkles,
@@ -45,18 +39,15 @@ export function BenefitsStrip() {
     >
       <div className="max-w-[1440px] mx-auto px-6 sm:px-8 md:px-12 py-10 md:py-14">
         <AnimatedSection>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 sm:gap-8 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 md:gap-6">
             {benefits.map((benefit) => {
               const Icon = benefit.icon;
-              const isEasyToClean = benefit.title === "Easy to Clean";
               const isMadeInIndia = benefit.title === "Made in India";
 
               return (
                 <div
                   key={benefit.title}
-                  className={`group flex-col items-center text-center p-3 rounded-2xl transition-all duration-300 hover:-translate-y-1 ${
-                    isEasyToClean ? "hidden md:flex" : "flex"
-                  }`}
+                  className="group flex flex-col items-center text-center p-3 rounded-2xl transition-all duration-300 hover:-translate-y-1"
                 >
                   {/* Luxury Floating Icon Pill */}
                   <div className="w-12 h-12 md:w-13 md:h-13 rounded-2xl bg-white shadow-sm border border-bharati-mist/60 flex items-center justify-center mb-3.5 text-[#6fa89b] group-hover:scale-105 group-hover:shadow-md group-hover:border-[#6fa89b]/50 group-hover:bg-[#6fa89b] group-hover:text-white transition-all duration-300">
