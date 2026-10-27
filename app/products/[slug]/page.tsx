@@ -71,14 +71,27 @@ export default async function ProductPage({ params }: ProductPageProps) {
         JSON.stringify(allVariants.map((v: any) => ({ id: v.id, sku: v.sku, isActive: v.isActive, volumeLitres: v.volumeLitres })), null, 2));
 
       // Derive price from first variant, or fallback to top-level legacy fields
-      const firstVariant = live.variants && live.variants.length > 0 ? live.variants[0] : null;
+      const firstVariant = activeVariants.length > 0 ? activeVariants[0] : null;
       const price = firstVariant 
         ? Number(firstVariant.discountedPrice || firstVariant.basePrice || 3499)
         : Number(live.discountedPrice || live.basePrice || 3499);
+
+      // Extract initial variant's images
+      let initialVariantImages: string[] = [];
+      if (firstVariant) {
+        if (firstVariant.mediaUrls && firstVariant.mediaUrls.length > 0) {
+          initialVariantImages = firstVariant.mediaUrls;
+        } else if (firstVariant.media && firstVariant.media.length > 0) {
+          initialVariantImages = firstVariant.media.map((m: any) => m.url);
+        }
+      }
+
       const primaryImg =
-        live.media && live.media.length > 0
-          ? live.media.find((m) => m.isPrimary)?.url || live.media[0].url
-          : "/products/cooker_cutout.png";
+        initialVariantImages.length > 0
+          ? initialVariantImages[0]
+          : live.media && live.media.length > 0
+            ? live.media.find((m: any) => m.isPrimary)?.url || live.media[0].url
+            : "/products/Cooker-front.jpg";
 
       const stock = firstVariant 
         ? (firstVariant.stockQuantity ?? 50)
@@ -93,22 +106,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
           .map((m: any) => m.url as string)
       ));
 
-      let allImages = [...productOwnImages];
-      if (live.variants && live.variants.length > 0) {
-        live.variants.forEach((v: any) => {
-          if (v.mediaUrls && v.mediaUrls.length > 0) {
-            allImages.push(...v.mediaUrls);
-          } else if (v.media && v.media.length > 0) {
-            allImages.push(...v.media.map((m: any) => m.url));
-          }
-        });
-      }
-      allImages = Array.from(new Set(allImages));
-      if (allImages.length === 0) {
-        allImages = [primaryImg];
+      // Initial images to display: only the initial variant's images when available
+      let initialGalleryImages: string[] = [];
+      if (initialVariantImages.length > 0) {
+        initialGalleryImages = initialVariantImages;
+      } else if (productOwnImages.length > 0) {
+        initialGalleryImages = productOwnImages;
+      } else {
+        initialGalleryImages = [primaryImg];
       }
 
-        productData = {
+      productData = {
         id: live.id,
         title: live.title || live.name || "Product",
         slug: live.slug,
@@ -117,12 +125,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
         numericPrice: price,
         formattedPrice: `₹ ${price.toLocaleString("en-IN")}`,
         image: primaryImg,
-        images: allImages,
+        images: initialGalleryImages,
         productOwnImages,
         category: "Bharati",
         inStock: isAvailable,
         stockQuantity: stock > 0 ? stock : 50,
-        variants: (live.variants || []).filter((v: any) => v.isActive !== false),
+        variants: activeVariants,
         warrantyDuration: live.warrantyDuration || "5-Year Warranty",
         features: live.features || []
       };
@@ -172,14 +180,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </Link>
 
         <ProductProvider initialImages={productData.images}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
             {/* Product Image Gallery */}
-            <div className="w-full">
+            <div className="w-full lg:sticky lg:top-[calc(var(--header-height)+1.5rem)]">
               <ProductGallery title={productData.title} />
             </div>
 
             {/* Product Info */}
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col justify-start">
               <span className="text-label text-bharati-mint-dark mb-4 block font-medium capitalize">
                 {productData.category}
               </span>

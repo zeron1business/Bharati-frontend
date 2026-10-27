@@ -182,3 +182,38 @@ export const adminUpdatePromo = (id: string, data: any) =>
 
 export const adminDeletePromo = (id: string) =>
   adminFetch(`/promos/${id}`, { method: "DELETE" });
+
+// ==========================================
+// COLLECTION TILES (Bento Block Manager)
+// ==========================================
+
+export const adminFetchCollectionTiles = () =>
+  adminFetch("/collection");
+
+export const adminFetchCollectionTile = (id: string) =>
+  adminFetch(`/collection/${id}`);
+
+export const adminCreateCollectionTile = (data: {
+  blockIndex: number;
+  slotPosition: "BOX_1" | "BOX_2" | "BOX_3" | "BOX_4";
+  title: string;
+  imageUrl: string;
+  linkUrl: string;
+  isActive?: boolean;
+  sortOrder?: number;
+}) => adminFetch("/collection", { method: "POST", body: JSON.stringify(data) });
+
+export const adminUpdateCollectionTile = (
+  id: string,
+  data: {
+    title?: string;
+    imageUrl?: string;
+    linkUrl?: string;
+    isActive?: boolean;
+    sortOrder?: number;
+  }
+) => adminFetch(`/collection/${id}`, { method: "PUT", body: JSON.stringify(data) });
+
+export const adminDeleteCollectionTile = (id: string) =>
+  adminFetch(`/collection/${id}`, { method: "DELETE" });
+

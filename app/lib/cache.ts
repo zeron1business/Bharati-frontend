@@ -14,6 +14,7 @@ export const CACHE_KEYS = {
   ADMIN_CATEGORIES: "bharati_admin_categories",
   ADMIN_ORDERS: "bharati_admin_orders",
   ADMIN_PROMOS: "bharati_admin_promos",
+  ADMIN_COLLECTION_TILES: "bharati_admin_collection_tiles",
   STORE_PRODUCTS: "bharati_store_products",
   STORE_CATEGORIES: "bharati_store_categories",
   STORE_PROMOS: "bharati_store_promos",

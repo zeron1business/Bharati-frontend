@@ -122,13 +122,13 @@ export function ShopProducts() {
                   className="group block"
                 >
                   {/* Product Image */}
-                  <div className="relative aspect-square bg-bharati-ivory overflow-hidden mb-5 border border-transparent group-hover:border-bharati-mint/30 transition-all duration-500">
+                  <div className="relative aspect-square bg-bharati-ivory overflow-hidden mb-5 rounded-2xl border border-bharati-mist/50 group-hover:border-bharati-mint/40 transition-all duration-500 shadow-xs">
                     <Image
                       src={product.primaryImageUrl || "/products/Cooker-front.jpg"}
                       alt={product.title || product.name || "Product"}
                       fill
                       unoptimized={Boolean(product.primaryImageUrl?.startsWith("http"))}
-                      className="object-contain p-6 md:p-10 transition-transform duration-700 ease-out group-hover:scale-105"
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                       sizes="(max-width: 768px) 260px, (max-width: 1024px) 360px, 400px"
                     />
                   </div>

@@ -20,10 +20,10 @@ interface Review {
 const reviewsData: Review[] = [
   {
     id: "r1",
-    text: "Excellent quality and very easy to use. The heat distribution is completely even, cooking biryani and curries to sheer perfection.",
+    text: "Excellent quality and very easy to use. The heat distribution is completely even, cooking dals, rice, and curries to sheer perfection.",
     author: "Priya S.",
     city: "Mumbai",
-    product: "Tri-ply Stainless Steel Kadai",
+    product: "Bharati Regular Pressure Cooker",
     rating: 5,
   },
   {
@@ -31,7 +31,7 @@ const reviewsData: Review[] = [
     text: "Sturdy build and stylish design. The lid locking mechanism and safety pressure valve give total peace of mind. A true kitchen essential!",
     author: "Rohit M.",
     city: "Bengaluru",
-    product: "Outer Lid Pressure Cooker",
+    product: "Bharati Handi Pressure Cooker",
     rating: 5,
   },
   {
@@ -39,7 +39,7 @@ const reviewsData: Review[] = [
     text: "Great product. Very happy with the performance and mirror finish. Cooks with noticeably less oil and cleans up effortlessly.",
     author: "Ananya B.",
     city: "New Delhi",
-    product: "Heritage Fry Pan",
+    product: "Bharati Tri-Ply Fry Pan",
     rating: 5,
   },
   {
@@ -47,23 +47,23 @@ const reviewsData: Review[] = [
     text: "The best cookware we have owned. Substantial weight, stay-cool handles, and impeccable craftsmanship that will last decades.",
     author: "Meera K.",
     city: "Chennai",
-    product: "Tri-ply Saucepan",
+    product: "Bharati Tri-Ply Saucepan",
     rating: 5,
   },
   {
     id: "r5",
-    text: "Fast cooking, beautiful aesthetics and tremendous value. The food stays warm for hours. Truly proud to own Bharati cookware.",
+    text: "Fast cooking, beautiful aesthetics and tremendous value. The unique belly shape ensures even heat and keeps food warm for hours.",
     author: "Arjun P.",
     city: "Pune",
-    product: "Signature Biryani Handi",
+    product: "Bharati Belly Bottom Pressure Cooker",
     rating: 5,
   },
   {
     id: "r6",
-    text: "Remarkable heat retention. We make phulkas and dosas every morning and nothing ever sticks. Outstanding heirloom quality.",
+    text: "Remarkable heat retention and elegance. Perfect for slow-cooking gravies, curries, and serving straight to the dinner table. Outstanding quality.",
     author: "Kavita R.",
     city: "Hyderabad",
-    product: "Pre-Seasoned Cast Iron Tawa",
+    product: "Bharati Tri-Ply Casserole",
     rating: 5,
   },
   {
@@ -71,15 +71,15 @@ const reviewsData: Review[] = [
     text: "Flawless mirror polish and heavy three-layer steel base. Even after months of rigorous daily use, it still looks brand new.",
     author: "Vikram T.",
     city: "Kolkata",
-    product: "Tri-ply Dutch Casserole",
+    product: "Bharati Tri-Ply Handi Pot",
     rating: 5,
   },
   {
     id: "r8",
-    text: "Such thoughtfully designed cookware. The ergonomic handles and drip-free pouring rim make everyday cooking a joy.",
+    text: "Such thoughtfully designed cookware. The ergonomic handles and reliable safety lid make everyday pressure cooking a joy.",
     author: "Sneha D.",
     city: "Ahmedabad",
-    product: "Tri-ply Tea & Milk Pan",
+    product: "Bharati Regular Pressure Cooker",
     rating: 5,
   },
 ];

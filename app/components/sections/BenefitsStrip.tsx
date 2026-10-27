@@ -1,12 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import { AnimatedSection } from "@/app/components/ui/AnimatedSection";
 import {
   ShieldCheck,
   Award,
-  Flame,
   Sparkles,
-  Flag,
 } from "lucide-react";
 
 const benefits = [
@@ -21,17 +20,12 @@ const benefits = [
     description: "Built for lifetime performance",
   },
   {
-    icon: Flame,
-    title: "Works on All Stoves",
-    description: "Gas, induction & ceramic",
-  },
-  {
     icon: Sparkles,
     title: "Easy to Clean",
     description: "Hygienic mirror-finish steel",
   },
   {
-    icon: Flag,
+    icon: null,
     title: "Made in India",
     description: "Proudly engineered at home",
   },
@@ -45,25 +39,42 @@ export function BenefitsStrip() {
     >
       <div className="max-w-[1440px] mx-auto px-6 sm:px-8 md:px-12 py-10 md:py-14">
         <AnimatedSection>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 sm:gap-8 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 md:gap-6">
             {benefits.map((benefit) => {
               const Icon = benefit.icon;
-              const isEasyToClean = benefit.title === "Easy to Clean";
+              const isMadeInIndia = benefit.title === "Made in India";
 
               return (
                 <div
                   key={benefit.title}
-                  className={`group flex-col items-center text-center p-3 rounded-2xl transition-all duration-300 hover:-translate-y-1 ${
-                    isEasyToClean ? "hidden md:flex" : "flex"
-                  }`}
+                  className="group flex flex-col items-center text-center p-3 rounded-2xl transition-all duration-300 hover:-translate-y-1"
                 >
                   {/* Luxury Floating Icon Pill */}
                   <div className="w-12 h-12 md:w-13 md:h-13 rounded-2xl bg-white shadow-sm border border-bharati-mist/60 flex items-center justify-center mb-3.5 text-[#6fa89b] group-hover:scale-105 group-hover:shadow-md group-hover:border-[#6fa89b]/50 group-hover:bg-[#6fa89b] group-hover:text-white transition-all duration-300">
-                    <Icon
-                      size={22}
-                      strokeWidth={1.5}
-                      className="transition-colors duration-300"
-                    />
+                    {isMadeInIndia ? (
+                      <div className="relative w-8 h-4 flex items-center justify-center">
+                        <Image
+                          src="/logo/make_in_india_bharati.png"
+                          alt="Made in India Lion Emblem"
+                          width={34}
+                          height={16}
+                          className="object-contain group-hover:hidden transition-all duration-300"
+                        />
+                        <Image
+                          src="/logo/make_in_india_white.png"
+                          alt="Made in India Lion Emblem"
+                          width={34}
+                          height={16}
+                          className="object-contain hidden group-hover:block transition-all duration-300"
+                        />
+                      </div>
+                    ) : Icon ? (
+                      <Icon
+                        size={22}
+                        strokeWidth={1.5}
+                        className="transition-colors duration-300"
+                      />
+                    ) : null}
                   </div>
 
                   {/* Title */}

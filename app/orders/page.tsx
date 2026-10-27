@@ -185,21 +185,21 @@ export default function OrdersHistoryPage() {
                       {order.items.slice(0, 4).map((item) => (
                         <div
                           key={item.id}
-                          className="relative w-14 h-14 bg-bharati-ivory rounded-xl overflow-hidden shrink-0 border border-bharati-mist/30"
+                          className="relative w-16 h-16 md:w-[72px] md:h-[72px] bg-bharati-ivory rounded-xl overflow-hidden shrink-0 border border-bharati-mist/40 shadow-xs"
                           title={item.titleSnapshot}
                         >
                           <Image
-                            src={item.productImageUrl || "/products/cooker_cutout.png"}
+                            src={item.productImageUrl || "/products/Cooker-front.jpg"}
                             alt={item.titleSnapshot}
                             fill
                             unoptimized={Boolean(item.productImageUrl?.startsWith("http"))}
-                            className="object-contain p-1.5"
-                            sizes="56px"
+                            className="object-cover"
+                            sizes="72px"
                           />
                         </div>
                       ))}
                       {order.items.length > 4 && (
-                        <div className="w-14 h-14 bg-bharati-ivory rounded-xl border border-bharati-mist/30 flex items-center justify-center text-xs font-semibold text-bharati-silver shrink-0">
+                        <div className="w-16 h-16 md:w-[72px] md:h-[72px] bg-bharati-ivory rounded-xl border border-bharati-mist/40 flex items-center justify-center text-xs font-semibold text-bharati-silver shrink-0">
                           +{order.items.length - 4}
                         </div>
                       )}

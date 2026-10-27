@@ -37,6 +37,8 @@ export interface ProductVariant {
   isActive?: boolean;
   warrantyOverride?: string | null;
   specifications?: Array<{ specKey: string; specValue: string }>;
+  media?: ProductMedia[];
+  mediaUrls?: string[];
 }
 
 export interface ProductCategory {
@@ -223,4 +225,31 @@ export interface PagedResponse<T> {
   totalElements: number;
   totalPages: number;
   last: boolean;
+}
+
+export interface SubcategoryHit {
+  name: string;
+  slug: string;
+  imageUrl?: string | null;
+  productCount: number;
+  products?: ProductCard[];
+}
+
+export interface CategoryMatch {
+  categoryName: string;
+  categorySlug: string;
+  categoryImageUrl?: string | null;
+  imageUrl?: string | null;
+  categoryDescription?: string | null;
+  description?: string | null;
+  subcategories: SubcategoryHit[];
+  categoryProducts: ProductCard[];
+}
+
+export interface SearchResult {
+  query?: string;
+  categoryMatch?: CategoryMatch | null;
+  products: ProductCard[];
+  otherProducts?: ProductCard[];
+  totalProductResults: number;
 }

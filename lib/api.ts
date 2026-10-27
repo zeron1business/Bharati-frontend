@@ -13,6 +13,7 @@ import {
   PaymentVerificationPayload,
   OrderDetail,
   TrackOrderData,
+  SearchResult,
 } from "@/types/ecommerce";
 
 const API_BASE_URL =
@@ -122,6 +123,11 @@ export async function getFeaturedProducts(): Promise<ProductCard[]> {
 
 export async function getBestSellers(): Promise<ProductCard[]> {
   return fetchApi<ProductCard[]>("/products/best-sellers");
+}
+
+export async function searchCatalog(query: string): Promise<SearchResult> {
+  const q = encodeURIComponent(query.trim());
+  return fetchApi<SearchResult>(`/search?q=${q}`, { cache: "no-store" });
 }
 
 // ==========================================
