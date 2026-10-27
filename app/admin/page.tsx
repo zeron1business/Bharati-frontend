@@ -108,6 +108,7 @@ export default function AdminDashboard() {
       icon: Users,
       color: "text-purple-600",
       bg: "bg-purple-50",
+      href: "/admin/users",
     },
     {
       label: "Products",
@@ -172,24 +173,41 @@ export default function AdminDashboard() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((card) => (
-          <div
-            key={card.label}
-            className="bg-white rounded-lg border border-bharati-mist p-5 flex items-start gap-4"
-          >
-            <div className={`p-2.5 rounded-lg ${card.bg}`}>
-              <card.icon size={20} className={card.color} strokeWidth={1.5} />
+        {statCards.map((card) => {
+          const cardContent = (
+            <div
+              className={`bg-white rounded-lg border border-bharati-mist p-5 flex items-start gap-4 h-full transition-all ${
+                card.href ? "hover:border-bharati-charcoal/40 hover:shadow-xs cursor-pointer" : ""
+              }`}
+            >
+              <div className={`p-2.5 rounded-lg ${card.bg}`}>
+                <card.icon size={20} className={card.color} strokeWidth={1.5} />
+              </div>
+              <div>
+                <p className="text-xs text-bharati-ash font-medium uppercase tracking-wider">
+                  {card.label}
+                </p>
+                <p className="text-xl font-semibold text-bharati-black mt-1">
+                  {card.value}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-bharati-ash font-medium uppercase tracking-wider">
-                {card.label}
-              </p>
-              <p className="text-xl font-semibold text-bharati-black mt-1">
-                {card.value}
-              </p>
+          );
+
+          if (card.href) {
+            return (
+              <Link key={card.label} href={card.href} className="block">
+                {cardContent}
+              </Link>
+            );
+          }
+
+          return (
+            <div key={card.label}>
+              {cardContent}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Order Pipeline */}

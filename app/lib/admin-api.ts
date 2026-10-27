@@ -217,3 +217,143 @@ export const adminUpdateCollectionTile = (
 export const adminDeleteCollectionTile = (id: string) =>
   adminFetch(`/collection/${id}`, { method: "DELETE" });
 
+// ==========================================
+// CUSTOMERS & USERS MODULE
+// ==========================================
+
+export type CustomerSegment = "ALL" | "PROSPECT" | "FIRST_TIME_BUYER" | "REPEAT_BUYER" | "VIP";
+
+export interface AdminCustomerSummary {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string;
+  phoneVerified: boolean;
+  emailVerified: boolean;
+  type: string;
+  createdAt: string;
+  totalOrders: number;
+  qualifyingOrders: number;
+  collectedOnlineTotal: number;
+  deliveredCodTotal: number;
+  inFlightCodTotal: number;
+  cancelledOrdersCount: number;
+  cancelledOrdersTotal: number;
+  totalQualifyingSpend: number;
+  averageOrderValue: number;
+  lastOrderDate: string | null;
+  segment: CustomerSegment;
+}
+
+export interface AdminCustomerStats {
+  totalCustomers: number;
+  totalProspects: number;
+  totalActiveBuyers: number;
+  totalRepeatBuyers: number;
+  totalVipCustomers: number;
+}
+
+export interface AdminCustomerProfile {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string;
+  phoneVerified: boolean;
+  emailVerified: boolean;
+  type: string;
+  createdAt: string;
+  updatedAt: string | null;
+}
+
+export interface AdminCustomerFinancialSummary {
+  totalOrders: number;
+  qualifyingOrders: number;
+  cancelledOrders: number;
+  collectedOnlineTotal: number;
+  deliveredCodTotal: number;
+  inFlightCodTotal: number;
+  totalQualifyingSpend: number;
+  cancelledOrdersTotal: number;
+  averageOrderValue: number;
+  preferredPaymentMethod: "COD" | "ONLINE_RAZORPAY" | "NONE";
+  segment: CustomerSegment;
+  firstOrderDate: string | null;
+  lastOrderDate: string | null;
+  refundNote: string;
+}
+
+export interface AdminCustomerAddress {
+  id: string;
+  label: string | null;
+  line1: string;
+  line2: string | null;
+  city: string;
+  state: string;
+  pincode: string;
+  country: string;
+  isDefault: boolean;
+}
+
+export interface AdminCustomerOrderSummary {
+  id: string;
+  orderNumber: string;
+  status: string;
+  createdAt: string;
+  subtotal: number;
+  discount: number;
+  shippingFee: number;
+  total: number;
+  itemCount: number;
+  paymentMethod: "COD" | "ONLINE_RAZORPAY";
+  paymentStatus: string;
+  shippingCity: string | null;
+  shippingState: string | null;
+}
+
+export interface AdminCustomerDetail {
+  profile: AdminCustomerProfile;
+  financialSummary: AdminCustomerFinancialSummary;
+  savedAddresses: AdminCustomerAddress[];
+  recentOrders: AdminCustomerOrderSummary[];
+}
+
+export interface PagedCustomerResponse {
+  content: AdminCustomerSummary[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+}
+
+export const adminFetchCustomers = (
+  search?: string,
+  segment?: string,
+  page: number = 0,
+  size: number = 20,
+  sortBy: string = "createdAt",
+  sortDir: string = "desc"
+) => {
+  let url = `/customers?page=${page}&size=${size}&sortBy=${encodeURIComponent(sortBy)}&sortDir=${encodeURIComponent(sortDir)}`;
+  if (search && search.trim()) {
+    url += `&search=${encodeURIComponent(search.trim())}`;
+  }
+  if (segment && segment !== "ALL") {
+    url += `&segment=${encodeURIComponent(segment)}`;
+  }
+  return adminFetch(url, { cache: "no-store" });
+};
+
+export const adminFetchCustomerStats = () => {
+  return adminFetch("/customers/stats", { cache: "no-store" });
+};
+
+export const adminFetchCustomerDetails = (id: string) => {
+  return adminFetch(`/customers/${id}`);
+};
+
+export const adminFetchCustomerOrders = (id: string) => {
+  return adminFetch(`/customers/${id}/orders`);
+};
+
+

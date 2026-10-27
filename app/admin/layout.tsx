@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Ticket, LayoutGrid } from "lucide-react";
+import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Ticket, LayoutGrid, Users } from "lucide-react";
 
 import { ToastProvider } from "./ToastContext";
 
@@ -47,6 +47,7 @@ export default function AdminLayout({
   const navItems = [
     { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { label: "Orders", href: "/admin/orders", icon: ClipboardList },
+    { label: "Customers", href: "/admin/users", icon: Users },
     { label: "Products", href: "/admin/products", icon: Package },
     { label: "Categories", href: "/admin/categories", icon: Tags },
     { label: "Promos", href: "/admin/promos", icon: Ticket },
