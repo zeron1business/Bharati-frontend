@@ -68,14 +68,20 @@ export function ShopByCategory({ products = [] }: Props) {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
-  // Filter only active products that have a real uploaded primary image (unique list, no duplicates)
+  // Filter only active products that have a real uploaded circular or primary image (unique list, no duplicates)
   const activeItems = useMemo(() => {
     return products
-      .filter((p) => Boolean(p.primaryImageUrl && p.primaryImageUrl.trim().length > 0))
+      .filter((p) => {
+        const hasCircular = Boolean(p.circularCoverUrl && p.circularCoverUrl.trim().length > 0);
+        const hasPrimary = Boolean(p.primaryImageUrl && p.primaryImageUrl.trim().length > 0);
+        return hasCircular || hasPrimary;
+      })
       .map((p) => ({
         id: p.id,
         name: p.name || p.title,
-        image: p.primaryImageUrl,
+        image: (p.circularCoverUrl && p.circularCoverUrl.trim().length > 0)
+          ? p.circularCoverUrl.trim()
+          : p.primaryImageUrl,
         href: `/products/${p.slug}`,
       }));
   }, [products]);

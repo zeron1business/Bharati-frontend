@@ -13,7 +13,8 @@ import {
 } from "@/app/lib/admin-api";
 import { getSessionCache, setSessionCache, clearSessionCacheByPrefix, CACHE_KEYS } from "@/app/lib/cache";
 import Link from "next/link";
-import { ArrowLeft, Save, Upload, X, Plus, Trash2, CheckCircle, AlertCircle, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Save, Upload, X, Plus, Trash2, CheckCircle, AlertCircle, AlertTriangle, Crop, Sparkles } from "lucide-react";
+import { ProductCircularCropperModal } from "@/app/admin/products/components/ProductCircularCropperModal";
 import { useToast, setFlashToast } from "@/app/admin/ToastContext";
 
 export default function NewProduct() {
@@ -27,6 +28,10 @@ export default function NewProduct() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState<string>("");
+  const [circularCoverUrl, setCircularCoverUrl] = useState<string>("");
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
+  const [cropperSource, setCropperSource] = useState<string>("");
+  const [isCoverReplaced, setIsCoverReplaced] = useState(false);
   
   // Real-time validation states
   const [slugError, setSlugError] = useState<string | null>(null);
@@ -273,19 +278,50 @@ export default function NewProduct() {
     setVariants(newVariants);
   };
 
+  const handleSaveCircularCrop = async (croppedFile: File) => {
+    setIsUploading(true);
+    try {
+      const url = await adminUploadImage(croppedFile);
+      setCircularCoverUrl(url);
+      setIsCoverReplaced(false);
+      showToast("Circular framing uploaded! It will be saved when you create the product.", "success");
+    } catch (err: any) {
+      showToast(err.message || "Failed to upload circular image", "error");
+      throw err;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleCoverImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
+    const selectedFile = e.target.files[0];
+    const localPreviewUrl = URL.createObjectURL(selectedFile);
+
     setIsUploading(true);
     setError("");
+    // Clear previous circular crop when a new cover is uploaded so it never silently shows old photo
+    setCircularCoverUrl("");
+    setIsCoverReplaced(false);
+
     try {
-        const url = await adminUploadImage(e.target.files[0]);
-        setCoverImageUrl(url);
+      const url = await adminUploadImage(selectedFile);
+      setCoverImageUrl(url);
+      setCropperSource(localPreviewUrl);
+      setIsCropperOpen(true);
     } catch (err: any) {
-        setError(err.message || "Failed to upload image");
+      setError(err.message || "Failed to upload image");
+      showToast(err.message || "Failed to upload image", "error");
     } finally {
-        setIsUploading(false);
-        e.target.value = "";
+      setIsUploading(false);
+      e.target.value = "";
     }
+  };
+
+  const handleOpenCropper = () => {
+    if (!coverImageUrl) return;
+    setCropperSource(coverImageUrl);
+    setIsCropperOpen(true);
   };
 
   const handleVariantImageUpload = async (variantIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -356,7 +392,8 @@ export default function NewProduct() {
         badges: parsedBadges,
         mediaUrls: coverImageUrl ? [coverImageUrl] : [],
         variants: formattedVariants,
-        features: features
+        features: features,
+        circularCoverUrl: (circularCoverUrl && circularCoverUrl.trim()) ? circularCoverUrl.trim() : null
       };
 
       await adminCreateProduct(payload);
@@ -485,47 +522,167 @@ export default function NewProduct() {
         </div>
         
         <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
-            <h2 className="text-lg font-medium text-bharati-black border-b border-bharati-mist pb-2">Product Cover Image</h2>
-            <div className="flex items-start gap-6">
-              {coverImageUrl ? (
-                <div className="relative w-40 h-40 rounded-lg border border-bharati-mist overflow-hidden group">
-                  <img src={coverImageUrl} alt="Product cover" className="w-full h-full object-cover" />
-                  <button type="button" onClick={() => setCoverImageUrl("")}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1
-                               opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
-                    <X size={14} />
-                  </button>
-                </div>
-              ) : (
-                <label className="flex flex-col items-center justify-center w-40 h-40 rounded-lg
-                                   border-2 border-dashed border-bharati-mist hover:border-bharati-charcoal
-                                   cursor-pointer transition-colors">
-                  {isUploading ? (
-                    <>
-                      <div className="w-6 h-6 border-2 border-bharati-charcoal border-t-transparent
-                                      rounded-full animate-spin mb-1" />
-                      <span className="text-xs text-bharati-charcoal">Uploading…</span>
-                    </>
-                  ) : (
-                    <>
-                      <Upload size={24} className="text-gray-400 mb-1" />
-                      <span className="text-sm font-medium text-bharati-charcoal">Upload Cover</span>
-                      <span className="text-[10px] text-gray-400">Single image</span>
-                    </>
-                  )}
-                  <input type="file" accept="image/*" className="hidden"
-                         onChange={handleCoverImageUpload} disabled={isUploading} />
-                </label>
-              )}
-              {coverImageUrl && (
-                <label className="text-sm text-bharati-gold hover:text-bharati-charcoal
-                                  cursor-pointer font-medium transition-colors mt-2">
-                  Replace image
-                  <input type="file" accept="image/*" className="hidden"
-                         onChange={handleCoverImageUpload} disabled={isUploading} />
-                </label>
-              )}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-bharati-mist pb-3 gap-2">
+            <div>
+              <h2 className="text-lg font-medium text-bharati-black">Product Imagery</h2>
+              <p className="text-xs text-bharati-silver">
+                Original cover is displayed on All Products & PDP. Circular framing is used on the Shop by Products carousel.
+              </p>
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
+            {/* Primary Cover Image (Original) */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-bharati-charcoal flex items-center gap-1.5">
+                  Primary Cover Image
+                  <span className="text-[11px] font-normal text-bharati-silver">(Square / Original)</span>
+                </span>
+                <span className="text-[11px] px-2 py-0.5 rounded bg-bharati-ivory border border-bharati-mist text-bharati-charcoal font-medium">
+                  All Products & PDP
+                </span>
+              </div>
+
+              <div className="flex items-start gap-5">
+                {coverImageUrl ? (
+                  <div className="relative w-36 h-36 rounded-lg border border-bharati-mist overflow-hidden group shadow-xs shrink-0">
+                    <img src={coverImageUrl} alt="Product cover" className="w-full h-full object-cover" />
+                    <button type="button" onClick={() => {
+                        setCoverImageUrl("");
+                        setCircularCoverUrl("");
+                        setCropperSource("");
+                        setIsCoverReplaced(false);
+                      }}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1
+                                 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                      title="Remove cover image">
+                      <X size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center w-36 h-36 rounded-lg
+                                     border-2 border-dashed border-bharati-mist hover:border-bharati-charcoal
+                                     cursor-pointer transition-colors bg-bharati-ivory/30 shrink-0">
+                    {isUploading ? (
+                      <>
+                        <div className="w-6 h-6 border-2 border-bharati-charcoal border-t-transparent
+                                        rounded-full animate-spin mb-1" />
+                        <span className="text-xs text-bharati-charcoal">Uploading…</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={22} className="text-gray-400 mb-1" />
+                        <span className="text-xs font-medium text-bharati-charcoal">Upload Cover</span>
+                        <span className="text-[10px] text-gray-400">Single image</span>
+                      </>
+                    )}
+                    <input type="file" accept="image/*" className="hidden"
+                           onChange={handleCoverImageUpload} disabled={isUploading} />
+                  </label>
+                )}
+
+                <div className="space-y-2 pt-1 text-xs">
+                  <p className="text-bharati-silver leading-relaxed">
+                    High-resolution square or 1:1 asset. Displayed uncropped on catalog grids and product detail galleries.
+                  </p>
+                  {coverImageUrl && (
+                    <label className="inline-block text-xs text-bharati-gold hover:text-bharati-charcoal cursor-pointer font-medium transition-colors">
+                      Replace image
+                      <input type="file" accept="image/*" className="hidden"
+                             onChange={handleCoverImageUpload} disabled={isUploading} />
+                    </label>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Circular Shop by Products Image */}
+            <div className="space-y-3 md:border-l md:border-bharati-mist/60 md:pl-8">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-bharati-charcoal flex items-center gap-1.5">
+                  Shop by Products Image
+                  <span className="text-[11px] font-normal text-bharati-silver">(Circular)</span>
+                </span>
+                {circularCoverUrl ? (
+                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
+                    Custom Framing Active
+                  </span>
+                ) : (
+                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">
+                    Using Cover Fallback
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-start gap-5">
+                {/* Circular Preview Container */}
+                <div className="relative w-36 h-36 flex items-center justify-center shrink-0">
+                  <div className="w-32 h-32 rounded-full border-2 border-bharati-mist/70 overflow-hidden bg-bharati-ivory relative shadow-sm group">
+                    <img
+                      src={circularCoverUrl || coverImageUrl || "/placeholder.svg"}
+                      alt="Shop by Products circular preview"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    {circularCoverUrl && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCircularCoverUrl("");
+                          setIsCoverReplaced(false);
+                          showToast("Custom circular crop removed. Reverting to original cover fallback.", "info");
+                        }}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                        title="Remove circular framing (revert to cover fallback)"
+                      >
+                        <X size={12} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2.5 pt-1 text-xs flex-1">
+                  <p className="text-bharati-silver leading-relaxed">
+                    Preview of how this product appears in the homepage carousel.
+                  </p>
+
+                  {/* Warning if cover was replaced after crop */}
+                  {isCoverReplaced && circularCoverUrl && (
+                    <div className="p-2 rounded bg-amber-50 border border-amber-200 text-amber-800 text-[11px] flex items-start gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600" />
+                      <span>The original cover was replaced. This circular crop still reflects the previous image.</span>
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={handleOpenCropper}
+                      disabled={!coverImageUrl || isUploading}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-bharati-mint/20 hover:bg-bharati-mint/30 text-bharati-mint-dark border border-bharati-mint/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      <Crop size={14} />
+                      <span>{circularCoverUrl ? "Adjust Framing" : "Adjust Shop by Products Image"}</span>
+                    </button>
+
+                    {circularCoverUrl && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCircularCoverUrl("");
+                          setIsCoverReplaced(false);
+                          showToast("Reverted to original cover fallback.", "info");
+                        }}
+                        className="text-[11px] text-red-500 hover:text-red-700 underline transition-colors cursor-pointer"
+                      >
+                        Remove crop
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
@@ -864,6 +1021,16 @@ export default function NewProduct() {
           </div>
         </div>
       )}
+
+      {/* Circular Product Image Cropper Modal */}
+      <ProductCircularCropperModal
+        isOpen={isCropperOpen}
+        imageSrc={cropperSource || coverImageUrl}
+        productName={formData.name}
+        onCancel={() => setIsCropperOpen(false)}
+        onSkip={() => setIsCropperOpen(false)}
+        onSave={handleSaveCircularCrop}
+      />
     </div>
   );
 }
