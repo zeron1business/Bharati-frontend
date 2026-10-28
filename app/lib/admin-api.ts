@@ -357,3 +357,122 @@ export const adminFetchCustomerOrders = (id: string) => {
 };
 
 
+
+// ==========================================
+// PROMOTIONAL SMS CAMPAIGNS MODULE
+// ==========================================
+
+export type SmsCampaignStatus = "DRAFT" | "SCHEDULED" | "CANCELLED" | "COMPLETED";
+export type SmsSelectionMode = "ALL_ELIGIBLE" | "SPECIFIC_CUSTOMERS";
+
+export interface CreateSmsCampaignPayload {
+  title: string;
+  messageBody: string;
+  selectionMode: SmsSelectionMode;
+  segmentFilter?: string | null;
+  customerIds?: string[] | null;
+}
+
+export interface UpdateSmsCampaignPayload {
+  title: string;
+  messageBody: string;
+  selectionMode: SmsSelectionMode;
+  segmentFilter?: string | null;
+  customerIds?: string[] | null;
+}
+
+export interface SmsCampaignSummary {
+  id: string;
+  title: string;
+  messageBody: string;
+  status: SmsCampaignStatus;
+  selectionMode: SmsSelectionMode;
+  segmentFilter: string | null;
+  estimatedRecipientCount: number;
+  createdByAdminId: string | null;
+  createdByEmail: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SmsCampaignRecipient {
+  id: string;
+  customerId: string | null;
+  customerName: string;
+  maskedPhone: string;
+  createdAt: string;
+}
+
+export interface SmsCampaignDetail {
+  id: string;
+  title: string;
+  messageBody: string;
+  status: SmsCampaignStatus;
+  selectionMode: SmsSelectionMode;
+  segmentFilter: string | null;
+  estimatedRecipientCount: number;
+  createdByAdminId: string | null;
+  createdByEmail: string | null;
+  createdAt: string;
+  updatedAt: string;
+  recipients: SmsCampaignRecipient[];
+  recipientCustomerIds: string[];
+}
+
+export interface SmsProviderStatus {
+  providerConfigured: boolean;
+  providerName: string;
+  message: string;
+}
+
+export interface PagedSmsCampaignResponse {
+  content: SmsCampaignSummary[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+}
+
+export const adminFetchSmsProviderStatus = () => {
+  return adminFetch("/sms-campaigns/status", { cache: "no-store" });
+};
+
+export const adminFetchSmsCampaigns = (
+  status?: string,
+  page: number = 0,
+  size: number = 20
+) => {
+  let url = `/sms-campaigns?page=${page}&size=${size}`;
+  if (status && status.trim()) {
+    url += `&status=${encodeURIComponent(status.trim())}`;
+  }
+  return adminFetch(url, { cache: "no-store" });
+};
+
+export const adminFetchSmsCampaignDetail = (id: string) => {
+  return adminFetch(`/sms-campaigns/${id}`);
+};
+
+export const adminCreateSmsCampaign = (payload: CreateSmsCampaignPayload) => {
+  return adminFetch("/sms-campaigns", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+};
+
+export const adminUpdateSmsCampaign = (
+  id: string,
+  payload: UpdateSmsCampaignPayload
+) => {
+  return adminFetch(`/sms-campaigns/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+};
+
+export const adminDeleteSmsCampaign = (id: string) => {
+  return adminFetch(`/sms-campaigns/${id}`, {
+    method: "DELETE",
+  });
+};

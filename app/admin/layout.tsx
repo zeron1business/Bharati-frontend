@@ -3,7 +3,17 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, Package, Tags, ClipboardList, LogOut, Ticket, LayoutGrid, Users } from "lucide-react";
+import {
+  LayoutDashboard,
+  Package,
+  Tags,
+  ClipboardList,
+  LogOut,
+  Ticket,
+  LayoutGrid,
+  Users,
+  MessageSquare,
+} from "lucide-react";
 
 import { ToastProvider } from "./ToastContext";
 
@@ -24,8 +34,10 @@ export default function AdminLayout({
     } else if (token && pathname === "/admin/login") {
       router.push("/admin/products");
     } else {
-      setIsAuthenticated(!!token);
-      setIsLoading(false);
+      queueMicrotask(() => {
+        setIsAuthenticated(!!token);
+        setIsLoading(false);
+      });
     }
   }, [pathname, router]);
 
@@ -41,6 +53,8 @@ export default function AdminLayout({
 
   const handleLogout = () => {
     localStorage.removeItem("bharati_admin_token");
+    setIsAuthenticated(false);
+    setIsLoading(false);
     router.push("/admin/login");
   };
 
@@ -52,6 +66,7 @@ export default function AdminLayout({
     { label: "Categories", href: "/admin/categories", icon: Tags },
     { label: "Promos", href: "/admin/promos", icon: Ticket },
     { label: "Collection", href: "/admin/collection", icon: LayoutGrid },
+    { label: "Promotional SMS", href: "/admin/promotional-sms", icon: MessageSquare },
   ];
 
   return (
@@ -106,4 +121,3 @@ export default function AdminLayout({
     </ToastProvider>
   );
 }
-
