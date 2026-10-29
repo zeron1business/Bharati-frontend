@@ -42,7 +42,7 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-bharati-cream p-4">
-      <div className="w-full max-w-md bg-white p-8 md:p-10 rounded-lg shadow-sm border border-bharati-mist">
+      <div className="w-full max-w-md bg-white p-6 sm:p-8 md:p-10 rounded-lg shadow-sm border border-bharati-mist">
         <div className="flex justify-center mb-8">
           <Image
             src="/logo/BHARATILOGO_clean.png"

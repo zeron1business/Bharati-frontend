@@ -301,7 +301,7 @@ export default function AdminOrderDetailsPage({
         </div>
 
         {/* Right Header Actions: Status Changer & Refresh */}
-        <div className="flex items-center gap-3 pl-11 sm:pl-0">
+        <div className="flex flex-wrap items-center gap-3 pl-11 sm:pl-0">
           <div className="flex items-center gap-2 bg-white px-3 py-1.5 border border-bharati-mist rounded-md shadow-xs">
             <span className="text-xs text-bharati-ash font-medium">Status:</span>
             <div className="relative inline-block">

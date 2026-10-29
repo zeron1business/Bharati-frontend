@@ -126,7 +126,7 @@ export default function NewCategory() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Category Fields */}
-        <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
+        <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
           <h2 className="text-lg font-medium text-bharati-black border-b border-bharati-mist pb-2">Category Details</h2>
         
           <div>
@@ -164,7 +164,7 @@ export default function NewCategory() {
         </div>
 
         {/* Subcategories Section */}
-        <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
+        <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
           <div className="flex justify-between items-center border-b border-bharati-mist pb-2">
             <h2 className="text-lg font-medium text-bharati-black">Subcategories</h2>
             <button type="button" onClick={addSubcategory} className="flex items-center gap-2 text-sm text-bharati-gold hover:text-bharati-charcoal font-medium transition-colors">

@@ -115,7 +115,7 @@ export default function AdminCategories() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-light text-bharati-black tracking-wide">Categories</h1>
           {syncStatus === "syncing" && (
@@ -149,7 +149,7 @@ export default function AdminCategories() {
 
       <div className="bg-white rounded-lg shadow-sm border border-bharati-mist overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[650px] text-left text-sm">
             <thead className="bg-bharati-cream text-bharati-charcoal font-medium">
               <tr>
                 <th className="px-6 py-4">Category</th>

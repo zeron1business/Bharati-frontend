@@ -654,8 +654,8 @@ export default function AdminPromotionalSmsPage() {
 
               {/* Specific Customers Table */}
               <div className="border border-bharati-mist rounded-lg overflow-hidden bg-white">
-                <div className="max-h-[380px] overflow-y-auto">
-                  <table className="w-full text-left text-xs">
+                <div className="max-h-[380px] overflow-y-auto overflow-x-auto">
+                  <table className="w-full min-w-[500px] text-left text-xs">
                     <thead className="bg-bharati-cream/80 text-bharati-charcoal font-medium border-b border-bharati-mist sticky top-0 z-10">
                       <tr>
                         <th className="px-3.5 py-2.5 w-10 text-center">

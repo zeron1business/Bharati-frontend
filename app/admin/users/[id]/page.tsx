@@ -482,7 +482,7 @@ export default function AdminCustomerProfilePage({
             ) : (
               <div>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
+                  <table className="w-full min-w-[650px] text-left text-sm">
                     <thead className="bg-bharati-cream/50 text-bharati-charcoal font-medium border-b border-bharati-mist text-xs">
                       <tr>
                         <th className="px-5 py-3">Order #</th>

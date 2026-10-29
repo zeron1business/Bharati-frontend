@@ -270,7 +270,7 @@ export default function AdminPromosPage() {
       {/* Table */}
       <div className="bg-white rounded-lg shadow-sm border border-bharati-mist overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[700px] text-left text-sm">
             <thead className="bg-bharati-cream text-bharati-charcoal font-medium">
               <tr>
                 <th className="px-6 py-4">Code</th>

@@ -307,7 +307,7 @@ export default function AdminCustomersPage() {
       </div>
 
       {/* KPI Overview Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Customers */}
         <div className="bg-white rounded-lg border border-bharati-mist p-5 flex items-start gap-4 shadow-2xs">
           <div className="p-2.5 rounded-lg bg-purple-50 text-purple-600">
@@ -479,7 +479,7 @@ export default function AdminCustomersPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full min-w-[800px] text-left text-sm">
               <thead className="bg-bharati-cream text-bharati-charcoal font-medium border-b border-bharati-mist">
                 <tr>
                   <th className="px-6 py-3.5">Customer</th>

@@ -153,7 +153,7 @@ export default function AdminProducts() {
     <div className="space-y-6">
       {/* Floating toasts handle delete feedback now */}
 
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-light text-bharati-black tracking-wide">Products</h1>
           {syncStatus === "syncing" && (
@@ -187,7 +187,7 @@ export default function AdminProducts() {
 
       <div className="bg-white rounded-lg shadow-sm border border-bharati-mist overflow-hidden">
         <div className="p-4 border-b border-bharati-mist">
-          <form onSubmit={handleSearch} className="flex gap-4">
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-bharati-ash" size={18} />
               <input
@@ -205,7 +205,7 @@ export default function AdminProducts() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[700px] text-left text-sm">
             <thead className="bg-bharati-cream text-bharati-charcoal font-medium">
               <tr>
                 <th className="px-6 py-4">Product</th>

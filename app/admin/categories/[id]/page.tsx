@@ -408,7 +408,7 @@ export default function AdminCategoryDetailsPage({
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
+                <table className="w-full min-w-[550px] text-left text-sm">
                   <thead className="bg-bharati-cream/50 text-bharati-charcoal font-medium text-xs">
                     <tr>
                       <th className="px-5 py-3">Subcategory</th>

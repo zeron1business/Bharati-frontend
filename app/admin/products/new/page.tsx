@@ -421,7 +421,7 @@ export default function NewProduct() {
       {/* Floating toasts handle success/error feedback now */}
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
+        <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
           <h2 className="text-lg font-medium text-bharati-black border-b border-bharati-mist pb-2">Basic Information</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -491,7 +491,7 @@ export default function NewProduct() {
           </div>
         </div>
 
-        <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
+        <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
           <h2 className="text-lg font-medium text-bharati-black border-b border-bharati-mist pb-2">Warranty</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -521,7 +521,7 @@ export default function NewProduct() {
           </div>
         </div>
         
-        <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
+        <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-bharati-mist pb-3 gap-2">
             <div>
               <h2 className="text-lg font-medium text-bharati-black">Product Imagery</h2>
@@ -685,7 +685,7 @@ export default function NewProduct() {
           </div>
         </div>
 
-        <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
+        <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
           <div className="flex justify-between items-center border-b border-bharati-mist pb-2">
             <h2 className="text-lg font-medium text-bharati-black">Product Features</h2>
             <button type="button" onClick={addFeature} className="flex items-center gap-2 text-sm text-bharati-gold hover:text-bharati-charcoal font-medium transition-colors">
@@ -718,7 +718,7 @@ export default function NewProduct() {
           </div>
         </div>
 
-        <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
+        <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
           <div className="flex justify-between items-center border-b border-bharati-mist pb-2">
             <h2 className="text-lg font-medium text-bharati-black">Product Variants</h2>
             <button type="button" onClick={addVariant} className="flex items-center gap-2 text-sm text-bharati-gold hover:text-bharati-charcoal font-medium transition-colors">
@@ -889,7 +889,7 @@ export default function NewProduct() {
           </div>
         </div>
 
-        <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
+        <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
           <h2 className="text-lg font-medium text-bharati-black border-b border-bharati-mist pb-2">Settings</h2>
           
           <div>

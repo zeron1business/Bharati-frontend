@@ -122,7 +122,7 @@ export default function AdminOrdersPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Link
             href="/admin"
             className="p-2 rounded-md hover:bg-bharati-ivory text-bharati-ash hover:text-bharati-black transition-colors"
@@ -130,7 +130,7 @@ export default function AdminOrdersPage() {
             <ArrowLeft size={18} />
           </Link>
           <div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-2xl font-light text-bharati-black tracking-wide">
                 Orders
               </h1>
@@ -154,7 +154,7 @@ export default function AdminOrdersPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Status Filter */}
           <div className="relative">
             <select
@@ -189,7 +189,7 @@ export default function AdminOrdersPage() {
       {/* Orders Table */}
       <div className="bg-white rounded-lg shadow-sm border border-bharati-mist overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="bg-bharati-cream text-bharati-charcoal font-medium">
               <tr>
                 <th className="px-6 py-3">Order</th>

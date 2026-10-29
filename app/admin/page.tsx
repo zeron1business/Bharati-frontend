@@ -76,7 +76,27 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    fetchData();
+    let ignore = false;
+    Promise.all([
+      adminFetchDashboardStats(),
+      adminFetchRecentOrders(8),
+    ])
+      .then(([statsRes, ordersRes]) => {
+        if (!ignore) {
+          setStats(statsRes.data);
+          setRecentOrders(ordersRes.data);
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        if (!ignore) {
+          console.error("Failed to fetch dashboard data:", error);
+          setLoading(false);
+        }
+      });
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   if (loading) {
@@ -153,7 +173,7 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-light text-bharati-black tracking-wide">
             Dashboard
@@ -171,8 +191,8 @@ export default function AdminDashboard() {
         </button>
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Responsive Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((card) => {
           const cardContent = (
             <div
@@ -223,7 +243,7 @@ export default function AdminDashboard() {
             Manage Orders <ArrowRight size={14} />
           </Link>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {orderPipeline.map((item) => (
             <div
               key={item.label}
@@ -258,7 +278,7 @@ export default function AdminDashboard() {
         </div>
         <div className="bg-white rounded-lg shadow-sm border border-bharati-mist overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full min-w-[640px] text-left text-sm">
               <thead className="bg-bharati-cream text-bharati-charcoal font-medium">
                 <tr>
                   <th className="px-6 py-3">Order</th>
