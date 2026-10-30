@@ -16,6 +16,16 @@ const nextConfig: NextConfig = {
         hostname: "*.supabase.co",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "bharati-backend-production.up.railway.app",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "*.up.railway.app",
+        pathname: "/**",
+      },
     ],
   },
 };
