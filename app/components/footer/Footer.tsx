@@ -11,11 +11,11 @@ export function Footer() {
         <div className="mb-16 md:mb-20">
           <Link href="/" className="inline-block group" aria-label="BHARATI Home">
             <Image
-              src="/logo/LogoWithMoto_white.png"
-              alt="BHARATI — Elevate Your Cooking Game With Bharati"
+              src="/logo/bharati_wordmark_high_quality.png"
+              alt="BHARATI"
               width={260}
-              height={55}
-              className="h-10 md:h-12 w-auto object-contain transition-opacity duration-300 group-hover:opacity-90"
+              height={70}
+              className="h-10 md:h-12 w-auto object-contain brightness-0 invert transition-opacity duration-300 group-hover:opacity-90"
             />
           </Link>
         </div>

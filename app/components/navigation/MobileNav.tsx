@@ -126,10 +126,10 @@ export function MobileNav({ hasBanner = false }: MobileNavProps) {
                   className="flex items-center group py-1"
                 >
                   <Image
-                    src="/logo/BHARATILOGO_clean.png"
+                    src="/logo/bharati_wordmark_high_quality.png"
                     alt="BHARATI"
-                    width={140}
-                    height={30}
+                    width={160}
+                    height={43}
                     className="h-6 md:h-7 w-auto object-contain transition-opacity duration-300 group-hover:opacity-80"
                     priority
                   />

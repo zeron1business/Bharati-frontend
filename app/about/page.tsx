@@ -18,11 +18,11 @@ export default function AboutPage() {
             {/* Mobile Logo Panel */}
             <div className="lg:hidden flex items-center justify-center bg-gradient-to-br from-bharati-ivory to-bharati-cream rounded-2xl p-8 mb-8 border border-bharati-mist/60 shadow-xs">
               <Image
-                src="/logo/LogoWithMoto_clean.png"
-                alt="Bharati Logo"
+                src="/logo/bharati_wordmark_high_quality.png"
+                alt="BHARATI Logo"
                 width={260}
-                height={130}
-                className="w-[200px] h-auto object-contain opacity-85"
+                height={70}
+                className="w-[200px] h-auto object-contain opacity-90"
                 priority
               />
             </div>
@@ -50,11 +50,11 @@ export default function AboutPage() {
           {/* Right Column: Visual Brand Panel (Desktop) */}
           <div className="hidden lg:flex items-center justify-center bg-gradient-to-br from-bharati-ivory to-bharati-cream rounded-3xl p-16 min-h-[500px] border border-bharati-mist/60 shadow-xs">
             <Image
-              src="/logo/LogoWithMoto_clean.png"
-              alt="Bharati — Elevate Your Cooking Game"
+              src="/logo/bharati_wordmark_high_quality.png"
+              alt="BHARATI"
               width={400}
-              height={200}
-              className="w-full max-w-[340px] h-auto object-contain opacity-85 transition-transform duration-700 hover:scale-105"
+              height={108}
+              className="w-full max-w-[340px] h-auto object-contain opacity-90 transition-transform duration-700 hover:scale-105"
               priority
             />
           </div>
