@@ -47,6 +47,7 @@ export interface ProductCard {
   maxPrice?: number;
   sortOrder?: number;
   circularCoverUrl?: string | null;
+  group?: any;
 }
 
 export interface ProductDetail {
@@ -68,6 +69,7 @@ export interface ProductDetail {
   sortOrder?: number;
   features?: { title: string; description: string }[];
   circularCoverUrl?: string | null;
+  group?: any;
 }
 
 export interface PagedResponse<T> {

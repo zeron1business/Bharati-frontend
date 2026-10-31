@@ -76,6 +76,7 @@ export interface ProductDetail {
   stockQuantity?: number;
   inStock?: boolean;
   features?: { title: string; description: string }[];
+  group?: any;
 }
 
 export interface CartItem {
