@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { 
   adminCreateProduct, 
   adminFetchCategories, 
-  adminFetchSubcategories, 
+  adminFetchSubcategories,
+  adminFetchProductGroups, 
   adminUploadImage, 
   adminUploadImages,
   adminCheckSlug,
@@ -43,6 +44,7 @@ export default function NewProduct() {
   const [variantDeleteConfirmText, setVariantDeleteConfirmText] = useState("");
   
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [productGroups, setProductGroups] = useState<any[]>([]);
   const [warrantyPreset, setWarrantyPreset] = useState("");
 
   const [features, setFeatures] = useState<{title: string, description: string}[]>([]);
@@ -53,6 +55,9 @@ export default function NewProduct() {
     tagline: "",
     description: "",
     subcategoryId: "",
+    groupId: "",
+    groupLabel: "",
+    groupSortOrder: "0",
     badges: "[]",
     isActive: true,
     isFeatured: false,
@@ -93,6 +98,15 @@ export default function NewProduct() {
       }
     };
     fetchCategories();
+    const fetchGroups = async () => {
+      try {
+        const res = await adminFetchProductGroups();
+        if (res?.data) setProductGroups(res.data);
+      } catch (err) {
+        console.error("Failed to load product groups:", err);
+      }
+    };
+    fetchGroups();
   }, []);
 
   useEffect(() => {
@@ -389,6 +403,9 @@ export default function NewProduct() {
         ...formData,
         sortOrder: parseInt(formData.sortOrder) || 0,
         subcategoryId: formData.subcategoryId || null,
+        groupId: formData.groupId || null,
+        groupLabel: formData.groupLabel ? formData.groupLabel.trim() : null,
+        groupSortOrder: parseInt(formData.groupSortOrder) || 0,
         badges: parsedBadges,
         mediaUrls: coverImageUrl ? [coverImageUrl] : [],
         variants: formattedVariants,
@@ -487,6 +504,61 @@ export default function NewProduct() {
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
               </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Product Family / Sibling Types */}
+        <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-sm border border-bharati-mist space-y-6">
+          <div className="border-b border-bharati-mist pb-2 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-medium text-bharati-black">Product Family / Type Switcher</h2>
+              <p className="text-xs text-bharati-ash mt-0.5">
+                Link related products together (e.g. Regular, Belly, Handi) so customers can switch types directly from the product page.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-bharati-charcoal mb-2">Product Family</label>
+              <select
+                name="groupId"
+                value={formData.groupId}
+                onChange={handleChange}
+                className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors bg-white text-sm"
+              >
+                <option value="">None (Standalone Product)</option>
+                {productGroups.map((g) => (
+                  <option key={g.id} value={g.id}>{g.name} ({g.selectorLabel || 'Type'})</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-bharati-charcoal mb-2">Type Label (on button)</label>
+              <input
+                type="text"
+                name="groupLabel"
+                value={formData.groupLabel}
+                onChange={handleChange}
+                placeholder="e.g. Regular, Belly, Handi"
+                disabled={!formData.groupId}
+                className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors disabled:bg-gray-50 disabled:text-gray-400 text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-bharati-charcoal mb-2">Display Order</label>
+              <input
+                type="number"
+                name="groupSortOrder"
+                value={formData.groupSortOrder}
+                onChange={handleChange}
+                min="0"
+                disabled={!formData.groupId}
+                className="w-full p-3 border border-bharati-mist rounded-md focus:border-bharati-black transition-colors disabled:bg-gray-50 disabled:text-gray-400 text-sm"
+              />
             </div>
           </div>
         </div>

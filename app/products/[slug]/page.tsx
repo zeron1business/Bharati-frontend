@@ -60,6 +60,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     variants: any[];
     warrantyDuration: string;
     features: { title: string; description: string }[];
+    group?: any;
   } | null = null;
 
   try {
@@ -132,7 +133,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
         stockQuantity: stock > 0 ? stock : 50,
         variants: activeVariants,
         warrantyDuration: live.warrantyDuration || "5-Year Warranty",
-        features: live.features || []
+        features: live.features || [],
+        group: live.group || null
       };
     }
   } catch (error) {
@@ -163,7 +165,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
       stockQuantity: 50,
       variants: [],
       warrantyDuration: "5-Year Warranty",
-      features: []
+      features: [],
+      group: null
     };
   }
 
@@ -214,6 +217,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   productWarranty={productData.warrantyDuration}
                   productBaseImages={productData.images}
                   productOwnImages={productData.productOwnImages}
+                  group={productData.group}
                 />
               </div>
 

@@ -83,6 +83,16 @@ export const adminCheckSku = async (sku: string, excludeVariantId?: string): Pro
   return Boolean(res.data);
 };
 
+// Product Groups / Families
+export const adminFetchProductGroups = () => adminFetch("/product-groups");
+export const adminFetchProductGroup = (id: string) => adminFetch(`/product-groups/${id}`);
+export const adminCreateProductGroup = (data: { name: string; selectorLabel?: string }) => 
+  adminFetch("/product-groups", { method: "POST", body: JSON.stringify(data) });
+export const adminUpdateProductGroup = (id: string, data: { name?: string; selectorLabel?: string }) => 
+  adminFetch(`/product-groups/${id}`, { method: "PUT", body: JSON.stringify(data) });
+export const adminDeleteProductGroup = (id: string) => 
+  adminFetch(`/product-groups/${id}`, { method: "DELETE" });
+
 export const adminFetchCategories = () => adminFetch("/categories");
 
 export const adminFetchSubcategories = (categoryId: string) => adminFetch(`/categories/${categoryId}/subcategories`);

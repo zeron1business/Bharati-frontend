@@ -1,11 +1,30 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { Check, ShoppingBag, Plus, Minus, Truck, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { useProductImages } from "./ProductContext";
+
+interface ProductSibling {
+  id: string;
+  slug: string;
+  label: string;
+  name: string;
+  thumbnailUrl?: string;
+  minPrice?: number;
+  inStock?: boolean;
+  current?: boolean;
+}
+
+interface ProductGroup {
+  id?: string;
+  name?: string;
+  selectorLabel?: string;
+  siblings?: ProductSibling[];
+}
 
 interface Variant {
   id: string;
@@ -34,6 +53,7 @@ interface AddToCartSectionProps {
   productWarranty?: string;
   productBaseImages?: string[];
   productOwnImages?: string[];
+  group?: ProductGroup | null;
 }
 
 const EMPTY_IMAGES: string[] = [];
@@ -50,7 +70,9 @@ export function AddToCartSection({
   productWarranty = "5-Year Warranty",
   productBaseImages = EMPTY_IMAGES,
   productOwnImages = EMPTY_IMAGES,
+  group = null,
 }: AddToCartSectionProps) {
+  const searchParams = useSearchParams();
   const { addItem } = useCart();
   const { setActiveImages } = useProductImages();
   
@@ -88,14 +110,52 @@ export function AddToCartSection({
     return Array.from(new Set(available)) as string[];
   }, [variants, selectedInduction, uniqueInductions, uniqueMaterials]);
 
-  // Initialize selection with first variant if available
+  // Initialize selection with URL params or first variant if available
   useEffect(() => {
-      if (variants && variants.length > 0 && variants[0]) {
-          if (selectedInduction === null && variants[0].inductionCompatible != null) setSelectedInduction(variants[0].inductionCompatible);
-          if (selectedVolume === null && variants[0].volumeLitres != null) setSelectedVolume(variants[0].volumeLitres);
-          if (selectedMaterial === null && variants[0].materialType != null) setSelectedMaterial(variants[0].materialType);
+      if (variants && variants.length > 0) {
+          const qInduction = searchParams?.get("induction");
+          const qVolume = searchParams?.get("volume");
+
+          let targetInduction = selectedInduction;
+          if (targetInduction === null) {
+              if (qInduction === "true" && uniqueInductions.includes(true)) {
+                  targetInduction = true;
+              } else if (qInduction === "false" && uniqueInductions.includes(false)) {
+                  targetInduction = false;
+              } else if (variants[0].inductionCompatible != null) {
+                  targetInduction = variants[0].inductionCompatible;
+              }
+              if (targetInduction !== null) setSelectedInduction(targetInduction);
+          }
+
+          let targetVolume = selectedVolume;
+          if (targetVolume === null) {
+              const parsedVol = qVolume ? parseFloat(qVolume) : NaN;
+              if (!isNaN(parsedVol) && uniqueVolumes.includes(parsedVol)) {
+                  targetVolume = parsedVol;
+              } else if (variants[0].volumeLitres != null) {
+                  targetVolume = variants[0].volumeLitres;
+              }
+              if (targetVolume !== null) setSelectedVolume(targetVolume);
+          }
+
+          if (selectedMaterial === null && variants[0].materialType != null) {
+              setSelectedMaterial(variants[0].materialType);
+          }
       }
-  }, [hasVariants, variants]);
+  }, [hasVariants, variants, searchParams, uniqueInductions, uniqueVolumes]);
+
+  // Keep browser URL search params in sync smoothly
+  useEffect(() => {
+      if (typeof window !== "undefined" && (selectedInduction !== null || selectedVolume !== null)) {
+          const params = new URLSearchParams(window.location.search);
+          if (selectedInduction !== null) params.set("induction", String(selectedInduction));
+          if (selectedVolume !== null) params.set("volume", String(selectedVolume));
+          const qs = params.toString();
+          const newUrl = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+          window.history.replaceState(null, "", newUrl);
+      }
+  }, [selectedInduction, selectedVolume]);
 
   // 3. Find exact matching variant
   const selectedVariant = useMemo(() => {
@@ -240,8 +300,55 @@ export function AddToCartSection({
       </div>
       
       {/* Grouped Variant Selection */}
-      {(uniqueInductions.length > 0 || filteredVolumes.length > 0 || filteredMaterials.length > 0) && (
+      {(Boolean(group?.siblings && group.siblings.length > 1) || uniqueInductions.length > 0 || filteredVolumes.length > 0 || filteredMaterials.length > 0) && (
           <div className="space-y-5 pt-2">
+              {/* Product Type / Family Switcher */}
+              {group && group.siblings && group.siblings.length > 1 && (
+                  <div className="space-y-3">
+                      <span className="text-sm font-medium text-bharati-charcoal">
+                          {group.selectorLabel || "Type"}
+                      </span>
+                      <div className="flex flex-wrap gap-3">
+                          {group.siblings.map((sibling) => {
+                              const isCurrent = sibling.current || sibling.slug === slug;
+                              const params = new URLSearchParams();
+                              if (selectedInduction !== null) params.set("induction", String(selectedInduction));
+                              if (selectedVolume !== null) params.set("volume", String(selectedVolume));
+                              const qs = params.toString();
+                              const href = `/products/${sibling.slug}${qs ? `?${qs}` : ""}`;
+
+                              if (isCurrent) {
+                                  return (
+                                      <button
+                                          key={sibling.slug}
+                                          type="button"
+                                          disabled
+                                          className="px-4 py-2 text-sm rounded-md border border-bharati-mint-dark bg-bharati-mint/10 text-bharati-mint-dark font-medium shadow-sm cursor-default"
+                                      >
+                                          {sibling.label}
+                                      </button>
+                                  );
+                              }
+
+                              return (
+                                  <Link
+                                      key={sibling.slug}
+                                      href={href}
+                                      scroll={false}
+                                      prefetch
+                                      className="px-4 py-2 text-sm rounded-md border border-bharati-mist text-bharati-ash hover:border-bharati-charcoal/30 transition-all inline-flex items-center gap-1.5"
+                                  >
+                                      <span>{sibling.label}</span>
+                                      {sibling.inStock === false && (
+                                          <span className="text-[10px] text-gray-400 font-light">(Out of stock)</span>
+                                      )}
+                                  </Link>
+                              );
+                          })}
+                      </div>
+                  </div>
+              )}
+
               {/* Compatibility */}
               {uniqueInductions.length > 0 && (
                   <div className="space-y-3">
