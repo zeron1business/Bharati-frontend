@@ -180,6 +180,7 @@ export interface OrderDetail {
   tax: number;
   total: number;
   createdAt: string;
+  updatedAt?: string;
   paymentMode?: string;
   paymentStatus?: string;
   shippingName?: string;
@@ -191,6 +192,24 @@ export interface OrderDetail {
   shippingPincode?: string;
   shippingCountry?: string;
   items: OrderItemDetail[];
+}
+
+export interface TrackOrderItem {
+  titleSnapshot: string;
+  quantity: number;
+  productImageUrl?: string;
+}
+
+export interface TrackOrderData {
+  orderNumber: string;
+  status: string;
+  createdAt: string;
+  updatedAt?: string;
+  shippingCity?: string;
+  shippingState?: string;
+  shippingPincode?: string;
+  itemCount: number;
+  items: TrackOrderItem[];
 }
 
 export interface ApiResponse<T> {
