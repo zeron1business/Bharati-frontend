@@ -371,7 +371,7 @@ export function CategoryImageUploader({
               </button>
             </div>
             <p className="text-[11px] text-bharati-ash">
-              You can reference local static paths (e.g. <code>/products/Cooker-front.jpg</code>) or remote Supabase/CDN URLs.
+              You can reference local static paths (e.g. <code>/products/Cooker-front.jpg</code>) or remote CDN/image URLs.
             </p>
           </div>
         )}
@@ -379,3 +379,4 @@ export function CategoryImageUploader({
     </div>
   );
 }
+
